@@ -1,0 +1,22 @@
+<launch>
+  <arg name="left_handed" default="false" />
+  <arg name="trim_speed" default="0.25" />
+
+  <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" />
+
+  <node name="flock_base_node" pkg="flock_base" type="flock_base.py" output="screen">
+    <param name="left_handed" type="boolean" value="$(arg left_handed)" />
+    <param name="trim_speed" type="double" value="$(arg trim_speed)" />
+  </node>
+
+  <node name="detect_aruco_node" pkg="flock_base" type="detect_aruco.py" output="screen" />
+
+  <node name="joystick" pkg="joy" type="joy_node" output="screen" />
+
+  <!-- Run rviz with a canned layout -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find flock_rviz)/cfg/default.rviz" output="screen" />
+
+  <!-- Load robot description -->
+  <include file="$(find flock_description)/launch/description.launch" />
+
+</launch>

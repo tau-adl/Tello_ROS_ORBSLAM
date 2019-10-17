@@ -1,0 +1,8 @@
+prefix=/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_msgs
+
+Name: flock_msgs
+Description: Description of flock_msgs
+Version: 0.1.0
+Cflags: -I/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_msgs/include
+Libs: -L/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_msgs/lib 
+Requires: message_runtime

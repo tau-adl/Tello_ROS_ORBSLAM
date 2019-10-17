@@ -1,0 +1,1 @@
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/svo_msgs/share/roseus/ros/svo_msgs/msg/NbvTrajectory.l

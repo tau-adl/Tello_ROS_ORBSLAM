@@ -1,0 +1,10 @@
+\subsubsection usage Usage
+\verbatim
+<node name="orb_slam2_ros" pkg="orb_slam2_ros" type="orb_slam2_ros">
+  <param name="localize_only" type="bool" value="False" />
+  <param name="reset_map" type="bool" value="False" />
+  <param name="min_num_kf_in_map" type="int" value="5" />
+  <param name="min_observations_for_ros_map" type="int" value="4" />
+</node>
+\endverbatim
+

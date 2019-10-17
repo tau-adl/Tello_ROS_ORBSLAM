@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+
+  <name>flock_base</name>
+  <version>0.1.0</version>
+  <description>Flock base</description>
+
+  <maintainer email="clyde@mcqueen.net">Clyde McQueen</maintainer>
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/clydemcqueen/flock.git</url>
+  <url type="bugtracker">https://github.com/clydemcqueen/flock/issues</url>
+
+  <author>Clyde McQueen</author>
+  <author>Peter Mullen</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>cv_bridge</depend>
+  <depend>flock_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+
+</package>

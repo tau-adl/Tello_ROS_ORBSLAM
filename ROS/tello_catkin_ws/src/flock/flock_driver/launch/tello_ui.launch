@@ -1,0 +1,8 @@
+<launch>
+
+    <node name="tello_ui" pkg="flock_driver" type="tello_ui.py" output="screen" >
+        <!-- <remap from="/camera/image_raw" to="/rectify/image_color" /> -->
+    </node>
+
+
+</launch>

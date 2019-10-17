@@ -1,0 +1,21 @@
+<launch>
+
+    <node name="euroc_camera_info" pkg="flock_driver" type="euroc_camera_info.py" output="screen" >
+        <!-- <remap from="/euroc/camera_info" to="/rectify/camera_info" /> -->
+        <remap from="/euroc/camera_info" to="/monocular/camera_info" />
+        <remap from="euroc/image_raw" to="/rectify/image_raw" />
+    </node>
+
+    <!-- <node name="rectify" pkg="image_proc" 
+        type="rectify.py" output="screen">
+        <remap from="/camera/image_raw" to="/camera/rgb/image_raw" />
+     </node>-->
+
+    <node name="rectify" pkg="image_proc" type="image_proc" ns="rectify">
+      <!-- <remap from="euroc/image_raw" to="/rectify/image_raw" /> -->
+      <remap from="/rectify/image_rect" to="/monocular/image_rect" />
+      <remap from="/rectify/camera_info" to="/monocular/camera_info" />
+    </node>
+
+
+</launch>

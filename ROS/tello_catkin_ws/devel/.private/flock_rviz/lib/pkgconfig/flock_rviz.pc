@@ -1,0 +1,8 @@
+prefix=/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_rviz
+
+Name: flock_rviz
+Description: Description of flock_rviz
+Version: 0.1.0
+Cflags: 
+Libs: -L/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_rviz/lib 
+Requires: 

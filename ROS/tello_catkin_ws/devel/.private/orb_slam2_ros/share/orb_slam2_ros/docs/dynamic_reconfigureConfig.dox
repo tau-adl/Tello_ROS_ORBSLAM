@@ -1,0 +1,9 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~localize_only" : \b [bool] Disable mapping, localize only min: False, default: False, max: True
+- \b "~reset_map" : \b [bool] Erase the map; toggles back to false automatically min: False, default: False, max: True
+- \b "~min_num_kf_in_map" : \b [int] Minimum number of key frames in the map for initialization min: 1, default: 5, max: 50
+- \b "~min_observations_for_ros_map" : \b [int] Min num of observations per point for the point cloud; Doesn't change the SLAM itself min: 2, default: 4, max: 30
+

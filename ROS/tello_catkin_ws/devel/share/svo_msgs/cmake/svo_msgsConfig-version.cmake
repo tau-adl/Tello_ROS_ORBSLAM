@@ -1,0 +1,1 @@
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/svo_msgs/share/svo_msgs/cmake/svo_msgsConfig-version.cmake

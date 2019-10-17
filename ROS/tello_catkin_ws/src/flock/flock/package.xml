@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+
+  <name>flock</name>
+  <version>0.1.0</version>
+  <description>ROS driver for Tello drones</description>
+
+  <maintainer email="clyde@mcqueen.net">Clyde McQueen</maintainer>
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/clydemcqueen/flock.git</url>
+  <url type="bugtracker">https://github.com/clydemcqueen/flock/issues</url>
+
+  <author>Clyde McQueen</author>
+  <author>Peter Mullen</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>flock_base</exec_depend>
+  <exec_depend>flock_description</exec_depend>
+  <exec_depend>flock_driver</exec_depend>
+  <exec_depend>flock_msgs</exec_depend>
+  <exec_depend>flock_rviz</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

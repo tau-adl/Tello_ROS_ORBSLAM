@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/arkadiros/ROS/tello_catkin_ws/devel/.private/rqt_tello/setup.sh

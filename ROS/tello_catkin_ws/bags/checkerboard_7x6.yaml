@@ -1,0 +1,6 @@
+target_type: 'checkerboard' #gridtype
+targetCols: 6               #number of internal chessboard corners
+targetRows: 7               #number of internal chessboard corners
+rowSpacingMeters: 0.06      #size of one chessboard square [m]
+colSpacingMeters: 0.06      #size of one chessboard square [m]
+

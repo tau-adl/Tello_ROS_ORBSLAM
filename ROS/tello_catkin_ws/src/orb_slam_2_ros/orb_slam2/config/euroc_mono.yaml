@@ -1,0 +1,89 @@
+%YAML:1.0
+
+# Camera calibration and distortion parameters (OpenCV)
+
+Camera.fx: 462.880355
+Camera.fy: 461.901489
+Camera.cx: 365.972337
+Camera.cy: 247.068837
+# camera_matrix:
+#   data: [462.880355, 0.000000, 365.972337, 0.000000, 461.901489, 247.068837, 0.000000, 0.000000, 1.000000]
+
+          # [ fx        0           cx]
+          # [ 0         fy          cy]
+          # [ 0         0           1 ]
+
+
+Camera.k1: -0.283525
+Camera.k2: 0.074111
+Camera.p1: 0.000145
+Camera.p2: -0.000337
+Camera.k3: 0.0
+# distortion_coefficients:
+# data: [-0.283525, 0.074111, 0.000145, -0.000337, 0.000000]
+
+
+Camera.width: 752
+Camera.height: 480
+
+# Camera frames per second
+# Camera.fps: 60.0
+Camera.fps: 20.0
+
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+Camera.RGB: 1
+
+#--------------------------------------------------------------------------------------------
+# ORB Parameters
+#--------------------------------------------------------------------------------------------
+
+# ORB Extractor: Number of features per image
+ORBextractor.nFeatures: 2000
+
+# ORB Extractor: Scale factor between levels in the scale pyramid
+ORBextractor.scaleFactor: 1.2
+
+# ORB Extractor: Number of levels in the scale pyramid
+ORBextractor.nLevels: 8
+
+# ORB Extractor: Fast threshold
+# Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+# Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+# You can lower these values if your images have low contrast
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+
+# image_width: 752
+# image_height: 480
+# camera_name: narrow_stereo
+# camera_matrix:
+#   rows: 3
+#   cols: 3
+#   data: [462.880355, 0.000000, 365.972337, 0.000000, 461.901489, 247.068837, 0.000000, 0.000000, 1.000000]
+# distortion_model: plumb_bob
+# distortion_coefficients:
+#   rows: 1
+#   cols: 5
+#   data: [-0.283525, 0.074111, 0.000145, -0.000337, 0.000000]
+# rectification_matrix:
+#   rows: 3
+#   cols: 3
+#   data: [1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000]
+# projection_matrix:
+#   rows: 3
+#   cols: 4
+#   data: [361.042694, 0.000000, 360.074173, 0.000000, 0.000000, 423.122498, 248.546022, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#--------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize:2
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3
+Viewer.ViewpointX: 0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -1.8
+Viewer.ViewpointF: 500
