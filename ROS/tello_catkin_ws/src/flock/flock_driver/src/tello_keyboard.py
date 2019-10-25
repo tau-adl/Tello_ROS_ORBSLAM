@@ -279,7 +279,7 @@ if __name__=="__main__":
                 
             
 
-            # pub_twist.publish(twist)
+            pub_twist.publish(twist)
 
             time.sleep(0.033)  # loop with pygame.event.get() is too mush tight w/o some sleep
             # twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0

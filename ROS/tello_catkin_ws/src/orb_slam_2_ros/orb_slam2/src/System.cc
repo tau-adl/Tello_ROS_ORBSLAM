@@ -23,15 +23,16 @@
 #include "System.h"
 #include "Converter.h"
 #include <thread>
+#include <pangolin/pangolin.h>
 #include <iomanip>
 
 namespace ORB_SLAM2
 {
 
 System::System(const string strVocFile, const string strSettingsFile, const eSensor sensor,
-               const std::string & map_file, bool load_map): // map serialization addition
-               mSensor(sensor), mbReset(false),mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false),
-               map_file(map_file), load_map(load_map)
+               const bool bUseViewer, const std::string & map_file, bool load_map): // map serialization addition
+               mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),mbActivateLocalizationMode(false), 
+			   mbDeactivateLocalizationMode(false), map_file(map_file), load_map(load_map)
 {
     // Output welcome message
     cout << endl <<
@@ -99,11 +100,15 @@ System::System(const string strVocFile, const string strSettingsFile, const eSen
 
     //Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
+    cout << "Created Frame Drawer!" << endl << endl;
+    mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
 
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
-    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer,
+    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
                              mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
+
+    cout << "Created Tracking!" << endl << endl;
 
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
@@ -113,6 +118,15 @@ System::System(const string strVocFile, const string strSettingsFile, const eSen
     mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
 
+    //Initialize the Viewer thread and launch
+    if(bUseViewer)
+    {
+        cout << "parameter use_viewer is True!" << endl << endl;
+        mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile);
+        cout << "Created Viewer!" << endl << endl;
+        mptViewer = new thread(&Viewer::Run, mpViewer);
+        mpTracker->SetViewer(mpViewer);
+    }
     //Set pointers between threads
     mpTracker->SetLocalMapper(mpLocalMapper);
     mpTracker->SetLoopClosing(mpLoopCloser);
@@ -126,7 +140,7 @@ System::System(const string strVocFile, const string strSettingsFile, const eSen
     currently_localizing_only_ = false;
 }
 
-void System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp)
+cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp)
 {
     if(mSensor!=STEREO)
     {
@@ -175,9 +189,10 @@ void System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const do
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
     current_position_ = Tcw;
+    return Tcw;
 }
 
-void System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp)
+cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp)
 {
     if(mSensor!=RGBD)
     {
@@ -226,9 +241,10 @@ void System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double 
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
     current_position_ = Tcw;
+    return Tcw;
 }
 
-void System::TrackMonocular(const cv::Mat &im, const double &timestamp)
+cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
     if(mSensor!=MONOCULAR)
     {
@@ -278,7 +294,10 @@ void System::TrackMonocular(const cv::Mat &im, const double &timestamp)
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
     current_position_ = Tcw;
+    return Tcw;
 }
+
+
 
 bool System::MapChanged()
 {
@@ -303,12 +322,21 @@ void System::Shutdown()
 {
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
+    if(mpViewer)
+    {
+        mpViewer->RequestFinish();
+        while(!mpViewer->isFinished())
+            usleep(5000);
+    }
 
     // Wait until all thread have effectively stopped
     while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
     {
         std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
+
+    if(mpViewer)
+        pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 }
 
 void System::SaveTrajectoryTUM(const string &filename)

@@ -95,7 +95,7 @@ class FlockDriver(object):
         self._drone.start_video()
         # self._drone.set_loglevel('LOG_ERROR')
 
-        print('debug')
+        # print('debug')
         # Listen to flight data messages
         self._drone.subscribe(self._drone.EVENT_FLIGHT_DATA, self.flight_data_callback)
 
@@ -220,7 +220,8 @@ class FlockDriver(object):
         if data.wind_state:
             print('wind_state is nonzero: %d' % data.wind_state)
         if data.temperature_height:
-        	print('temperature_height is nonzero: %d' % data.temperature_height)
+            pass
+        	# print('temperature_height is nonzero: %d' % data.temperature_height)
 
     def cmd_vel_callback(self, msg):
         self._drone.set_pitch(msg.linear.x)

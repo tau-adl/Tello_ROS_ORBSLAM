@@ -84,6 +84,7 @@ class Node
     std::string map_file_name_param_;
     std::string voc_file_name_param_;
     std::string settings_file_name_param_;
+    bool use_viewer_param;
     bool load_map_param_;
     bool publish_pointcloud_param_;
     bool publish_pose_param_;

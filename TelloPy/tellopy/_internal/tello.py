@@ -5,6 +5,7 @@ import datetime
 import struct
 import sys
 import os
+import signal
 
 from . import crc
 from . import logger
@@ -62,6 +63,10 @@ class Tello(object):
     LOG_ALL = logger.LOG_ALL
 
     def __init__(self, port=9000):
+
+        signal.signal(signal.SIGINT, self.quit)
+        signal.signal(signal.SIGTERM, self.quit)
+
         self.tello_addr = ('192.168.10.1', 8889)
         self.debug = False
         self.pkt_seq_num = 0x01e4
@@ -198,12 +203,20 @@ class Tello(object):
         pkt.fixup()
         return self.send_packet(pkt)
 
-    def quit(self):
+    def quit(self, *args):
         """Quit stops the internal threads."""
         log.info('tello driver starting quit')
         if self.log_data_file:
             self.log_data_file.close()
+        # self.connected.clear()
+        self.connected.set()
+        time.sleep(0.1)
         self.__publish(event=self.__EVENT_QUIT_REQ)
+        time.sleep(0.2)
+        self.__publish(event=self.__EVENT_QUIT_REQ)
+        time.sleep(0.2)
+        sys.exit(0)
+
 
     def __send_time_command(self):
         log.info('send_time (cmd=0x%02x seq=0x%04x)' % (TIME_CMD, self.pkt_seq_num))
@@ -235,6 +248,8 @@ class Tello(object):
 
     def start_video(self):
         """Start_video tells the drone to send start info (SPS/PPS) for video stream."""
+        if self.state == self.STATE_QUIT:
+            return
         log.info('start video (cmd=0x%02x seq=0x%04x)' % (VIDEO_START_CMD, self.pkt_seq_num))
         self.video_enabled = True
         self.__send_exposure()
@@ -394,8 +409,8 @@ class Tello(object):
         Set_throttle controls the vertical up and down motion of the drone.
         Pass in an int from -1.0 ~ 1.0. (positive value means upward)
         """
-        if self.left_y != self.__fix_range(throttle):
-            log.info('set_throttle(val=%4.2f)' % throttle)
+        # if self.left_y != self.__fix_range(throttle):
+            # log.info('set_throttle(val=%4.2f)' % throttle)
         self.left_y = self.__fix_range(throttle)
 
     def set_yaw(self, yaw):
@@ -403,8 +418,8 @@ class Tello(object):
         Set_yaw controls the left and right rotation of the drone.
         Pass in an int from -1.0 ~ 1.0. (positive value will make the drone turn to the right)
         """
-        if self.left_x != self.__fix_range(yaw):
-            log.info('set_yaw(val=%4.2f)' % yaw)
+        # if self.left_x != self.__fix_range(yaw):
+            # log.info('set_yaw(val=%4.2f)' % yaw)
         self.left_x = self.__fix_range(yaw)
 
     def set_pitch(self, pitch):
@@ -412,8 +427,8 @@ class Tello(object):
         Set_pitch controls the forward and backward tilt of the drone.
         Pass in an int from -1.0 ~ 1.0. (positive value will make the drone move forward)
         """
-        if self.right_y != self.__fix_range(pitch):
-            log.info('set_pitch(val=%4.2f)' % pitch)
+        # if self.right_y != self.__fix_range(pitch):
+            # log.info('set_pitch(val=%4.2f)' % pitch)
         self.right_y = self.__fix_range(pitch)
 
     def set_roll(self, roll):
@@ -421,8 +436,8 @@ class Tello(object):
         Set_roll controls the the side to side tilt of the drone.
         Pass in an int from -1.0 ~ 1.0. (positive value will make the drone move to the right)
         """
-        if self.right_x != self.__fix_range(roll):
-            log.info('set_roll(val=%4.2f)' % roll)
+        # if self.right_x != self.__fix_range(roll):
+            # log.info('set_roll(val=%4.2f)' % roll)
         self.right_x = self.__fix_range(roll)
 
     def set_high_speed_mode(self, high_speed_mode):
@@ -704,6 +719,10 @@ class Tello(object):
                 except socket.timeout as ex:
                     if self.state == self.STATE_CONNECTED:
                         log.error('recv: timeout')
+                    elif self.state == self.STATE_QUIT:
+                        self.land()
+                        log.info('exit from the recv thread.')
+                        break
                     self.__publish(event=self.__EVENT_TIMEOUT)
                 except Exception as ex:
                     log.error('recv: %s' % str(ex))
