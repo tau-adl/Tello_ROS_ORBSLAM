@@ -200,9 +200,22 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Map.cc -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.s
 
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/MapDrawer.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/MapDrawer.cc
+
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/MapDrawer.cc > CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.i
+
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/MapDrawer.cc -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.s
+
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Optimizer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Optimizer.cc
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.i: cmake_force
@@ -215,7 +228,7 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.s: cmake_force
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/PnPsolver.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/PnPsolver.cc
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.i: cmake_force
@@ -228,7 +241,7 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.s: cmake_force
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Frame.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Frame.cc
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.i: cmake_force
@@ -241,7 +254,7 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.s: cmake_force
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/KeyFrameDatabase.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/KeyFrameDatabase.cc
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.i: cmake_force
@@ -254,7 +267,7 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.s: cmake_force
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Sim3Solver.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Sim3Solver.cc
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.i: cmake_force
@@ -267,7 +280,7 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.s: cmake_force
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Initializer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Initializer.cc
 
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.i: cmake_force
@@ -277,6 +290,19 @@ CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.i: cmake_force
 CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Initializer.cc -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.s
+
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o: CMakeFiles/orb_slam2_ros.dir/flags.make
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Viewer.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o -c /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Viewer.cc
+
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Viewer.cc > CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.i
+
+CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/src/Viewer.cc -o CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.s
 
 # Object files for target orb_slam2_ros
 orb_slam2_ros_OBJECTS = \
@@ -291,12 +317,14 @@ orb_slam2_ros_OBJECTS = \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapPoint.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrame.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.o" \
+"CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o" \
 "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o" \
-"CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o"
+"CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o" \
+"CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o"
 
 # External object files for target orb_slam2_ros
 orb_slam2_ros_EXTERNAL_OBJECTS =
@@ -312,12 +340,14 @@ orb_slam2_ros_EXTERNAL_OBJECTS =
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapPoint.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrame.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.o
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Optimizer.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/PnPsolver.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Frame.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/KeyFrameDatabase.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Initializer.cc.o
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/build.make
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_stitching3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_superres3.so.3.3.1
@@ -347,6 +377,7 @@ orb_slam2_ros_EXTERNAL_OBJECTS =
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_xphoto3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/DBoW2/lib/libDBoW2.so
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/g2o/lib/libg2o.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src/libpangolin.so
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libboost_serialization.so
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_shape3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_photo3.so.3.3.1
@@ -367,8 +398,30 @@ orb_slam2_ros_EXTERNAL_OBJECTS =
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_objdetect3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_imgproc3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_core3.so.3.3.1
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libGL.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libGLU.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libGLEW.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libEGL.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libwayland-client.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libwayland-egl.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libwayland-cursor.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libSM.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libICE.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libX11.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libXext.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/local/lib/libavcodec.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/local/lib/libavformat.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/local/lib/libavutil.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/local/lib/libswscale.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/local/lib/libavdevice.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/libOpenNI.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libpng.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libz.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libjpeg.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/libtiff.so
+/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: /usr/lib/x86_64-linux-gnu/liblz4.so
 /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so: CMakeFiles/orb_slam2_ros.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Linking CXX shared library /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Linking CXX shared library /home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib/liborb_slam2_ros.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/orb_slam2_ros.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

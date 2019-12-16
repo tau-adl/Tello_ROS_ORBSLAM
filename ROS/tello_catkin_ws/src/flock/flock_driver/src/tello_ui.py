@@ -31,6 +31,11 @@ class TelloUI(object):
         signal.signal(signal.SIGINT, self.onClose)
         signal.signal(signal.SIGTERM, self.onClose)
 
+        try: 
+            self.id                = rospy.get_param('~ID')
+        except KeyError:
+            self.id = 0
+        self.publish_prefix = "tello{}/".format(self.id)
 
 
         self.point_command_pos = Point(0.0, 0.0, 1.0)
@@ -45,6 +50,7 @@ class TelloUI(object):
 
         self.allow_slam_control = False
 
+        self.current_mux = 0
         # initialize the root window and image panel
         self.root = root
 
@@ -119,27 +125,33 @@ class TelloUI(object):
         self.kp = Pose()
 
         rospy.Subscriber('/orb_slam2_mono/pose', PoseStamped, self.slam_callback)
-        rospy.Subscriber('/tello/delta_pos', Point, self.delta_pos_callback)
-        rospy.Subscriber('cmd_vel', Twist, self.speed_callback)
-        rospy.Subscriber('flight_data', FlightData, self.flightdata_callback)
-        rospy.Subscriber('/tello/allow_slam_control', Bool, self.allow_slam_control_callback)
-        rospy.Subscriber('/tello/real_world_scale', Float32, self.real_world_scale_callback)
-        rospy.Subscriber('/tello/real_world_pos', PoseStamped, self.real_world_pos_callback) 
-        rospy.Subscriber('/tello/rotated_pos', Point, self.rotated_pos_callback)
-        rospy.Subscriber('/tello/command_pos', Pose, self.command_pos_callback)
-        rospy.Subscriber('/tello/orientation', Point, self.orientation_callback)
+        rospy.Subscriber(self.publish_prefix+'delta_pos', Point, self.delta_pos_callback)
+        rospy.Subscriber(self.publish_prefix+'cmd_vel', Twist, self.speed_callback)
+        rospy.Subscriber(self.publish_prefix+'flight_data', FlightData, self.flightdata_callback)
+        rospy.Subscriber(self.publish_prefix+'allow_slam_control', Bool, self.allow_slam_control_callback)
+        rospy.Subscriber(self.publish_prefix+'real_world_scale', Float32, self.real_world_scale_callback)
+        rospy.Subscriber(self.publish_prefix+'real_world_pos', PoseStamped, self.real_world_pos_callback) 
+        rospy.Subscriber(self.publish_prefix+'rotated_pos', Point, self.rotated_pos_callback)
+        rospy.Subscriber(self.publish_prefix+'command_pos', Pose, self.command_pos_callback)
+        rospy.Subscriber(self.publish_prefix+'orientation', Point, self.orientation_callback)
 
-        self.command_pos_publisher = rospy.Publisher('/tello/command_pos', Pose, queue_size = 1)
-        self.pub_takeoff = rospy.Publisher('takeoff', Empty, queue_size=1)
-        self.pub_land = rospy.Publisher('land', Empty, queue_size=1)
-        self.pub_allow_slam_control = rospy.Publisher('/tello/allow_slam_control', Bool, queue_size=1)
-        self.cmd_val_publisher = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
-        self.calibrate_real_world_scale_publisher = rospy.Publisher('/tello/calibrate_real_world_scale', Empty, queue_size = 1)
-        self.scan_room_publisher = rospy.Publisher('/tello/scan_room', Bool, queue_size = 1)
-        self.kd_publisher = rospy.Publisher('/tello/kd', Pose, queue_size = 1)
-        self.kp_publisher = rospy.Publisher('/tello/kp', Pose, queue_size = 1)
+        self.command_pos_publisher = rospy.Publisher(self.publish_prefix+'command_pos', Pose, queue_size = 1)
+        self.pub_takeoff = rospy.Publisher(self.publish_prefix+'takeoff', Empty, queue_size=1)
+        self.pub_land = rospy.Publisher(self.publish_prefix+'land', Empty, queue_size=1)
+        self.pub_allow_slam_control = rospy.Publisher(self.publish_prefix+'allow_slam_control', Bool, queue_size=1)
+        self.cmd_val_publisher = rospy.Publisher(self.publish_prefix+'cmd_vel', Twist, queue_size = 1)
+        self.calibrate_real_world_scale_publisher = rospy.Publisher(self.publish_prefix+'calibrate_real_world_scale', Empty, queue_size = 1)
+        self.scan_room_publisher = rospy.Publisher(self.publish_prefix+'scan_room', Bool, queue_size = 1)
+        self.kd_publisher = rospy.Publisher(self.publish_prefix+'kd', Pose, queue_size = 1)
+        self.kp_publisher = rospy.Publisher(self.publish_prefix+'kp', Pose, queue_size = 1)
+        self.kp_publisher = rospy.Publisher(self.publish_prefix+'kp', Pose, queue_size = 1)
+        self.pub_mux =  rospy.Publisher('tello_mux', Int32, queue_size = 1)
+        
 
         self.publish_command()
+
+
+
 
     def nothing(self):
         rospy.loginfo("nothing")
@@ -723,6 +735,9 @@ class TelloUI(object):
         self.title_label_real_world = tki.Label(self.frame_real_world, text="Real World Position[Meters]", font=("Helvetica", 13))
         self.title_label_real_world.grid(row=self.frame_row, column=1, padx=10, pady=5)
 
+        self.btn_change_mux_toggle = tki.Button(self.frame_real_world, text="Change Mux!", command=self.change_mux)
+        self.btn_change_mux_toggle.grid(row=self.frame_row, column=3, padx=10, pady=5)
+
         self.frame_row += 1
 
         self.real_world_label_x = tki.Label(self.frame_real_world, text="X")
@@ -1137,6 +1152,11 @@ class TelloUI(object):
 
     def takeoff(self):
         self.pub_takeoff.publish()
+
+
+    def change_mux(self):
+        self.current_mux = 1-self.current_mux
+        self.pub_mux.publish(self.current_mux)
 
     def land(self):
         self.pub_land.publish()

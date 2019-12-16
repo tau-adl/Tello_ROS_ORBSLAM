@@ -36,7 +36,13 @@ struct FlightData_
     , high_temperature(false)
     , em_ground(false)
     , em_open(false)
-    , em_sky(false)  {
+    , em_sky(false)
+    , pitch(0.0)
+    , roll(0.0)
+    , yaw(0.0)
+    , agx(0.0)
+    , agy(0.0)
+    , agz(0.0)  {
     }
   FlightData_(const ContainerAllocator& _alloc)
     : battery_percent(0)
@@ -51,7 +57,13 @@ struct FlightData_
     , high_temperature(false)
     , em_ground(false)
     , em_open(false)
-    , em_sky(false)  {
+    , em_sky(false)
+    , pitch(0.0)
+    , roll(0.0)
+    , yaw(0.0)
+    , agx(0.0)
+    , agy(0.0)
+    , agz(0.0)  {
   (void)_alloc;
     }
 
@@ -95,6 +107,24 @@ struct FlightData_
 
    typedef uint8_t _em_sky_type;
   _em_sky_type em_sky;
+
+   typedef float _pitch_type;
+  _pitch_type pitch;
+
+   typedef float _roll_type;
+  _roll_type roll;
+
+   typedef float _yaw_type;
+  _yaw_type yaw;
+
+   typedef float _agx_type;
+  _agx_type agx;
+
+   typedef float _agy_type;
+  _agy_type agy;
+
+   typedef float _agz_type;
+  _agz_type agz;
 
 
 
@@ -200,12 +230,12 @@ struct MD5Sum< ::flock_msgs::FlightData_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "aea1f1ee32ab41906cd3b81038074ba3";
+    return "1fbfcd738c3afa96d840f05b5d17f7de";
   }
 
   static const char* value(const ::flock_msgs::FlightData_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xaea1f1ee32ab4190ULL;
-  static const uint64_t static_value2 = 0x6cd3b81038074ba3ULL;
+  static const uint64_t static_value1 = 0x1fbfcd738c3afa96ULL;
+  static const uint64_t static_value2 = 0xd840f05b5d17f7deULL;
 };
 
 template<class ContainerAllocator>
@@ -261,6 +291,14 @@ bool high_temperature               # It's getting warm in here\n\
 bool em_ground                      # ???\n\
 bool em_open                        # ???\n\
 bool em_sky                         # ???\n\
+\n\
+\n\
+float32 pitch\n\
+float32 roll\n\
+float32 yaw\n\
+float32 agx\n\
+float32 agy\n\
+float32 agz\n\
 ";
   }
 
@@ -292,6 +330,12 @@ namespace serialization
       stream.next(m.em_ground);
       stream.next(m.em_open);
       stream.next(m.em_sky);
+      stream.next(m.pitch);
+      stream.next(m.roll);
+      stream.next(m.yaw);
+      stream.next(m.agx);
+      stream.next(m.agy);
+      stream.next(m.agz);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -336,6 +380,18 @@ struct Printer< ::flock_msgs::FlightData_<ContainerAllocator> >
     Printer<uint8_t>::stream(s, indent + "  ", v.em_open);
     s << indent << "em_sky: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.em_sky);
+    s << indent << "pitch: ";
+    Printer<float>::stream(s, indent + "  ", v.pitch);
+    s << indent << "roll: ";
+    Printer<float>::stream(s, indent + "  ", v.roll);
+    s << indent << "yaw: ";
+    Printer<float>::stream(s, indent + "  ", v.yaw);
+    s << indent << "agx: ";
+    Printer<float>::stream(s, indent + "  ", v.agx);
+    s << indent << "agy: ";
+    Printer<float>::stream(s, indent + "  ", v.agy);
+    s << indent << "agz: ";
+    Printer<float>::stream(s, indent + "  ", v.agz);
   }
 };
 

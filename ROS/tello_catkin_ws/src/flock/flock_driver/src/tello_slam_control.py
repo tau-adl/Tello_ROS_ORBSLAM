@@ -25,13 +25,20 @@ class TelloSlamControler(object):
 
         self.time_of_takeoff = time.time() - 1000
 
+        try: 
+            self.id                = rospy.get_param('~ID')
+        except KeyError:
+            self.id = 0
+        self.publish_prefix = "tello{}/".format(self.id)
 
-        self.pub_twist = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
-        self.delta_pub = rospy.Publisher('/tello/delta_pos', Point, queue_size = 1)
-        self.real_world_pub = rospy.Publisher('/tello/real_world_pos', PoseStamped, queue_size = 1)
-        self.real_world_scale_pub = rospy.Publisher('/tello/real_world_scale', Float32, queue_size = 1)
-        self.rotated_pos_pub = rospy.Publisher('/tello/rotated_pos', Point, queue_size = 1)
-        self.slam_orientation_pub = rospy.Publisher('/tello/orientation', Point, queue_size = 1)
+
+        self.pub_twist = rospy.Publisher(self.publish_prefix+'cmd_vel', Twist, queue_size = 1)
+        self.delta_pub = rospy.Publisher(self.publish_prefix+'delta_pos', Point, queue_size = 1)
+        self.real_world_pub = rospy.Publisher(self.publish_prefix+'real_world_pos', PoseStamped, queue_size = 1)
+        self.real_world_scale_pub = rospy.Publisher(self.publish_prefix+'real_world_scale', Float32, queue_size = 1)
+        self.rotated_pos_pub = rospy.Publisher(self.publish_prefix+'rotated_pos', Point, queue_size = 1)
+        self.slam_orientation_pub = rospy.Publisher(self.publish_prefix+'orientation', Point, queue_size = 1)
+        self.move_up_publisher = rospy.Publisher(self.publish_prefix+'move_up', Float32, queue_size = 1)
 
 
         self.command_pos = Point()
@@ -58,6 +65,8 @@ class TelloSlamControler(object):
         self.allow_slam_control = False
 
         self.last_time_received_pose = time.time() - 5
+
+        self.land_flag = False
 
         self.rate = 30
 
@@ -87,9 +96,10 @@ class TelloSlamControler(object):
 
         self.rotated_pos_z_ground = 0
 
-        self.calib_altitude_high = 1.6
-        self.calib_altitude_low = 0.5
-        self.calib_altitude_rate = 0.4
+        self.calib_altitude_high = 1.4
+        self.calib_altitude_low = 0.6
+        self.calib_altitude_min = -20
+        self.calib_altitude_rate = 0.3
 
         self.last_time_saved_trajectory = time.time()
 
@@ -104,16 +114,16 @@ class TelloSlamControler(object):
 
         # ROS subscriptions
         rospy.Subscriber('/orb_slam2_mono/pose', PoseStamped, self.slam_callback)
-        rospy.Subscriber('/tello/command_pos', Pose, self.command_pos_callback)
-        rospy.Subscriber('/tello/allow_slam_control', Bool, self.allow_slam_control_callback)
-        rospy.Subscriber('flight_data', FlightData, self.flightdata_callback)
-        rospy.Subscriber('takeoff', Empty, self.takeoff_callback)
-        rospy.Subscriber('/tello/calibrate_real_world_scale', Empty, self.calibrate_real_word_scale_callback)
-        rospy.Subscriber('/tello/scan_room', Bool, self.scan_room_callback)
+        rospy.Subscriber(self.publish_prefix+'command_pos', Pose, self.command_pos_callback)
+        rospy.Subscriber(self.publish_prefix+'allow_slam_control', Bool, self.allow_slam_control_callback)
+        rospy.Subscriber(self.publish_prefix+'flight_data', FlightData, self.flightdata_callback)
+        rospy.Subscriber(self.publish_prefix+'takeoff', Empty, self.takeoff_callback)
+        rospy.Subscriber(self.publish_prefix+'calibrate_real_world_scale', Empty, self.calibrate_real_word_scale_callback)
+        rospy.Subscriber(self.publish_prefix+'scan_room', Bool, self.scan_room_callback)
 
-        rospy.Subscriber('/tello/kd', Pose, self.kd_callback)
-        rospy.Subscriber('/tello/kp', Pose, self.kp_callback)
-        rospy.Subscriber('land', Empty, self.land_callback)
+        rospy.Subscriber(self.publish_prefix+'kd', Pose, self.kd_callback)
+        rospy.Subscriber(self.publish_prefix+'kp', Pose, self.kp_callback)
+        rospy.Subscriber(self.publish_prefix+'land', Empty, self.land_callback)
 
         self.last_time_published = time.time()
         self.thread = threading.Thread(target=self.peridoc_timer, args=())
@@ -123,7 +133,9 @@ class TelloSlamControler(object):
         # Spin until interrupted
         rospy.spin()
 
+
     def land_callback(self, msg):
+        self.land_flag = True
         self.allow_slam_control = False
         self.pub_twist.publish(self.speed_to_twist())
 
@@ -179,6 +191,7 @@ class TelloSlamControler(object):
 
     def takeoff_callback(self, msg):
         self.time_of_takeoff = time.time()
+        self.land_flag = False
 
     def sign(self, x):
         return 2 * (x > 0) - 1
@@ -411,32 +424,58 @@ class TelloSlamControler(object):
         self.real_world_pub.publish(self.real_world)
         self.rotated_pos_pub.publish(self.rotated_pos)
 
+    def move_up(self, distance):
+        self.move_up_publisher.publish(distance)
+
+
     def calibrate_real_word_scale_callback(self, msg):
         # this will begin a process to calibrate the self.real_world_scale using the altitude.
         rospy.loginfo('starting calibration of real world scale')
 
+
         # publish to stay in place
         self.pub_twist.publish(self.speed_to_twist())
-        if self.altitude > self.calib_altitude_high:
-            rospy.loginfo('altitude is {} > {} - calibration failed'.format(self.altitude, self.calib_altitude_high))
-            return
-        elif self.altitude < self.calib_altitude_low:
-            rospy.loginfo('altitude is {} > {} - calibration failed'.format(self.altitude, self.calib_altitude_low))
-            return
-        else:
-            rospy.loginfo('altitude is {} < {} - starting raise'.format(self.altitude, self.calib_altitude_high))
+        # if self.altitude > self.calib_altitude_high:
+        #     rospy.loginfo('altitude is {} > {} - calibration failed'.format(self.altitude, self.calib_altitude_high))
+        #     return
+        # elif self.altitude < self.calib_altitude_min:
+        #     rospy.loginfo('altitude is {} < {} - calibration failed'.format(self.altitude, self.calib_altitude_low))
+        #     return
+        # else:
+        #     rospy.loginfo('altitude is {} < {} - starting raise'.format(self.altitude, self.calib_altitude_high))
         # go to altitude = self.calib_altitude_high
+        ground_altitude = self.altitude # say altitude suppose to be 0.5 meter.
+        rospy.loginfo('ground altitude is {} - starting raise'.format(ground_altitude))
+
+        # while self.altitude < self.calib_altitude_high:
         t = time.time()
-        while self.altitude < self.calib_altitude_high:
+        while self.altitude < ground_altitude + 0.6:
             self.pub_twist.publish(self.speed_to_twist(throttle=self.calib_altitude_rate))
-            while time.time() - t < 0.05:
-                pass
-            t = time.time()
+            if self.altitude < self.calib_altitude_min or self.land_flag:
+                self.pub_twist.publish(self.speed_to_twist())
+                rospy.loginfo('altitude is {} > {} - calibration failed'.format(self.altitude, self.calib_altitude_low))
+                return
+            time.sleep(0.2)
+            rospy.loginfo('altitude is {}, desired height is {}'.format(self.altitude, self.calib_altitude_low))
+            if time.time() - t > 1:
+                if ground_altitude == self.altitude:
+                    rospy.loginfo('altitude is fixed, something is wrong.'.format(self.altitude, self.calib_altitude_low))
+                    self.pub_twist.publish(self.speed_to_twist())
+                    return
+
+        # self.move_up(0.8)
+        # time.sleep(3)
+        # self.move_up(0.3)
+        # time.sleep(2)
+            
         # stop
         # wait without blocking
         t = time.time()
-        while time.time() - t < 2.0:
-            self.pub_twist.publish(self.speed_to_twist())
+        for i in range(3):
+            self.speed_to_twist()
+        time.sleep(2)
+        # while time.time() - t < 2.0:
+            # self.pub_twist.publish(self.speed_to_twist())
         self.upper_altitude = self.altitude
         self.upper_z = self.rotated_pos.z
         rospy.loginfo('altitude is {} - z is {} - Stopping'.format(self.upper_altitude, self.upper_z))
@@ -444,15 +483,22 @@ class TelloSlamControler(object):
         # go to altitude = self.calib_altitude_low
         rospy.loginfo('altitude is {} - starting descent'.format(self.altitude))
         t = time.time()
-        while self.altitude > self.calib_altitude_low:
+        # while self.altitude > self.calib_altitude_low:
+        while self.altitude > ground_altitude + 0.2:
             self.pub_twist.publish(self.speed_to_twist(throttle=-self.calib_altitude_rate))
-            while time.time() - t < 0.05:
-                pass
-            t = time.time()
+            # while time.time() - t < 0.05:
+            if self.land_flag:
+                self.pub_twist.publish(self.speed_to_twist())
+                rospy.loginfo('altitude is {} - calibration failed'.format(self.altitude, self.calib_altitude_low))
+                return
+                # pass
+            time.sleep(0.2)
+            # t = time.time()
         # stop
         # wait without blocking
         t = time.time()
         while time.time() - t < 2.0:
+            time.sleep(0.4)
             self.pub_twist.publish(self.speed_to_twist())
         # get rotated slam z position at altitude=self.calib_altitude_low
         self.lower_altitude = self.altitude

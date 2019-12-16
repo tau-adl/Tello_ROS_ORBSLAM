@@ -566,10 +566,10 @@ void Tracking::MonocularInitialization()
     if(!mpInitializer)
     {
         // Set Reference Frame
-        cout << "Set Reference Frame" << endl;
+//        cout << "Set Reference Frame" << endl;
         if(mCurrentFrame.mvKeys.size()>100)
         {
-            cout << "if(mCurrentFrame.mvKeys.size()>100)" << endl;
+//            cout << "if(mCurrentFrame.mvKeys.size()>100)" << endl;
             mInitialFrame = Frame(mCurrentFrame);
             mLastFrame = Frame(mCurrentFrame);
             mvbPrevMatched.resize(mCurrentFrame.mvKeysUn.size());
@@ -1553,6 +1553,12 @@ void Tracking::Reset()
 void Tracking::ChangeCalibration(const string &strSettingPath)
 {
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    if(!fSettings.isOpened())
+    {
+        cerr << "Failed to open settings file at: " << strSettingPath << endl;
+        exit(-1);
+    }
+
     float fx = fSettings["Camera.fx"];
     float fy = fSettings["Camera.fy"];
     float cx = fSettings["Camera.cx"];

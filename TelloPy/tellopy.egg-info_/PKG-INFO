@@ -1,0 +1,18 @@
+Metadata-Version: 1.1
+Name: tellopy
+Version: 0.7.0.dev0
+Summary: DJI Tello drone controller
+Home-page: https://github.com/hanyazou/TelloPy
+Author: Hanyazou
+Author-email: hanyazou@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Keywords: sample development robotics drone
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6

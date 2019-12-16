@@ -6,7 +6,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image, CameraInfo
 from std_msgs.msg import Empty
 from flock_msgs.msg import Flip, FlightData
-from std_msgs.msg import Int32, Bool, String
+from std_msgs.msg import Int32, Bool, String, Float32
 # import av
 import cv2
 import numpy
@@ -59,24 +59,41 @@ class FlockDriver(object):
         self.camera_info.binning_y   =   1
         # self.camera_info.roi.do_rectify = True
 
+        try:
+            self.network_interface = rospy.get_param('~network_interface')
+        except:
+            self.network_interface = ''
+        try:
+            self.id                = rospy.get_param('~ID')
+        except:
+            self.id = 0
+
+        # try:
+        #     self.tello_ip = rospy.get_param('~TELLO_IP')
+        # except:
+        self.tello_ip = '192.168.10.1'
+
+        self.publish_prefix = "tello{}/".format(self.id)
+
         # ROS publishers
-        self._flight_data_pub = rospy.Publisher('flight_data', FlightData, queue_size=10)
-        self._image_pub = rospy.Publisher('camera/image_raw', Image, queue_size=10)
-        self._wifi_strength_data_pub = rospy.Publisher('wifi_strength', Int32, queue_size=10)
-        self._light_strength_data_pub = rospy.Publisher('light_strength', Int32, queue_size=10)
-        self._camera_info_pub = rospy.Publisher('camera/camera_info', CameraInfo, queue_size=10)
+        self._flight_data_pub = rospy.Publisher(self.publish_prefix+'flight_data', FlightData, queue_size=10)
+        self._image_pub = rospy.Publisher(self.publish_prefix+'camera/image_raw', Image, queue_size=10)
+        self._wifi_strength_data_pub = rospy.Publisher(self.publish_prefix+'wifi_strength', Int32, queue_size=10)
+        self._light_strength_data_pub = rospy.Publisher(self.publish_prefix+'light_strength', Int32, queue_size=10)
+        self._camera_info_pub = rospy.Publisher(self.publish_prefix+'camera/camera_info', CameraInfo, queue_size=10)
 
         
 
         # ROS subscriptions
-        rospy.Subscriber('cmd_vel', Twist, self.cmd_vel_callback)
-        rospy.Subscriber('takeoff', Empty, self.takeoff_callback)
-        rospy.Subscriber('land', Empty, self.land_callback)
-        rospy.Subscriber('flip', Flip, self.flip_callback)
-        rospy.Subscriber('zoom_mode', Bool, self.zoom_callback)
-        rospy.Subscriber('exposure_level', Int32, self.exposure_callback)
-        rospy.Subscriber('video_encoder_rate', Int32, self.video_encoder_rate_callback)
-        rospy.Subscriber('log_level', String, self.log_level_callback)
+        rospy.Subscriber(self.publish_prefix+'cmd_vel', Twist, self.cmd_vel_callback)
+        rospy.Subscriber(self.publish_prefix+'takeoff', Empty, self.takeoff_callback)
+        rospy.Subscriber(self.publish_prefix+'land', Empty, self.land_callback)
+        rospy.Subscriber(self.publish_prefix+'flip', Flip, self.flip_callback)
+        rospy.Subscriber(self.publish_prefix+'zoom_mode', Bool, self.zoom_callback)
+        rospy.Subscriber(self.publish_prefix+'exposure_level', Int32, self.exposure_callback)
+        rospy.Subscriber(self.publish_prefix+'video_encoder_rate', Int32, self.video_encoder_rate_callback)
+        rospy.Subscriber(self.publish_prefix+'log_level', String, self.log_level_callback)
+        rospy.Subscriber(self.publish_prefix+'move_up', Float32, self.move_up_callback)
         
 
         # ROS OpenCV bridge
@@ -85,10 +102,15 @@ class FlockDriver(object):
         self.decoder = libh264decoder.H264Decoder()
 
         # Connect to the drone
-        self._drone = tellopy.Tello()
+        # self._drone = tellopy.TelloSDK(network_interface=self.network_interface, 
+            # tello_ip='', local_port=7777, local_video_port=22222, tello_port=7777)
+        self._drone = tellopy.TelloSDK(network_interface=self.network_interface)
+        # self._drone = tellopy.Tello(network_interface=self.network_interface)
         self._drone.connect()
         # try:
         self._drone.wait_for_connection(60.0)
+
+        self._drone.record_log_data()
         # except error.TelloError:
             # self.cleanup()
         rospy.loginfo('connected to drone')
@@ -167,6 +189,7 @@ class FlockDriver(object):
 
         # Altitude
         flight_data.altitude = -1. if data.height > 30000 else data.height / 10.
+        # flight_data.altitude = data.height
 
         # Equipment status
         flight_data.equipment = data.electrical_machinery_state
@@ -176,6 +199,16 @@ class FlockDriver(object):
         flight_data.em_ground = data.em_ground
         flight_data.em_sky = data.em_sky
         flight_data.em_open = data.em_open
+
+        flight_data.pitch = data.pitch
+        flight_data.roll  = data.roll 
+        flight_data.yaw   = data.yaw  
+        # flight_data.templ = data.templ
+        # flight_data.temph = data.temph
+        # flight_data.tof   = data.tof  
+        flight_data.agx   = data.agx  
+        flight_data.agy   = data.agy  
+        flight_data.agy   = data.agy  
 
         # Publish what we have
         self._flight_data_pub.publish(flight_data)
@@ -318,9 +351,12 @@ class FlockDriver(object):
         """
         # print("received {} bytes".format(len(data)))
         self.packet_data += data
+        # print(len(data))
         # end of frame
         if len(data) != 1460:
+            # print("trying to decode")
             for frame in self._h264_decode(self.packet_data):
+                # print("decoded frame")  
                 # Convert PyAV frame => PIL image => OpenCV Mat
                 # color_mat = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
                 color_mat = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -329,6 +365,7 @@ class FlockDriver(object):
                 img_msg = self._cv_bridge.cv2_to_imgmsg(color_mat, 'bgr8')
                 img_msg.header.stamp = rospy.Time.now()
                 self._image_pub.publish(img_msg)
+                # print("published frame")                
                 self.camera_info.header = img_msg.header
                 self._camera_info_pub.publish(self.camera_info)
                 # print("published")
@@ -358,6 +395,10 @@ class FlockDriver(object):
                 res_frame_list.append(frame)
 
         return res_frame_list
+
+    def move_up_callback(self, msg):
+        self._drone.move_up(msg.data)
+
 
 
 if __name__ == '__main__':

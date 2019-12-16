@@ -25,4 +25,16 @@
           EM_OPEN
           EM_SKY-VAL
           EM_SKY
+          PITCH-VAL
+          PITCH
+          ROLL-VAL
+          ROLL
+          YAW-VAL
+          YAW
+          AGX-VAL
+          AGX
+          AGY-VAL
+          AGY
+          AGZ-VAL
+          AGZ
 ))

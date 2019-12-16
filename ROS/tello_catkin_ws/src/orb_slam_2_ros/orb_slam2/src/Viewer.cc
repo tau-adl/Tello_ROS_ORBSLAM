@@ -236,4 +236,34 @@ void Viewer::Release()
     mbStopped = false;
 }
 
+void Viewer::ChangeConfiguration(const string &strSettingPath) {
+
+    cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+
+    if (!fSettings.isOpened()) {
+        cerr << "Failed to open settings file at: " << strSettingPath << endl;
+        exit(-1);
+    }
+
+    float fps = fSettings["Camera.fps"];
+    if(fps<1)
+        fps=30;
+    mT = 1e3/fps;
+
+    mImageWidth = fSettings["Camera.width"];
+    mImageHeight = fSettings["Camera.height"];
+    if(mImageWidth<1 || mImageHeight<1)
+    {
+        mImageWidth = 640;
+        mImageHeight = 480;
+    }
+
+    mViewpointX = fSettings["Viewer.ViewpointX"];
+    mViewpointY = fSettings["Viewer.ViewpointY"];
+    mViewpointZ = fSettings["Viewer.ViewpointZ"];
+    mViewpointF = fSettings["Viewer.ViewpointF"];
+}
+
+
+
 }

@@ -207,7 +207,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_mono")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_mono"
-         OLD_RPATH "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/opt/ros/kinetic/lib:"
+         OLD_RPATH "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/opt/ros/kinetic/lib:/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src:/usr/local/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_mono")
@@ -227,7 +227,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_stereo")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_stereo"
-         OLD_RPATH "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/opt/ros/kinetic/lib:"
+         OLD_RPATH "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/opt/ros/kinetic/lib:/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src:/usr/local/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_stereo")
@@ -247,7 +247,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_rgbd")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_rgbd"
-         OLD_RPATH "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/opt/ros/kinetic/lib:"
+         OLD_RPATH "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/opt/ros/kinetic/lib:/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src:/usr/local/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orb_slam2_ros/orb_slam2_ros_rgbd")
@@ -267,7 +267,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/liborb_slam2_ros.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/liborb_slam2_ros.so"
-         OLD_RPATH "/opt/ros/kinetic/lib/x86_64-linux-gnu:/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/DBoW2/lib:/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/g2o/lib:"
+         OLD_RPATH "/opt/ros/kinetic/lib/x86_64-linux-gnu:/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/DBoW2/lib:/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/g2o/lib:/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src:/usr/local/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/liborb_slam2_ros.so")

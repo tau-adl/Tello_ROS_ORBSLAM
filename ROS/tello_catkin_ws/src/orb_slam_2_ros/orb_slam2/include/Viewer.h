@@ -56,6 +56,8 @@ public:
 
     void Release();
 
+    void ChangeConfiguration(const string &strSettingPath);
+
 private:
 
     bool Stop();

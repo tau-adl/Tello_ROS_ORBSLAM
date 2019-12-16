@@ -423,7 +423,7 @@ void LoopClosing::CorrectLoop()
     }
 
     // Wait until Local Mapping has effectively stopped
-    cout << "while(!mpLocalMapper->isStopped())" << endl;
+//    cout << "while(!mpLocalMapper->isStopped())" << endl;
     while(!mpLocalMapper->isStopped())
     {
         std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -440,7 +440,7 @@ void LoopClosing::CorrectLoop()
     CorrectedSim3[mpCurrentKF]=mg2oScw;
     cv::Mat Twc = mpCurrentKF->GetPoseInverse();
 
-    cout << "cv::Mat Twc = mpCurrentKF->GetPoseInverse();" << endl;
+//    cout << "cv::Mat Twc = mpCurrentKF->GetPoseInverse();" << endl;
 
 
     {
@@ -544,7 +544,7 @@ void LoopClosing::CorrectLoop()
     // Project MapPoints observed in the neighborhood of the loop keyframe
     // into the current keyframe and neighbors using corrected poses.
     // Fuse duplications.
-    cout << "SearchAndFuse(CorrectedSim3);" << endl;
+//    cout << "SearchAndFuse(CorrectedSim3);" << endl;
     SearchAndFuse(CorrectedSim3);
 
 

@@ -11,6 +11,7 @@ set(CMAKE_C_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_C
+  "COMPILEDWITHC11"
   "ROSCONSOLE_BACKEND_LOG4CXX"
   "ROS_BUILD_SHARED_LIBS=1"
   "ROS_PACKAGE_NAME=\"orb_slam2_ros\""
@@ -24,6 +25,8 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
   "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/include"
   "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/ros/include"
   "/usr/include/eigen3"
+  "/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/include"
+  "/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src/include"
   "/opt/ros/kinetic/include"
   "/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/opt/ros/kinetic/include/opencv-3.3.1-dev"
@@ -66,6 +69,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
+  "COMPILEDWITHC11"
   "ROSCONSOLE_BACKEND_LOG4CXX"
   "ROS_BUILD_SHARED_LIBS=1"
   "ROS_PACKAGE_NAME=\"orb_slam2_ros\""
@@ -79,6 +83,8 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/include"
   "/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/ros/include"
   "/usr/include/eigen3"
+  "/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/include"
+  "/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src/include"
   "/opt/ros/kinetic/include"
   "/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/opt/ros/kinetic/include/opencv-3.3.1-dev"

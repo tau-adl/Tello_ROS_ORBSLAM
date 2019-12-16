@@ -25,6 +25,7 @@ int main(int argc, char **argv)
 
 MonoNode::MonoNode (ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
   image_subscriber = image_transport.subscribe ("/camera/image_raw", 1, &MonoNode::ImageCallback, this);
+  config_subscriber = node_handle.subscribe ("/orb_slam2_mono/camera_config", 1, &MonoNode::ImageConfigCallback, this);
 }
 
 
@@ -46,4 +47,11 @@ void MonoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msg) {
   orb_slam_->TrackMonocular(cv_in_ptr->image,cv_in_ptr->header.stamp.toSec());
 
   Update ();
+}
+
+void MonoNode::ImageConfigCallback(const std_msgs::String::ConstPtr& msg) {
+    ROS_INFO("Received Camera Configuation: %s", msg->data.c_str());
+    orb_slam_->mpTracker->ChangeCalibration(msg->data.c_str());
+    orb_slam_->mpViewer->ChangeConfiguration(msg->data.c_str());
+    orb_slam_->mpMapDrawer->ChangeConfiguration(msg->data.c_str());
 }

@@ -206,8 +206,8 @@ CMakeFiles/flock_msgs_geneus.dir/clean:
 # Target rules for target CMakeFiles/flock_msgs_generate_messages_eus.dir
 
 # All Build rule for target.
-CMakeFiles/flock_msgs_generate_messages_eus.dir/all: CMakeFiles/std_msgs_generate_messages_eus.dir/all
 CMakeFiles/flock_msgs_generate_messages_eus.dir/all: CMakeFiles/_flock_msgs_generate_messages_check_deps_FlightData.dir/all
+CMakeFiles/flock_msgs_generate_messages_eus.dir/all: CMakeFiles/std_msgs_generate_messages_eus.dir/all
 CMakeFiles/flock_msgs_generate_messages_eus.dir/all: CMakeFiles/_flock_msgs_generate_messages_check_deps_Flip.dir/all
 	$(MAKE) -f CMakeFiles/flock_msgs_generate_messages_eus.dir/build.make CMakeFiles/flock_msgs_generate_messages_eus.dir/depend
 	$(MAKE) -f CMakeFiles/flock_msgs_generate_messages_eus.dir/build.make CMakeFiles/flock_msgs_generate_messages_eus.dir/build
@@ -478,9 +478,9 @@ CMakeFiles/tests.dir/clean:
 # Target rules for target CMakeFiles/flock_msgs_generate_messages_lisp.dir
 
 # All Build rule for target.
-CMakeFiles/flock_msgs_generate_messages_lisp.dir/all: CMakeFiles/std_msgs_generate_messages_lisp.dir/all
 CMakeFiles/flock_msgs_generate_messages_lisp.dir/all: CMakeFiles/_flock_msgs_generate_messages_check_deps_FlightData.dir/all
 CMakeFiles/flock_msgs_generate_messages_lisp.dir/all: CMakeFiles/_flock_msgs_generate_messages_check_deps_Flip.dir/all
+CMakeFiles/flock_msgs_generate_messages_lisp.dir/all: CMakeFiles/std_msgs_generate_messages_lisp.dir/all
 	$(MAKE) -f CMakeFiles/flock_msgs_generate_messages_lisp.dir/build.make CMakeFiles/flock_msgs_generate_messages_lisp.dir/depend
 	$(MAKE) -f CMakeFiles/flock_msgs_generate_messages_lisp.dir/build.make CMakeFiles/flock_msgs_generate_messages_lisp.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/flock_msgs/CMakeFiles --progress-num=6,7 "Built target flock_msgs_generate_messages_lisp"
@@ -698,11 +698,11 @@ CMakeFiles/_flock_msgs_generate_messages_check_deps_Flip.dir/clean:
 # Target rules for target CMakeFiles/flock_msgs_generate_messages.dir
 
 # All Build rule for target.
-CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_nodejs.dir/all
+CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_py.dir/all
 CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_eus.dir/all
 CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_cpp.dir/all
+CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_nodejs.dir/all
 CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_lisp.dir/all
-CMakeFiles/flock_msgs_generate_messages.dir/all: CMakeFiles/flock_msgs_generate_messages_py.dir/all
 	$(MAKE) -f CMakeFiles/flock_msgs_generate_messages.dir/build.make CMakeFiles/flock_msgs_generate_messages.dir/depend
 	$(MAKE) -f CMakeFiles/flock_msgs_generate_messages.dir/build.make CMakeFiles/flock_msgs_generate_messages.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/flock_msgs/CMakeFiles --progress-num= "Built target flock_msgs_generate_messages"

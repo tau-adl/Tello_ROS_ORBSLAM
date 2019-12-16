@@ -6,6 +6,7 @@ import struct
 import sys
 import os
 import signal
+import traceback
 
 from . import crc
 from . import logger
@@ -62,7 +63,7 @@ class Tello(object):
     LOG_DEBUG = logger.LOG_DEBUG
     LOG_ALL = logger.LOG_ALL
 
-    def __init__(self, port=9000):
+    def __init__(self, port=9000, network_interface=''):
 
         signal.signal(signal.SIGINT, self.quit)
         signal.signal(signal.SIGTERM, self.quit)
@@ -77,7 +78,7 @@ class Tello(object):
         self.right_x = 0.0
         self.right_y = 0.0
         self.high_speed_mode = False
-        self.sock = None
+        self.command_socket = None
         self.state = self.STATE_DISCONNECTED
         self.lock = threading.Lock()
         self.connected = threading.Event()
@@ -93,6 +94,7 @@ class Tello(object):
         self.log_data = LogData(log)
         self.log_data_file = None
         self.log_data_header_recorded = False
+        self.network_interface = network_interface
 
         # video zoom state
         self.zoom = False
@@ -101,9 +103,14 @@ class Tello(object):
         self.file_recv = {}  # Map filenum -> protocol.DownloadedFile
 
         # Create a UDP socket
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(('', self.port))
-        self.sock.settimeout(2.0)
+        self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if not self.network_interface == '':
+            self.log.info('main socket using network_interface {}'.format(self.network_interface))
+            self.log.header_string = 'Tello_{}'.format(self.network_interface)
+            self.command_socket.setsockopt(socket.SOL_SOCKET, 25, self.network_interface)
+        self.command_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.command_socket.bind(('', self.port))
+        self.command_socket.settimeout(0.2)
 
         dispatcher.connect(self.__state_machine, dispatcher.signal.All)
         threading.Thread(target=self.__recv_thread).start()
@@ -505,7 +512,7 @@ class Tello(object):
         """Send_packet is used to send a command packet to the drone."""
         try:
             cmd = pkt.get_buffer()
-            self.sock.sendto(cmd, self.tello_addr)
+            self.command_socket.sendto(cmd, self.tello_addr)
             log.debug("send_packet: %s" % byte_to_hexstring(cmd))
         except socket.error as err:
             if self.state == self.STATE_CONNECTED:
@@ -556,12 +563,18 @@ class Tello(object):
         elif cmd == LOG_DATA_MSG:
             log.debug("recv: log_data: length=%d, %s" % (len(data[9:]), byte_to_hexstring(data[9:])))
             self.__publish(event=self.EVENT_LOG_RAWDATA, data=data[9:])
-            try:
-                self.log_data.update(data[10:])
-                if self.log_data_file:
-                    self.log_data_file.write(data[10:-2])
-            except Exception as ex:
-                log.error('%s' % str(ex))
+            # try:
+            #     self.log_data.update(data[10:])
+            #     if self.log_data_file:
+            #         self.log_data_file.write(data[10:-2])
+
+                # self.parse_log_data(data[9:])
+
+
+
+
+            # except Exception as ex:
+                # log.error('%s %s' % (str(ex), traceback.print_exc()))
             self.__publish(event=self.EVENT_LOG_DATA, data=self.log_data)
 
         elif cmd == LOG_CONFIG_MSG:
@@ -575,10 +588,10 @@ class Tello(object):
             log.debug("recv: light: %s" % byte_to_hexstring(data[9:]))
             self.__publish(event=self.EVENT_LIGHT, data=data[9:])
         elif cmd == FLIGHT_MSG:
-            flight_data = FlightData(data[9:])
-            flight_data.wifi_strength = self.wifi_strength
-            log.debug("recv: flight data: %s" % str(flight_data))
-            self.__publish(event=self.EVENT_FLIGHT_DATA, data=flight_data)
+            self.flight_data = FlightData(data[9:])
+            self.flight_data.wifi_strength = self.wifi_strength
+            log.debug("recv: flight data: %s" % str(self.flight_data))
+            self.__publish(event=self.EVENT_FLIGHT_DATA, data=self.flight_data)
         elif cmd == TIME_CMD:
             log.debug("recv: time data: %s" % byte_to_hexstring(data))
             self.__publish(event=self.EVENT_TIME, data=data[7:9])
@@ -614,6 +627,104 @@ class Tello(object):
             return False
 
         return True
+
+    def ToInt16(self, data, index):
+        ord_2 = data[index]
+        ord_1 = data[index+1]
+        return self.twos_complement(ord_1 * 8 + ord_2, 16)
+
+    def ToUInt16(self, data, index):
+        ord_2 = data[index]
+        ord_1 = data[index+1]
+        return (ord_1 * 8 + ord_2)
+
+    def ToSingle(self, data, index):
+        ord_4 = data[index]
+        ord_3 = data[index+1]
+        ord_2 = data[index+2]
+        ord_1 = data[index+3]
+        return ord_4 + ord_3*8 + ord_2*16 + ord_1*24
+
+    def twos_complement(self, value,bits):
+        if value & (1 << (bits-1)):
+            value -= 1 << bits
+        return value
+
+    def parse_log_data(self, data):
+        pos = 0
+        # A packet can contain more than one record.
+        while pos < len(data): # -2 for CRC bytes at end of packet. - but the packet is already stripped from -2
+            if data[pos] != ord('U'): # Check magic byte
+                # log.info("not magic word")
+                pos += 1
+                continue
+                # return
+                # Console.WriteLine("PARSE ERROR!!!");
+            len_ = (data[pos + 1]);
+            if pos+2 >= len(data):
+                return
+            if (data[pos + 2]) != 0: #Should always be zero (so far)
+                pos += 1
+                continue
+                #Console.WriteLine("SIZE OVERFLOW!!!");
+            crc = (data[pos + 3]);
+
+            id_ = self.ToInt16(data, pos + 4)
+            # var xorBuf = new byte[256];
+            xorBuf = []
+            xorValue = data[pos + 6]
+            if id_ == 0x1d:# 29 new_mvo
+                for i in range(len_): #Decrypt payload.
+                    xorBuf.append((data[pos + i]) ^ xorValue)
+                index = 10 # start of the velocity and pos data.
+                observationCount = self.ToUInt16(xorBuf, index)
+                index += 2
+                velX = self.ToInt16(xorBuf, index)
+                index += 2
+                velY = self.ToInt16(xorBuf, index)
+                index += 2
+                velZ = self.ToInt16(xorBuf, index)
+                index += 2
+                posX = self.ToSingle(xorBuf, index)
+                index += 4
+                posY = self.ToSingle(xorBuf, index)
+                index += 4
+                posZ = self.ToSingle(xorBuf, index)
+                index += 4
+                posUncertainty = self.ToSingle(xorBuf, index)*10000.0
+                index += 4
+                #Console.WriteLine(observationCount + " " + posX + " " + posY + " " + posZ);
+                log.info("From Log: V=({},{},{}) Pos=({},{},{})".format(velX, velY, velZ, posX, posY, posZ))
+
+            elif id_ == 0x0800: # 2048 imu
+                for i in range(len_): #Decrypt payload.
+                    xorBuf.append((data[pos + i]) ^ xorValue)
+                index2 = 10 + 48 # 44 is the start of the quat data.
+                quatW = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                quatX = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                quatY = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                quatZ = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                #Console.WriteLine("qx:" + qX + " qy:" + qY+ "qz:" + qZ);
+
+                #var eular = toEuler(quatX, quatY, quatZ, quatW);
+                #Console.WriteLine(" Pitch:"+eular[0] * (180 / 3.141592) + " Roll:" + eular[1] * (180 / 3.141592) + " Yaw:" + eular[2] * (180 / 3.141592));
+
+                index2 = 10 + 76 # Start of relative velocity
+                velN = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                velE = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                velD = self.ToSingle(xorBuf, index2)
+                index2 += 4
+                log.info("From Log: Quaternion=({},{},{},{}) Relative_V=({},{},{})".format(quatW, quatX, quatY, quatZ, velN, velE. velD))
+                #Console.WriteLine(vN + " " + vE + " " + vD);
+
+            pos += len_
+
 
     def recv_file_data(self, data):
         (filenum,chunk,fragment,size) = struct.unpack('<HLLH', data[0:12])
@@ -660,7 +771,9 @@ class Tello(object):
         if self.state == self.STATE_DISCONNECTED:
             if event == self.__EVENT_CONN_REQ:
                 self.__send_conn_req()
-                self.state = self.STATE_CONNECTING
+                # self.state = self.STATE_CONNECTING
+                self.state = self.STATE_CONNECTED
+                event_connected = True
             elif event == self.__EVENT_QUIT_REQ:
                 self.state = self.STATE_QUIT
                 event_disconnected = True
@@ -679,10 +792,11 @@ class Tello(object):
 
         elif self.state == self.STATE_CONNECTED:
             if event == self.__EVENT_TIMEOUT:
-                self.__send_conn_req()
-                self.state = self.STATE_CONNECTING
-                event_disconnected = True
-                self.video_enabled = False
+                pass
+                # self.__send_conn_req()
+                # self.state = self.STATE_CONNECTING
+                # event_disconnected = True
+                # self.video_enabled = False
             elif event == self.__EVENT_QUIT_REQ:
                 self.state = self.STATE_QUIT
                 event_disconnected = True
@@ -704,7 +818,7 @@ class Tello(object):
             self.connected.clear()
 
     def __recv_thread(self):
-        sock = self.sock
+        command_socket = self.command_socket
 
         try:
             while self.state != self.STATE_QUIT:
@@ -713,17 +827,19 @@ class Tello(object):
                     self.__send_stick_command()  # ignore errors
 
                 try:
-                    data, server = sock.recvfrom(self.udpsize)
-                    log.debug("recv: %s" % byte_to_hexstring(data))
-                    self.__process_packet(data)
+                    # pass
+                    data, server = command_socket.recvfrom(self.udpsize)
+                    # log.debug("recv: %s" % byte_to_hexstring(data))
+                    # self.__process_packet(data)
                 except socket.timeout as ex:
-                    if self.state == self.STATE_CONNECTED:
-                        log.error('recv: timeout')
-                    elif self.state == self.STATE_QUIT:
+                    # if self.state == self.STATE_CONNECTED:
+                        # log.error('recv: timeout')
+                    # elif self.state == self.STATE_QUIT:
+                    if self.state == self.STATE_QUIT:
                         self.land()
                         log.info('exit from the recv thread.')
                         break
-                    self.__publish(event=self.__EVENT_TIMEOUT)
+                    # self.__publish(event=self.__EVENT_TIMEOUT)
                 except Exception as ex:
                     log.error('recv: %s' % str(ex))
                     show_exception(ex)
@@ -732,26 +848,41 @@ class Tello(object):
 
         log.info('exit from the recv thread.')
 
-    def __video_thread(self):
+    def __video_thread1(self):
         log.info('start video thread')
         # Create a UDP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        port = 6038
-        sock.bind(('', port))
-        sock.settimeout(1.0)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 512 * 1024)
-        log.info('video receive buffer size = %d' %
-                 sock.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF))
+        my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        my_socket.bind(('', 8889))
+        my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        my_socket.sendto('streamon'.encode('utf-8'), ('192.168.10.1', 8889))
+        # my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        # my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        # my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        video_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if not self.network_interface == '':
+            self.log.info('video_socket using network_interface {}'.format(self.network_interface))
+            video_socket.setsockopt(socket.SOL_SOCKET, 25, self.network_interface)
+        # port = 6038
+        port = 11111
+        video_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        video_socket.bind(('', port))
+        video_socket.settimeout(1.0)
+        video_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 512 * 1024)
+        if not self.network_interface == '':
+            video_socket.setsockopt(socket.SOL_SOCKET, 25, self.network_interface)
+        self.log.info('video receive buffer size = %d' %
+                 video_socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF))
 
         prev_video_data = None
         prev_ts = None
         history = []
         while self.state != self.STATE_QUIT:
-            if not self.video_enabled:
-                time.sleep(1.0)
-                continue
+            # if not self.video_enabled:
+            #     time.sleep(1.0)
+            #     continue
             try:
-                data, server = sock.recvfrom(self.udpsize)
+                # socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+                data, server = video_socket.recvfrom(self.udpsize)
                 now = datetime.datetime.now()
                 log.debug("video recv: %s %d bytes" % (byte_to_hexstring(data[0:2]), len(data)))
                 show_history = False
@@ -812,6 +943,57 @@ class Tello(object):
             except socket.timeout as ex:
                 log.error('video recv: timeout')
                 self.start_video()
+                data = None
+            except Exception as ex:
+                log.error('video recv: %s' % str(ex))
+                show_exception(ex)
+
+        log.info('exit from the video thread.')
+
+    def __video_thread(self):
+        log.info('start video thread')
+        # Create a UDP socket
+        my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        my_socket.bind(('', 8889))
+        my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        my_socket.sendto('streamon'.encode('utf-8'), ('192.168.10.1', 8889))
+        # my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        # my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        # my_socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+        video_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # if not self.network_interface == '':
+        #     self.log.info('video_socket using network_interface {}'.format(self.network_interface))
+        #     video_socket.setsockopt(socket.SOL_SOCKET, 25, self.network_interface)
+        # port = 6038
+        port = 11111
+        video_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        video_socket.bind(('', port))
+        video_socket.settimeout(0.5)
+        video_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 512 * 1024)
+        if not self.network_interface == '':
+            video_socket.setsockopt(socket.SOL_SOCKET, 25, self.network_interface)
+        self.log.info('video receive buffer size = %d' %
+                 video_socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF))
+
+
+        while self.state != self.STATE_QUIT:
+            # if not self.video_enabled:
+            #     time.sleep(1.0)
+            #     continue
+            try:
+                # socket.sendto('command'.encode('utf-8'), ('192.168.10.1', 8889))
+                # data, server = video_socket.recvfrom(2048)
+                data, server = video_socket.recvfrom(self.udpsize)
+                # print(len(data))
+                self.__publish(event=self.EVENT_VIDEO_FRAME, data=data)
+
+
+
+            except socket.timeout as ex:
+                # pass
+                # log.error('video recv: timeout')
+                # my_socket.sendto('streamon'.encode('utf-8'), ('192.168.10.1', 8889))
+                # self.start_video()
                 data = None
             except Exception as ex:
                 log.error('video recv: %s' % str(ex))

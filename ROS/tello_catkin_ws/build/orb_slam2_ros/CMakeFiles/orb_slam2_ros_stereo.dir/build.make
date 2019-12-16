@@ -160,6 +160,7 @@ orb_slam2_ros_stereo_EXTERNAL_OBJECTS =
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libboost_atomic.so
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libpthread.so
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src/libpangolin.so
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_shape3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_photo3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_datasets3.so.3.3.1
@@ -179,6 +180,28 @@ orb_slam2_ros_stereo_EXTERNAL_OBJECTS =
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_objdetect3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_imgproc3.so.3.3.1
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_core3.so.3.3.1
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libGL.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libGLU.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libGLEW.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libEGL.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libwayland-client.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libwayland-egl.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libwayland-cursor.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libSM.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libICE.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libX11.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libXext.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/local/lib/libavcodec.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/local/lib/libavformat.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/local/lib/libavutil.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/local/lib/libswscale.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/local/lib/libavdevice.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/libOpenNI.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libpng.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libz.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libjpeg.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/libtiff.so
+/home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: /usr/lib/x86_64-linux-gnu/liblz4.so
 /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo: CMakeFiles/orb_slam2_ros_stereo.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable /home/arkadiros/ROS/tello_catkin_ws/devel/.private/orb_slam2_ros/lib/orb_slam2_ros/orb_slam2_ros_stereo"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/orb_slam2_ros_stereo.dir/link.txt --verbose=$(VERBOSE)

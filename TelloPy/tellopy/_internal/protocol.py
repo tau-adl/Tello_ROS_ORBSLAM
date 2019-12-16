@@ -147,6 +147,16 @@ class FlightData(object):
         self.wifi_disturb = 0
         self.wifi_strength = 0
         self.wind_state = 0
+        self.pitch = 0
+        self.roll = 0
+        self.yaw = 0
+        self.templ = 0
+        self.temph = 0
+        self.tof = 0
+        self.agx = 0
+        self.agy = 0
+        self.agz = 0
+        self.pressure = 0
 
         if len(data) < 24:
             return

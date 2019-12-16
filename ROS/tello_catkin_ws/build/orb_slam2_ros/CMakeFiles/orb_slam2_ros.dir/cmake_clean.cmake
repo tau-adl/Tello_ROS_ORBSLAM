@@ -10,6 +10,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/LocalMapping.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/LoopClosing.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.o"
+  "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapPoint.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/ORBextractor.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/ORBmatcher.cc.o"
@@ -18,6 +19,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Sim3Solver.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/System.cc.o"
   "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Tracking.cc.o"
+  "CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o"
 )
 
 # Per-language clean rules from dependency scanning.

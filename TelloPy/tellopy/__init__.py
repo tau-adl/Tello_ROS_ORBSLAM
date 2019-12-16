@@ -6,5 +6,6 @@ code was ported from the driver of GOBOT project. Please refer their blog post a
 https://gobot.io/blog/2018/04/20/hello-tello-hacking-drones-with-go
 """
 from tellopy._internal.tello import Tello
+from tellopy._internal.tello_sdk import TelloSDK
 
 __all__ = ["Tello"]

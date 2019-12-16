@@ -260,4 +260,19 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
         M.SetIdentity();
 }
 
+void MapDrawer::ChangeConfiguration(const string &strSettingPath) {
+    cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    if (!fSettings.isOpened()) {
+        cerr << "Failed to open settings file at: " << strSettingPath << endl;
+        exit(-1);
+    }
+
+    mKeyFrameSize = fSettings["Viewer.KeyFrameSize"];
+    mKeyFrameLineWidth = fSettings["Viewer.KeyFrameLineWidth"];
+    mGraphLineWidth = fSettings["Viewer.GraphLineWidth"];
+    mPointSize = fSettings["Viewer.PointSize"];
+    mCameraSize = fSettings["Viewer.CameraSize"];
+    mCameraLineWidth = fSettings["Viewer.CameraLineWidth"];
+}
+
 } //namespace ORB_SLAM

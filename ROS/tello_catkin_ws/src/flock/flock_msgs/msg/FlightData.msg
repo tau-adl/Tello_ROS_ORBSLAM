@@ -35,3 +35,11 @@ bool high_temperature               # It's getting warm in here
 bool em_ground                      # ???
 bool em_open                        # ???
 bool em_sky                         # ???
+
+
+float32 pitch
+float32 roll
+float32 yaw
+float32 agx
+float32 agy
+float32 agz

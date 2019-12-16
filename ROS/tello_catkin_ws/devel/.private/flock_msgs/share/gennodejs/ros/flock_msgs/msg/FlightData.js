@@ -31,6 +31,12 @@ class FlightData {
       this.em_ground = null;
       this.em_open = null;
       this.em_sky = null;
+      this.pitch = null;
+      this.roll = null;
+      this.yaw = null;
+      this.agx = null;
+      this.agy = null;
+      this.agz = null;
     }
     else {
       if (initObj.hasOwnProperty('battery_percent')) {
@@ -111,6 +117,42 @@ class FlightData {
       else {
         this.em_sky = false;
       }
+      if (initObj.hasOwnProperty('pitch')) {
+        this.pitch = initObj.pitch
+      }
+      else {
+        this.pitch = 0.0;
+      }
+      if (initObj.hasOwnProperty('roll')) {
+        this.roll = initObj.roll
+      }
+      else {
+        this.roll = 0.0;
+      }
+      if (initObj.hasOwnProperty('yaw')) {
+        this.yaw = initObj.yaw
+      }
+      else {
+        this.yaw = 0.0;
+      }
+      if (initObj.hasOwnProperty('agx')) {
+        this.agx = initObj.agx
+      }
+      else {
+        this.agx = 0.0;
+      }
+      if (initObj.hasOwnProperty('agy')) {
+        this.agy = initObj.agy
+      }
+      else {
+        this.agy = 0.0;
+      }
+      if (initObj.hasOwnProperty('agz')) {
+        this.agz = initObj.agz
+      }
+      else {
+        this.agz = 0.0;
+      }
     }
   }
 
@@ -142,6 +184,18 @@ class FlightData {
     bufferOffset = _serializer.bool(obj.em_open, buffer, bufferOffset);
     // Serialize message field [em_sky]
     bufferOffset = _serializer.bool(obj.em_sky, buffer, bufferOffset);
+    // Serialize message field [pitch]
+    bufferOffset = _serializer.float32(obj.pitch, buffer, bufferOffset);
+    // Serialize message field [roll]
+    bufferOffset = _serializer.float32(obj.roll, buffer, bufferOffset);
+    // Serialize message field [yaw]
+    bufferOffset = _serializer.float32(obj.yaw, buffer, bufferOffset);
+    // Serialize message field [agx]
+    bufferOffset = _serializer.float32(obj.agx, buffer, bufferOffset);
+    // Serialize message field [agy]
+    bufferOffset = _serializer.float32(obj.agy, buffer, bufferOffset);
+    // Serialize message field [agz]
+    bufferOffset = _serializer.float32(obj.agz, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -175,11 +229,23 @@ class FlightData {
     data.em_open = _deserializer.bool(buffer, bufferOffset);
     // Deserialize message field [em_sky]
     data.em_sky = _deserializer.bool(buffer, bufferOffset);
+    // Deserialize message field [pitch]
+    data.pitch = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [roll]
+    data.roll = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [yaw]
+    data.yaw = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [agx]
+    data.agx = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [agy]
+    data.agy = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [agz]
+    data.agz = _deserializer.float32(buffer, bufferOffset);
     return data;
   }
 
   static getMessageSize(object) {
-    return 37;
+    return 61;
   }
 
   static datatype() {
@@ -189,7 +255,7 @@ class FlightData {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'aea1f1ee32ab41906cd3b81038074ba3';
+    return '1fbfcd738c3afa96d840f05b5d17f7de';
   }
 
   static messageDefinition() {
@@ -233,6 +299,13 @@ class FlightData {
     bool em_open                        # ???
     bool em_sky                         # ???
     
+    
+    float32 pitch
+    float32 roll
+    float32 yaw
+    float32 agx
+    float32 agy
+    float32 agz
     `;
   }
 
@@ -331,6 +404,48 @@ class FlightData {
     }
     else {
       resolved.em_sky = false
+    }
+
+    if (msg.pitch !== undefined) {
+      resolved.pitch = msg.pitch;
+    }
+    else {
+      resolved.pitch = 0.0
+    }
+
+    if (msg.roll !== undefined) {
+      resolved.roll = msg.roll;
+    }
+    else {
+      resolved.roll = 0.0
+    }
+
+    if (msg.yaw !== undefined) {
+      resolved.yaw = msg.yaw;
+    }
+    else {
+      resolved.yaw = 0.0
+    }
+
+    if (msg.agx !== undefined) {
+      resolved.agx = msg.agx;
+    }
+    else {
+      resolved.agx = 0.0
+    }
+
+    if (msg.agy !== undefined) {
+      resolved.agy = msg.agy;
+    }
+    else {
+      resolved.agy = 0.0
+    }
+
+    if (msg.agz !== undefined) {
+      resolved.agz = msg.agz;
+    }
+    else {
+      resolved.agz = 0.0
     }
 
     return resolved;

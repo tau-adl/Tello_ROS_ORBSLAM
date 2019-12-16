@@ -71,7 +71,37 @@
     :reader em_sky
     :initarg :em_sky
     :type cl:boolean
-    :initform cl:nil))
+    :initform cl:nil)
+   (pitch
+    :reader pitch
+    :initarg :pitch
+    :type cl:float
+    :initform 0.0)
+   (roll
+    :reader roll
+    :initarg :roll
+    :type cl:float
+    :initform 0.0)
+   (yaw
+    :reader yaw
+    :initarg :yaw
+    :type cl:float
+    :initform 0.0)
+   (agx
+    :reader agx
+    :initarg :agx
+    :type cl:float
+    :initform 0.0)
+   (agy
+    :reader agy
+    :initarg :agy
+    :type cl:float
+    :initform 0.0)
+   (agz
+    :reader agz
+    :initarg :agz
+    :type cl:float
+    :initform 0.0))
 )
 
 (cl:defclass FlightData (<FlightData>)
@@ -146,6 +176,36 @@
 (cl:defmethod em_sky-val ((m <FlightData>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:em_sky-val is deprecated.  Use flock_msgs-msg:em_sky instead.")
   (em_sky m))
+
+(cl:ensure-generic-function 'pitch-val :lambda-list '(m))
+(cl:defmethod pitch-val ((m <FlightData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:pitch-val is deprecated.  Use flock_msgs-msg:pitch instead.")
+  (pitch m))
+
+(cl:ensure-generic-function 'roll-val :lambda-list '(m))
+(cl:defmethod roll-val ((m <FlightData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:roll-val is deprecated.  Use flock_msgs-msg:roll instead.")
+  (roll m))
+
+(cl:ensure-generic-function 'yaw-val :lambda-list '(m))
+(cl:defmethod yaw-val ((m <FlightData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:yaw-val is deprecated.  Use flock_msgs-msg:yaw instead.")
+  (yaw m))
+
+(cl:ensure-generic-function 'agx-val :lambda-list '(m))
+(cl:defmethod agx-val ((m <FlightData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:agx-val is deprecated.  Use flock_msgs-msg:agx instead.")
+  (agx m))
+
+(cl:ensure-generic-function 'agy-val :lambda-list '(m))
+(cl:defmethod agy-val ((m <FlightData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:agy-val is deprecated.  Use flock_msgs-msg:agy instead.")
+  (agy m))
+
+(cl:ensure-generic-function 'agz-val :lambda-list '(m))
+(cl:defmethod agz-val ((m <FlightData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader flock_msgs-msg:agz-val is deprecated.  Use flock_msgs-msg:agz instead.")
+  (agz m))
 (cl:defmethod roslisp-msg-protocol:symbol-codes ((msg-type (cl:eql '<FlightData>)))
     "Constants for message type '<FlightData>"
   '((:FLIGHT_MODE_GROUND . 1)
@@ -217,6 +277,36 @@
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'em_ground) 1 0)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'em_open) 1 0)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'em_sky) 1 0)) ostream)
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'pitch))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'roll))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'yaw))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'agx))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'agy))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'agz))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <FlightData>) istream)
   "Deserializes a message object of type '<FlightData>"
@@ -273,6 +363,42 @@
     (cl:setf (cl:slot-value msg 'em_ground) (cl:not (cl:zerop (cl:read-byte istream))))
     (cl:setf (cl:slot-value msg 'em_open) (cl:not (cl:zerop (cl:read-byte istream))))
     (cl:setf (cl:slot-value msg 'em_sky) (cl:not (cl:zerop (cl:read-byte istream))))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'pitch) (roslisp-utils:decode-single-float-bits bits)))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'roll) (roslisp-utils:decode-single-float-bits bits)))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'yaw) (roslisp-utils:decode-single-float-bits bits)))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'agx) (roslisp-utils:decode-single-float-bits bits)))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'agy) (roslisp-utils:decode-single-float-bits bits)))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'agz) (roslisp-utils:decode-single-float-bits bits)))
   msg
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<FlightData>)))
@@ -283,16 +409,16 @@
   "flock_msgs/FlightData")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<FlightData>)))
   "Returns md5sum for a message object of type '<FlightData>"
-  "aea1f1ee32ab41906cd3b81038074ba3")
+  "1fbfcd738c3afa96d840f05b5d17f7de")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'FlightData)))
   "Returns md5sum for a message object of type 'FlightData"
-  "aea1f1ee32ab41906cd3b81038074ba3")
+  "1fbfcd738c3afa96d840f05b5d17f7de")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<FlightData>)))
   "Returns full string definition for message of type '<FlightData>"
-  (cl:format cl:nil "# Flight data -- experimental -- will change as we learn more~%# Gobot code seems to be the best reference~%~%# Battery state:~%int32 battery_percent                     # Remaining battery, 0-100~%float32 estimated_flight_time_remaining   # Remaining flight time, seconds~%~%# Flight modes:~%uint8 flight_mode_ground=1          # Motors off~%uint8 flight_mode_hover=6           # Hovering~%uint8 flight_mode_taking_off=11     # Taking off~%uint8 flight_mode_landing=12        # Landing~%uint8 flight_mode_spinning_up=41    # Spinning up the props, will take off soon~%uint8 flight_mode~%~%# Flight time:~%float32 flight_time                 # Flight time since power up, in seconds~%~%# Position and velocity, negative numbers mean \"no data\":~%float32 east_speed                  # meters/second~%float32 north_speed                 # meters/second~%float32 ground_speed                # meters/second~%float32 altitude                    # Height off the ground in meters~%~%# Equipment status:~%int32 equipment_ok=0                # Everything is OK~%int32 equipment_unstable=21         # The drone is unstable, tilted at an odd angle or upside down~%int32 equipment_timer_exceeded=205  # No input for 15 seconds, shutting down~%int32 equipment~%~%# Temperature:~%bool high_temperature               # It's getting warm in here~%~%# ???~%bool em_ground                      # ???~%bool em_open                        # ???~%bool em_sky                         # ???~%~%~%"))
+  (cl:format cl:nil "# Flight data -- experimental -- will change as we learn more~%# Gobot code seems to be the best reference~%~%# Battery state:~%int32 battery_percent                     # Remaining battery, 0-100~%float32 estimated_flight_time_remaining   # Remaining flight time, seconds~%~%# Flight modes:~%uint8 flight_mode_ground=1          # Motors off~%uint8 flight_mode_hover=6           # Hovering~%uint8 flight_mode_taking_off=11     # Taking off~%uint8 flight_mode_landing=12        # Landing~%uint8 flight_mode_spinning_up=41    # Spinning up the props, will take off soon~%uint8 flight_mode~%~%# Flight time:~%float32 flight_time                 # Flight time since power up, in seconds~%~%# Position and velocity, negative numbers mean \"no data\":~%float32 east_speed                  # meters/second~%float32 north_speed                 # meters/second~%float32 ground_speed                # meters/second~%float32 altitude                    # Height off the ground in meters~%~%# Equipment status:~%int32 equipment_ok=0                # Everything is OK~%int32 equipment_unstable=21         # The drone is unstable, tilted at an odd angle or upside down~%int32 equipment_timer_exceeded=205  # No input for 15 seconds, shutting down~%int32 equipment~%~%# Temperature:~%bool high_temperature               # It's getting warm in here~%~%# ???~%bool em_ground                      # ???~%bool em_open                        # ???~%bool em_sky                         # ???~%~%~%float32 pitch~%float32 roll~%float32 yaw~%float32 agx~%float32 agy~%float32 agz~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'FlightData)))
   "Returns full string definition for message of type 'FlightData"
-  (cl:format cl:nil "# Flight data -- experimental -- will change as we learn more~%# Gobot code seems to be the best reference~%~%# Battery state:~%int32 battery_percent                     # Remaining battery, 0-100~%float32 estimated_flight_time_remaining   # Remaining flight time, seconds~%~%# Flight modes:~%uint8 flight_mode_ground=1          # Motors off~%uint8 flight_mode_hover=6           # Hovering~%uint8 flight_mode_taking_off=11     # Taking off~%uint8 flight_mode_landing=12        # Landing~%uint8 flight_mode_spinning_up=41    # Spinning up the props, will take off soon~%uint8 flight_mode~%~%# Flight time:~%float32 flight_time                 # Flight time since power up, in seconds~%~%# Position and velocity, negative numbers mean \"no data\":~%float32 east_speed                  # meters/second~%float32 north_speed                 # meters/second~%float32 ground_speed                # meters/second~%float32 altitude                    # Height off the ground in meters~%~%# Equipment status:~%int32 equipment_ok=0                # Everything is OK~%int32 equipment_unstable=21         # The drone is unstable, tilted at an odd angle or upside down~%int32 equipment_timer_exceeded=205  # No input for 15 seconds, shutting down~%int32 equipment~%~%# Temperature:~%bool high_temperature               # It's getting warm in here~%~%# ???~%bool em_ground                      # ???~%bool em_open                        # ???~%bool em_sky                         # ???~%~%~%"))
+  (cl:format cl:nil "# Flight data -- experimental -- will change as we learn more~%# Gobot code seems to be the best reference~%~%# Battery state:~%int32 battery_percent                     # Remaining battery, 0-100~%float32 estimated_flight_time_remaining   # Remaining flight time, seconds~%~%# Flight modes:~%uint8 flight_mode_ground=1          # Motors off~%uint8 flight_mode_hover=6           # Hovering~%uint8 flight_mode_taking_off=11     # Taking off~%uint8 flight_mode_landing=12        # Landing~%uint8 flight_mode_spinning_up=41    # Spinning up the props, will take off soon~%uint8 flight_mode~%~%# Flight time:~%float32 flight_time                 # Flight time since power up, in seconds~%~%# Position and velocity, negative numbers mean \"no data\":~%float32 east_speed                  # meters/second~%float32 north_speed                 # meters/second~%float32 ground_speed                # meters/second~%float32 altitude                    # Height off the ground in meters~%~%# Equipment status:~%int32 equipment_ok=0                # Everything is OK~%int32 equipment_unstable=21         # The drone is unstable, tilted at an odd angle or upside down~%int32 equipment_timer_exceeded=205  # No input for 15 seconds, shutting down~%int32 equipment~%~%# Temperature:~%bool high_temperature               # It's getting warm in here~%~%# ???~%bool em_ground                      # ???~%bool em_open                        # ???~%bool em_sky                         # ???~%~%~%float32 pitch~%float32 roll~%float32 yaw~%float32 agx~%float32 agy~%float32 agz~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <FlightData>))
   (cl:+ 0
      4
@@ -308,6 +434,12 @@
      1
      1
      1
+     4
+     4
+     4
+     4
+     4
+     4
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <FlightData>))
   "Converts a ROS message object to a list"
@@ -325,4 +457,10 @@
     (cl:cons ':em_ground (em_ground msg))
     (cl:cons ':em_open (em_open msg))
     (cl:cons ':em_sky (em_sky msg))
+    (cl:cons ':pitch (pitch msg))
+    (cl:cons ':roll (roll msg))
+    (cl:cons ':yaw (yaw msg))
+    (cl:cons ':agx (agx msg))
+    (cl:cons ':agy (agy msg))
+    (cl:cons ':agz (agz msg))
 ))

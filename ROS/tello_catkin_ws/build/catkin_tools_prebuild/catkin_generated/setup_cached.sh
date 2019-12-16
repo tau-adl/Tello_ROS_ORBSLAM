@@ -9,7 +9,6 @@
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/arkadiros/ROS/tello_catkin_ws/devel/.private/catkin_tools_prebuild:$CMAKE_PREFIX_PATH"
 export LD_LIBRARY_PATH="/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu"
-export PATH="/opt/ros/kinetic/bin:/home/arkadiros/bin:/home/arkadiros/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
 export PKG_CONFIG_PATH="/opt/ros/kinetic/lib/pkgconfig:/opt/ros/kinetic/lib/x86_64-linux-gnu/pkgconfig"
 export PWD="/home/arkadiros/ROS/tello_catkin_ws/build/catkin_tools_prebuild"
 export PYTHONPATH="/opt/ros/kinetic/lib/python2.7/dist-packages"

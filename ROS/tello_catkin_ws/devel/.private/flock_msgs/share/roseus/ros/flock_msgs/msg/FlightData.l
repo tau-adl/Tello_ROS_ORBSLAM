@@ -38,7 +38,7 @@
 (defconstant flock_msgs::FlightData::*EQUIPMENT_TIMER_EXCEEDED* 205)
 (defclass flock_msgs::FlightData
   :super ros::object
-  :slots (_battery_percent _estimated_flight_time_remaining _flight_mode _flight_time _east_speed _north_speed _ground_speed _altitude _equipment _high_temperature _em_ground _em_open _em_sky ))
+  :slots (_battery_percent _estimated_flight_time_remaining _flight_mode _flight_time _east_speed _north_speed _ground_speed _altitude _equipment _high_temperature _em_ground _em_open _em_sky _pitch _roll _yaw _agx _agy _agz ))
 
 (defmethod flock_msgs::FlightData
   (:init
@@ -56,6 +56,12 @@
     ((:em_ground __em_ground) nil)
     ((:em_open __em_open) nil)
     ((:em_sky __em_sky) nil)
+    ((:pitch __pitch) 0.0)
+    ((:roll __roll) 0.0)
+    ((:yaw __yaw) 0.0)
+    ((:agx __agx) 0.0)
+    ((:agy __agy) 0.0)
+    ((:agz __agz) 0.0)
     )
    (send-super :init)
    (setq _battery_percent (round __battery_percent))
@@ -71,6 +77,12 @@
    (setq _em_ground __em_ground)
    (setq _em_open __em_open)
    (setq _em_sky __em_sky)
+   (setq _pitch (float __pitch))
+   (setq _roll (float __roll))
+   (setq _yaw (float __yaw))
+   (setq _agx (float __agx))
+   (setq _agy (float __agy))
+   (setq _agz (float __agz))
    self)
   (:battery_percent
    (&optional __battery_percent)
@@ -111,6 +123,24 @@
   (:em_sky
    (&optional __em_sky)
    (if __em_sky (setq _em_sky __em_sky)) _em_sky)
+  (:pitch
+   (&optional __pitch)
+   (if __pitch (setq _pitch __pitch)) _pitch)
+  (:roll
+   (&optional __roll)
+   (if __roll (setq _roll __roll)) _roll)
+  (:yaw
+   (&optional __yaw)
+   (if __yaw (setq _yaw __yaw)) _yaw)
+  (:agx
+   (&optional __agx)
+   (if __agx (setq _agx __agx)) _agx)
+  (:agy
+   (&optional __agy)
+   (if __agy (setq _agy __agy)) _agy)
+  (:agz
+   (&optional __agz)
+   (if __agz (setq _agz __agz)) _agz)
   (:serialization-length
    ()
    (+
@@ -140,6 +170,18 @@
     1
     ;; bool _em_sky
     1
+    ;; float32 _pitch
+    4
+    ;; float32 _roll
+    4
+    ;; float32 _yaw
+    4
+    ;; float32 _agx
+    4
+    ;; float32 _agy
+    4
+    ;; float32 _agz
+    4
     ))
   (:serialize
    (&optional strm)
@@ -171,6 +213,18 @@
        (if _em_open (write-byte -1 s) (write-byte 0 s))
      ;; bool _em_sky
        (if _em_sky (write-byte -1 s) (write-byte 0 s))
+     ;; float32 _pitch
+       (sys::poke _pitch (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
+     ;; float32 _roll
+       (sys::poke _roll (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
+     ;; float32 _yaw
+       (sys::poke _yaw (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
+     ;; float32 _agx
+       (sys::poke _agx (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
+     ;; float32 _agy
+       (sys::poke _agy (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
+     ;; float32 _agz
+       (sys::poke _agz (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
      ;;
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
@@ -201,11 +255,23 @@
      (setq _em_open (not (= 0 (sys::peek buf ptr- :char)))) (incf ptr- 1)
    ;; bool _em_sky
      (setq _em_sky (not (= 0 (sys::peek buf ptr- :char)))) (incf ptr- 1)
+   ;; float32 _pitch
+     (setq _pitch (sys::peek buf ptr- :float)) (incf ptr- 4)
+   ;; float32 _roll
+     (setq _roll (sys::peek buf ptr- :float)) (incf ptr- 4)
+   ;; float32 _yaw
+     (setq _yaw (sys::peek buf ptr- :float)) (incf ptr- 4)
+   ;; float32 _agx
+     (setq _agx (sys::peek buf ptr- :float)) (incf ptr- 4)
+   ;; float32 _agy
+     (setq _agy (sys::peek buf ptr- :float)) (incf ptr- 4)
+   ;; float32 _agz
+     (setq _agz (sys::peek buf ptr- :float)) (incf ptr- 4)
    ;;
    self)
   )
 
-(setf (get flock_msgs::FlightData :md5sum-) "aea1f1ee32ab41906cd3b81038074ba3")
+(setf (get flock_msgs::FlightData :md5sum-) "1fbfcd738c3afa96d840f05b5d17f7de")
 (setf (get flock_msgs::FlightData :datatype-) "flock_msgs/FlightData")
 (setf (get flock_msgs::FlightData :definition-)
       "# Flight data -- experimental -- will change as we learn more
@@ -246,10 +312,17 @@ bool em_ground                      # ???
 bool em_open                        # ???
 bool em_sky                         # ???
 
+
+float32 pitch
+float32 roll
+float32 yaw
+float32 agx
+float32 agy
+float32 agz
 ")
 
 
 
-(provide :flock_msgs/FlightData "aea1f1ee32ab41906cd3b81038074ba3")
+(provide :flock_msgs/FlightData "1fbfcd738c3afa96d840f05b5d17f7de")
 
 

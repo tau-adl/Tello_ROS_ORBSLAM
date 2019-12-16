@@ -2382,6 +2382,33 @@ orb_slam2/src/Map.cc.s:
 	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Map.cc.s
 .PHONY : orb_slam2/src/Map.cc.s
 
+orb_slam2/src/MapDrawer.o: orb_slam2/src/MapDrawer.cc.o
+
+.PHONY : orb_slam2/src/MapDrawer.o
+
+# target to build an object file
+orb_slam2/src/MapDrawer.cc.o:
+	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.o
+.PHONY : orb_slam2/src/MapDrawer.cc.o
+
+orb_slam2/src/MapDrawer.i: orb_slam2/src/MapDrawer.cc.i
+
+.PHONY : orb_slam2/src/MapDrawer.i
+
+# target to preprocess a source file
+orb_slam2/src/MapDrawer.cc.i:
+	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.i
+.PHONY : orb_slam2/src/MapDrawer.cc.i
+
+orb_slam2/src/MapDrawer.s: orb_slam2/src/MapDrawer.cc.s
+
+.PHONY : orb_slam2/src/MapDrawer.s
+
+# target to generate assembly for a file
+orb_slam2/src/MapDrawer.cc.s:
+	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/MapDrawer.cc.s
+.PHONY : orb_slam2/src/MapDrawer.cc.s
+
 orb_slam2/src/MapPoint.o: orb_slam2/src/MapPoint.cc.o
 
 .PHONY : orb_slam2/src/MapPoint.o
@@ -2597,6 +2624,33 @@ orb_slam2/src/Tracking.s: orb_slam2/src/Tracking.cc.s
 orb_slam2/src/Tracking.cc.s:
 	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Tracking.cc.s
 .PHONY : orb_slam2/src/Tracking.cc.s
+
+orb_slam2/src/Viewer.o: orb_slam2/src/Viewer.cc.o
+
+.PHONY : orb_slam2/src/Viewer.o
+
+# target to build an object file
+orb_slam2/src/Viewer.cc.o:
+	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.o
+.PHONY : orb_slam2/src/Viewer.cc.o
+
+orb_slam2/src/Viewer.i: orb_slam2/src/Viewer.cc.i
+
+.PHONY : orb_slam2/src/Viewer.i
+
+# target to preprocess a source file
+orb_slam2/src/Viewer.cc.i:
+	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.i
+.PHONY : orb_slam2/src/Viewer.cc.i
+
+orb_slam2/src/Viewer.s: orb_slam2/src/Viewer.cc.s
+
+.PHONY : orb_slam2/src/Viewer.s
+
+# target to generate assembly for a file
+orb_slam2/src/Viewer.cc.s:
+	$(MAKE) -f CMakeFiles/orb_slam2_ros.dir/build.make CMakeFiles/orb_slam2_ros.dir/orb_slam2/src/Viewer.cc.s
+.PHONY : orb_slam2/src/Viewer.cc.s
 
 ros/src/MonoNode.o: ros/src/MonoNode.cc.o
 
@@ -2936,6 +2990,9 @@ help:
 	@echo "... orb_slam2/src/Map.o"
 	@echo "... orb_slam2/src/Map.i"
 	@echo "... orb_slam2/src/Map.s"
+	@echo "... orb_slam2/src/MapDrawer.o"
+	@echo "... orb_slam2/src/MapDrawer.i"
+	@echo "... orb_slam2/src/MapDrawer.s"
 	@echo "... orb_slam2/src/MapPoint.o"
 	@echo "... orb_slam2/src/MapPoint.i"
 	@echo "... orb_slam2/src/MapPoint.s"
@@ -2960,6 +3017,9 @@ help:
 	@echo "... orb_slam2/src/Tracking.o"
 	@echo "... orb_slam2/src/Tracking.i"
 	@echo "... orb_slam2/src/Tracking.s"
+	@echo "... orb_slam2/src/Viewer.o"
+	@echo "... orb_slam2/src/Viewer.i"
+	@echo "... orb_slam2/src/Viewer.s"
 	@echo "... ros/src/MonoNode.o"
 	@echo "... ros/src/MonoNode.i"
 	@echo "... ros/src/MonoNode.s"

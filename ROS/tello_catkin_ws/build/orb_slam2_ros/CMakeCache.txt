@@ -294,6 +294,9 @@ PYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
 //Specify specific Python version to use ('major.minor' or 'major')
 PYTHON_VERSION:STRING=
 
+//The directory containing a CMake configuration file for Pangolin.
+Pangolin_DIR:PATH=/home/arkadiros/ROS/other_orbslam2_ws/Pangolin/build/src
+
 //Path to a library.
 RT_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/librt.so
 
@@ -425,7 +428,7 @@ message_runtime_DIR:PATH=/opt/ros/kinetic/share/message_runtime/cmake
 orb_slam2_ros_BINARY_DIR:STATIC=/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros
 
 //Dependencies for the target
-orb_slam2_ros_LIB_DEPENDS:STATIC=general;opencv_calib3d;general;opencv_core;general;opencv_dnn;general;opencv_features2d;general;opencv_flann;general;opencv_highgui;general;opencv_imgcodecs;general;opencv_imgproc;general;opencv_ml;general;opencv_objdetect;general;opencv_photo;general;opencv_shape;general;opencv_stitching;general;opencv_superres;general;opencv_video;general;opencv_videoio;general;opencv_videostab;general;opencv_viz;general;opencv_aruco;general;opencv_bgsegm;general;opencv_bioinspired;general;opencv_ccalib;general;opencv_cvv;general;opencv_datasets;general;opencv_dpm;general;opencv_face;general;opencv_fuzzy;general;opencv_hdf;general;opencv_img_hash;general;opencv_line_descriptor;general;opencv_optflow;general;opencv_phase_unwrapping;general;opencv_plot;general;opencv_reg;general;opencv_rgbd;general;opencv_saliency;general;opencv_stereo;general;opencv_structured_light;general;opencv_surface_matching;general;opencv_text;general;opencv_tracking;general;opencv_xfeatures2d;general;opencv_ximgproc;general;opencv_xobjdetect;general;opencv_xphoto;general;/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/DBoW2/lib/libDBoW2.so;general;/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/g2o/lib/libg2o.so;general;/usr/lib/x86_64-linux-gnu/libboost_serialization.so;
+orb_slam2_ros_LIB_DEPENDS:STATIC=general;opencv_calib3d;general;opencv_core;general;opencv_dnn;general;opencv_features2d;general;opencv_flann;general;opencv_highgui;general;opencv_imgcodecs;general;opencv_imgproc;general;opencv_ml;general;opencv_objdetect;general;opencv_photo;general;opencv_shape;general;opencv_stitching;general;opencv_superres;general;opencv_video;general;opencv_videoio;general;opencv_videostab;general;opencv_viz;general;opencv_aruco;general;opencv_bgsegm;general;opencv_bioinspired;general;opencv_ccalib;general;opencv_cvv;general;opencv_datasets;general;opencv_dpm;general;opencv_face;general;opencv_fuzzy;general;opencv_hdf;general;opencv_img_hash;general;opencv_line_descriptor;general;opencv_optflow;general;opencv_phase_unwrapping;general;opencv_plot;general;opencv_reg;general;opencv_rgbd;general;opencv_saliency;general;opencv_stereo;general;opencv_structured_light;general;opencv_surface_matching;general;opencv_text;general;opencv_tracking;general;opencv_xfeatures2d;general;opencv_ximgproc;general;opencv_xobjdetect;general;opencv_xphoto;general;/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/DBoW2/lib/libDBoW2.so;general;/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros/orb_slam2/Thirdparty/g2o/lib/libg2o.so;general;pangolin;general;/usr/lib/x86_64-linux-gnu/libboost_serialization.so;
 
 //Value Computed by CMake
 orb_slam2_ros_SOURCE_DIR:STATIC=/home/arkadiros/ROS/tello_catkin_ws/src/orb_slam_2_ros
@@ -640,6 +643,8 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Test COMPILER_SUPPORTS_CXX0X
+COMPILER_SUPPORTS_CXX0X:INTERNAL=1
 //Test COMPILER_SUPPORTS_CXX11
 COMPILER_SUPPORTS_CXX11:INTERNAL=1
 //ADVANCED property for variable: EIGEN3_INCLUDE_DIR

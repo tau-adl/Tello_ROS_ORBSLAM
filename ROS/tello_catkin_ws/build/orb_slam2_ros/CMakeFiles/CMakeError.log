@@ -1,24 +1,24 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
 Change Dir: /home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_1889b/fast && /usr/bin/make -f CMakeFiles/cmTC_1889b.dir/build.make CMakeFiles/cmTC_1889b.dir/build
+Run Build Command(s):/usr/bin/make cmTC_933e6/fast && /usr/bin/make -f CMakeFiles/cmTC_933e6.dir/build.make CMakeFiles/cmTC_933e6.dir/build
 make[1]: Entering directory '/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_1889b.dir/src.c.o
-/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_1889b.dir/src.c.o   -c /home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_1889b
-/usr/local/lib/python2.7/dist-packages/cmake/data/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1889b.dir/link.txt --verbose=1
-/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_1889b.dir/src.c.o  -o cmTC_1889b 
-CMakeFiles/cmTC_1889b.dir/src.c.o: In function `main':
+Building C object CMakeFiles/cmTC_933e6.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_933e6.dir/src.c.o   -c /home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_933e6
+/usr/local/lib/python2.7/dist-packages/cmake/data/bin/cmake -E cmake_link_script CMakeFiles/cmTC_933e6.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_933e6.dir/src.c.o  -o cmTC_933e6 
+CMakeFiles/cmTC_933e6.dir/src.c.o: In function `main':
 src.c:(.text+0x3c): undefined reference to `pthread_create'
 src.c:(.text+0x48): undefined reference to `pthread_detach'
 src.c:(.text+0x59): undefined reference to `pthread_join'
 src.c:(.text+0x6d): undefined reference to `pthread_atfork'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_1889b.dir/build.make:86: recipe for target 'cmTC_1889b' failed
-make[1]: *** [cmTC_1889b] Error 1
+CMakeFiles/cmTC_933e6.dir/build.make:86: recipe for target 'cmTC_933e6' failed
+make[1]: *** [cmTC_933e6] Error 1
 make[1]: Leaving directory '/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_1889b/fast' failed
-make: *** [cmTC_1889b/fast] Error 2
+Makefile:121: recipe for target 'cmTC_933e6/fast' failed
+make: *** [cmTC_933e6/fast] Error 2
 
 
 Source file was:
@@ -44,20 +44,20 @@ int main(void)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_a1ede/fast && /usr/bin/make -f CMakeFiles/cmTC_a1ede.dir/build.make CMakeFiles/cmTC_a1ede.dir/build
+Run Build Command(s):/usr/bin/make cmTC_f3e42/fast && /usr/bin/make -f CMakeFiles/cmTC_f3e42.dir/build.make CMakeFiles/cmTC_f3e42.dir/build
 make[1]: Entering directory '/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_a1ede.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_a1ede.dir/CheckFunctionExists.c.o   -c /usr/local/lib/python2.7/dist-packages/cmake/data/share/cmake-3.15/Modules/CheckFunctionExists.c
-Linking C executable cmTC_a1ede
-/usr/local/lib/python2.7/dist-packages/cmake/data/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a1ede.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_a1ede.dir/CheckFunctionExists.c.o  -o cmTC_a1ede -lpthreads 
+Building C object CMakeFiles/cmTC_f3e42.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_f3e42.dir/CheckFunctionExists.c.o   -c /usr/local/lib/python2.7/dist-packages/cmake/data/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_f3e42
+/usr/local/lib/python2.7/dist-packages/cmake/data/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f3e42.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_f3e42.dir/CheckFunctionExists.c.o  -o cmTC_f3e42 -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_a1ede.dir/build.make:86: recipe for target 'cmTC_a1ede' failed
-make[1]: *** [cmTC_a1ede] Error 1
+CMakeFiles/cmTC_f3e42.dir/build.make:86: recipe for target 'cmTC_f3e42' failed
+make[1]: *** [cmTC_f3e42] Error 1
 make[1]: Leaving directory '/home/arkadiros/ROS/tello_catkin_ws/build/orb_slam2_ros/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_a1ede/fast' failed
-make: *** [cmTC_a1ede/fast] Error 2
+Makefile:121: recipe for target 'cmTC_f3e42/fast' failed
+make: *** [cmTC_f3e42/fast] Error 2
 
 
 
