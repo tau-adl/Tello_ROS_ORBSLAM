@@ -1,0 +1,6 @@
+[submodule "ROS/ccmslam_ws/src/ccm_slam"]
+	path = ROS/ccmslam_ws/src/ccm_slam
+	url = ../../VIS4ROB-lab/ccm_slam.git
+[submodule "ROS/ccmslam_ws/src/flock"]
+	path = ROS/ccmslam_ws/src/flock
+	url = ../../arkadyzi/TelloRos.git

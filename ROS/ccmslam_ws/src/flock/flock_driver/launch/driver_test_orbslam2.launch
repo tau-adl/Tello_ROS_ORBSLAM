@@ -1,0 +1,90 @@
+<launch>
+
+
+
+    <!-- <node name="rectify" pkg="image_proc" 
+        type="rectify.py" output="screen">
+        <remap from="/camera/image_raw" to="/camera/rgb/image_raw" />
+     </node>-->
+
+    <!-- <node name="rectify" pkg="image_proc" type="image_proc" ns="rectify"> -->
+      <!-- <remap from="/camera/image_raw" to="/rectify/image_mono" /> -->
+    <!-- </node> -->
+
+<!--     <node pkg="image_proc" type="image_proc"
+          ns="rectify"
+          name="image_proc">
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          args="standalone image_proc/rectify"
+          name="my_rectify"> -->
+<!--       <param name="x_offset" type="int" value="1" />
+      <param name="y_offset" type="int" value="1" />
+      <param name="width" type="int" value="639" />
+      <param name="height" type="int" value="439" /> -->
+
+      <!-- remap input topics -->
+      <!-- <remap from="camera/image_raw" to="/rectify/image_rect_color"/> -->
+      <!-- <remap to="/camera_info" from="/rectify/camera_info"/> -->
+
+      <!-- remap output topics -->
+<!--       <remap from="camera_out/image_raw" to="/camera_crop/image_rect_color"/>
+      <remap from="camera_out/image_info" to="/camera_crop/camera_info"/> -->
+    <!-- </node> -->
+
+
+
+	<node name="orb_slam2_mono" pkg="orb_slam2_ros" type="orb_slam2_ros_mono" output="screen">
+        
+
+      <!-- <remap from="/camera/image_raw" to="/camera/image_rect_color" /> -->
+
+      <param name="publish_pointcloud" type="bool" value="true" />
+      <param name="publish_pose" type="bool" value="true" />
+      <param name="localize_only" type="bool" value="false" />
+      <param name="reset_map" type="bool" value="false" />
+
+      <!-- static parameters -->
+      <param name="use_viewer" type="bool" value="true" />
+      <param name="load_map" type="bool" value="false" />
+      <param name="map_file" type="string" value="labaratory_rot.bin" />
+      <param name="settings_file" type="string" value="$(find orb_slam2_ros)/orb_slam2/config/Tello.yaml" />
+      <param name="voc_file" type="string" value="$(find orb_slam2_ros)/orb_slam2/Vocabulary/ORBvoc.txt" />
+
+      <param name="pointcloud_frame_id" type="string" value="map" />
+      <param name="camera_frame_id" type="string" value="camera_link" />
+      <param name="min_num_kf_in_map" type="int" value="15" />
+  </node>
+
+  <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
+      <param name="network_interface" type="string" value="" />
+      <!-- <param name="network_interface" type="string" value="" /> -->
+      <param name="ID" type="string" value="0" />
+      <!-- <param name="TELLO_IP" type="string" value="192.168.43.98" /> -->
+
+      <!-- <remap from="tello0/camera/image_raw" to="/camera/image_raw" /> -->
+      <remap from="tello0/camera/image_raw" to="/image" />
+
+  </node>
+  <!-- <node name="tello_keyboard_node" pkg="flock_driver" type="tello_keyboard.py" output="screen" /> -->
+  <!-- <node name="raw_image_fps_calc" pkg="flock_driver" type="raw_image_fps_calc.py" output="screen" /> -->
+  <!-- <node name="tello_low_battery" pkg="flock_driver" type="tello_low_battery.py" output="screen" /> -->
+  <!-- <node name="tello_camera_info" pkg="flock_driver" type="tello_camera_info.py" output="screen" /> -->
+  <node name="tello_slam_control" pkg="flock_driver" type="tello_slam_control.py" output="screen" />
+  <node name="tello_ui" pkg="flock_driver" type="tello_ui.py" output="screen" />
+  <node name="image_muxer" pkg="flock_driver" type="image_muxer.py" output="screen" />
+  <!-- <node name="tello_load_trajectory" pkg="flock_driver" type="tello_load_trajectory.py" output="screen" /> -->
+  <!-- <node name="tello_slam_simulation" pkg="flock_driver" type="tello_slam_simulation.py" output="screen" /> -->
+
+<!-- <node name="tello_slam_simulation" pkg="flock_driver" type="tello_slam_simulation.py" output="screen" > -->
+      <!-- <remap from="/orb_slam2_mono/pose2" to="/orb_slam2_mono/pose" /> -->
+      <!-- <remap from="flight_data2" to="flight_data" /> -->
+    <!-- </node> -->
+    
+
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find flock_rviz)/cfg/default.rviz" output="screen" /> -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" output="screen" /> -->
+
+
+</launch>

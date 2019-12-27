@@ -1,0 +1,22 @@
+<launch>
+
+	<arg name="GLOBAL_ID" default="0"/>
+
+    <node name="tello_slam_control" pkg="flock_driver" type="tello_slam_control.py" output="screen" >
+    	<param name="ID" type="string" value="$(arg GLOBAL_ID)" />
+    </node>	
+
+    <node name="tello_ui" pkg="flock_driver" type="tello_ui.py" output="screen">
+    	<param name="ID" type="string" value="$(arg GLOBAL_ID)" />
+    </node>	
+
+
+    <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
+      <param name="network_interface" type="string" value="" />
+      <param name="ID" type="string" value="$(arg GLOBAL_ID)" />
+
+      <!-- <remap from="/camera/image_raw" to="/image" /> -->
+	</node>
+
+
+</launch>

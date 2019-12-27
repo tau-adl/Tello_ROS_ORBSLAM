@@ -1,0 +1,13 @@
+<launch>
+
+
+    <node name="tello_slam_simulation" pkg="flock_driver" type="tello_slam_simulation.py" output="screen" >
+      <!-- <remap from="/orb_slam2_mono/pose2" to="/orb_slam2_mono/pose" /> -->
+      <!-- <remap from="flight_data2" to="flight_data" /> -->
+    </node>
+
+
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" />
+
+
+</launch>

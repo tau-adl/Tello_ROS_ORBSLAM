@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Filepath for the robot description file -->
+  <arg name="model" default="$(find flock_description)/urdf/tello.urdf.xacro" />
+
+  <!-- Open the URDF, run the xacro preprocessor, and stuff the result into 'robot_description' on the parameter server -->
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+  <!-- Publish transforms for joints in the model -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
+
+</launch>

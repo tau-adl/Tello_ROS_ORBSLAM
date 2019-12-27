@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<!-- Body coordinates are: x forward, y left, z up; rotation is: roll right, pitch forward, yaw left -->
+<!-- See http://www.ros.org/reps/rep-0103.html -->
+
+<robot name="tello" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+  <!-- Materials -->
+  <material name="gray"><color rgba="0.5 0.5 0.5 1.0"/></material>
+  <material name="white"><color rgba="0.9 0.9 0.9 1.0"/></material>
+  <material name="red"><color rgba="1.0 0 0 1.0"/></material>
+
+  <!-- Base link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.01"/>
+      <geometry><box size="0.07 0.02 0.02"/></geometry>
+      <material name="white"/>
+    </visual>
+    <visual>
+      <origin xyz="0 0 -0.01"/>
+      <geometry><box size="0.07 0.02 0.02"/></geometry>
+      <material name="gray"/>
+    </visual>
+    <visual>
+      <origin xyz="0.05 -0.05 0"/>
+      <geometry><cylinder length="0.01" radius="0.045"/></geometry>
+      <material name="gray"/>
+    </visual>
+    <visual>
+      <origin xyz="-0.05 0.05 0"/>
+      <geometry><cylinder length="0.01" radius="0.045"/></geometry>
+      <material name="gray"/>
+    </visual>
+    <visual>
+      <origin xyz="-0.05 -0.05 0"/>
+      <geometry><cylinder length="0.01" radius="0.045"/></geometry>
+      <material name="gray"/>
+    </visual>
+    <visual>
+      <origin xyz="0.05 0.05 0"/>
+      <geometry><cylinder length="0.01" radius="0.045"/></geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <!-- Camera frame -->
+  <link name="camera_frame">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry><sphere radius="0.01"/></geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <!-- Fixed joint -->
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="0.035 0 0" rpy="${PI/2} ${PI} ${PI/2}"/>
+    <parent link="base_link"/>
+    <child link="camera_frame"/>
+  </joint>
+
+</robot>

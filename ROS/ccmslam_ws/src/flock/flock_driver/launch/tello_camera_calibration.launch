@@ -1,0 +1,20 @@
+<launch>
+
+      <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
+      <remap from="tello0/camera/image_raw" to="/image" />
+      <!-- <remap from="/camera/camera_info" to="/monocular/camera_info" /> -->
+    </node>
+
+<!--     <node name="tello_camera_info" pkg="flock_driver" type="tello_camera_info.py" output="screen" >
+        <remap from="/camera/camera_info" to="/monocular/camera_info" />
+        
+    </node> -->
+
+
+
+  <!--  rosrun camera_calibration cameracheck.py -s 8x6 -q 0.036775  -->
+
+
+
+
+</launch>

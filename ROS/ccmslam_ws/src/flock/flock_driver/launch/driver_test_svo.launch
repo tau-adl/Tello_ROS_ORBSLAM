@@ -1,0 +1,65 @@
+<launch>
+
+    <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
+        <!-- <remap from="/camera/image_raw" to="/rectify/image_color" /> -->
+    </node>
+    <node name="tello_keyboard_node" pkg="flock_driver" type="tello_keyboard.py" output="screen" />
+    <node name="raw_image_fps_calc" pkg="flock_driver" type="raw_image_fps_calc.py" output="screen" />
+    <node name="tello_low_battery" pkg="flock_driver" type="tello_low_battery.py" output="screen" />
+    <node name="tello_camera_info" pkg="flock_driver" type="tello_camera_info.py" output="screen" />
+
+    <!-- <node name="rectify" pkg="image_proc" 
+        type="rectify.py" output="screen">
+        <remap from="/camera/image_raw" to="/camera/rgb/image_raw" />
+     </node>-->
+
+    <!-- <node name="rectify" pkg="image_proc" type="image_proc" ns="rectify"> -->
+      <!-- <remap from="/camera/image_raw" to="/rectify/image_mono" /> -->
+    <!-- </node> -->
+
+<!--     <node pkg="image_proc" type="image_proc"
+          ns="rectify"
+          name="image_proc">
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          args="standalone image_proc/rectify"
+          name="my_rectify"> -->
+<!--       <param name="x_offset" type="int" value="1" />
+      <param name="y_offset" type="int" value="1" />
+      <param name="width" type="int" value="639" />
+      <param name="height" type="int" value="439" /> -->
+
+      <!-- remap input topics -->
+      <!-- <remap from="camera/image_raw" to="/rectify/image_rect_color"/> -->
+      <!-- <remap to="/camera_info" from="/rectify/camera_info"/> -->
+
+      <!-- remap output topics -->
+<!--       <remap from="camera_out/image_raw" to="/camera_crop/image_rect_color"/>
+      <remap from="camera_out/image_info" to="/camera_crop/camera_info"/> -->
+    <!-- </node> -->
+
+
+
+    <node pkg="svo_ros" type="vo" name="svo" clear_params="true" output="screen">
+    
+        <!-- Camera topic to subscribe to -->
+        <param name="cam_topic" value="/camera/image_raw" type="str" />
+        
+        <!-- Camera calibration file -->
+        <rosparam file="$(find svo_ros)/param/camera_tello.yaml" />
+        
+        <!-- Default parameter settings: choose between vo_fast and vo_accurate -->
+        <!-- <rosparam file="$(find svo_ros)/param/vo_accurate.yaml" /> -->
+        <rosparam file="$(find svo_ros)/param/vo_fast.yaml" />
+
+    </node>
+
+
+
+
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find flock_rviz)/cfg/default.rviz" output="screen" /> -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" output="screen" /> -->
+
+
+</launch>

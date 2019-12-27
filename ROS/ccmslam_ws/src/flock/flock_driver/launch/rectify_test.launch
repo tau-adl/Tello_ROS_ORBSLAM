@@ -1,0 +1,39 @@
+<launch>
+
+
+
+ <!--     <node name="rectify" pkg="image_proc" type="rectify.py" output="screen">
+        <remap from="/camera/image_raw" to="/camera/rgb/image_raw" />
+     </node> -->
+
+    <node name="rectify0" pkg="image_proc" type="image_proc" ns="rectify">
+      <!-- <remap from="/rectify/image_mono" to="tello0/camera/image_raw" /> -->
+    </node>
+
+
+<!--     <node pkg="image_proc" type="image_proc"
+          ns="rectify"
+          name="image_proc">
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          args="standalone image_proc/rectify"
+          name="my_rectify"> -->
+<!--       <param name="x_offset" type="int" value="1" />
+      <param name="y_offset" type="int" value="1" />
+      <param name="width" type="int" value="639" />
+      <param name="height" type="int" value="439" /> -->
+
+      <!-- remap input topics -->
+      <!-- <remap from="camera/image_raw" to="/rectify/image_rect_color"/> -->
+      <!-- <remap to="/camera_info" from="/rectify/camera_info"/> -->
+
+      <!-- remap output topics -->
+<!--       <remap from="camera_out/image_raw" to="/camera_crop/image_rect_color"/>
+      <remap from="camera_out/image_info" to="/camera_crop/camera_info"/> -->
+    <!-- </node> -->
+
+
+
+
+</launch>
