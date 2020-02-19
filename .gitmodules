@@ -1,6 +1,15 @@
-[submodule "ROS/ccmslam_ws/src/ccm_slam"]
-	path = ROS/ccmslam_ws/src/ccm_slam
-	url = ../../VIS4ROB-lab/ccm_slam.git
-[submodule "ROS/ccmslam_ws/src/flock"]
-	path = ROS/ccmslam_ws/src/flock
-	url = ../../arkadyzi/TelloRos.git
+[submodule "ROS/ccmslam-modified"]
+	path = ROS/ccmslam-modified
+	url = ../ccmslam-modified.git
+[submodule "ROS/tello_catkin_ws/src/Sophus"]
+	path = ROS/tello_catkin_ws/src/Sophus
+	url = ../../strasdat/Sophus.git
+[submodule "ROS/tello_catkin_ws/src/fast"]
+	path = ROS/tello_catkin_ws/src/fast
+	url = ../../uzh-rpg/fast.git
+[submodule "ROS/tello_catkin_ws/src/rpg_svo"]
+	path = ROS/tello_catkin_ws/src/rpg_svo
+	url = ../../uzh-rpg/rpg_svo.git
+[submodule "ROS/tello_catkin_ws/src/rpg_vikit"]
+	path = ROS/tello_catkin_ws/src/rpg_vikit
+	url = ../../uzh-rpg/rpg_vikit.git

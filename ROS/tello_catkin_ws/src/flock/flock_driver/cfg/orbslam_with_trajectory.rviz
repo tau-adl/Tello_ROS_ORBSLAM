@@ -1,0 +1,329 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 0
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Grid1
+        - /TF1/Tree1
+        - /Pose2
+        - /PoseArray1
+        - /PoseArray1/Status1
+        - /Path2
+        - /Path2/Status1
+        - /Pose3
+        - /PoseArray2
+        - /Path3
+      Splitter Ratio: 0.459566087
+    Tree Height: 211
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.588679016
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+      - /Orbit1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: ""
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 0.5
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.0299999993
+        Value: Billboards
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 30
+      Reference Frame: world
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 1500
+      Frames:
+        All Enabled: true
+        camera_link:
+          Value: true
+        map:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 3
+      Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: false
+      Tree:
+        map:
+          camera_link:
+            {}
+          world:
+            {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz/Image
+      Enabled: false
+      Image Topic: /ccmslam/ImageClient0
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: false
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: false
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /ccmslam/PoseOutClient0
+      Unreliable: false
+      Value: false
+    - Alpha: 2
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /tello0/path
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /tello0/real_world_pos
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Arrow Length: 0.300000012
+      Axes Length: 0.300000012
+      Axes Radius: 0.00999999978
+      Class: rviz/PoseArray
+      Color: 255; 162; 96
+      Enabled: true
+      Head Length: 0.0700000003
+      Head Radius: 0.0299999993
+      Name: PoseArray
+      Shaft Length: 0.230000004
+      Shaft Radius: 0.00999999978
+      Shape: Arrow (3D)
+      Topic: /tello0/pose_trail
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 255; 247; 130
+      Enabled: true
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /tello0/path_trail
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 29; 0; 255
+      Enabled: true
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /tello1/real_world_pos
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Arrow Length: 0.300000012
+      Axes Length: 0.300000012
+      Axes Radius: 0.00999999978
+      Class: rviz/PoseArray
+      Color: 32; 203; 255
+      Enabled: true
+      Head Length: 0.0700000003
+      Head Radius: 0.0299999993
+      Name: PoseArray
+      Shaft Length: 0.230000004
+      Shaft Radius: 0.00999999978
+      Shape: Arrow (Flat)
+      Topic: /tello1/pose_trail
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 200; 0; 255
+      Enabled: true
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /tello1/path_trail
+      Unreliable: false
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 0; 0; 0
+    Default Light: true
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Topic: /initialpose
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 11.1229687
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.0599999987
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 1.01889813
+        Y: -0.562284529
+        Z: 0.477044255
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.0500000007
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.00999999978
+      Pitch: 0.590398252
+      Target Frame: world
+      Value: Orbit (rviz)
+      Yaw: 1.55358589
+    Saved:
+      - Class: rviz/Orbit
+        Distance: 64.4184036
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.0599999987
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Focal Point:
+          X: 87.7149963
+          Y: 61.8139992
+          Z: -1.42289996
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.0500000007
+        Invert Z Axis: false
+        Name: Orbit
+        Near Clip Distance: 0.00999999978
+        Pitch: 0
+        Target Frame: world
+        Value: Orbit (rviz)
+        Yaw: 0
+Window Geometry:
+  Displays:
+    collapsed: true
+  Height: 1028
+  Hide Left Dock: true
+  Hide Right Dock: false
+  Image:
+    collapsed: true
+  QMainWindow State: 000000ff00000000fd0000000400000000000002020000037dfc0200000011fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006100fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000000a0056006900650077007300000000280000010a000000ad00fffffffb000000100044006900730070006c006100790073000000013800000114000000d700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d00650072006100000002a6000000ff0000000000000000fb0000000c00430061006d0065007200610000000000ffffffff0000000000000000fb000000220056006900650077002000470072006f0075006e006400200052006f0062006f007400000001d1000001330000000000000000fb0000002800430061006d006500720061002000570061006c006b0069006e006700200052006f0062006f007400000002b9000000450000000000000000fb000000100056006900650077002000550041005600000002f50000004a0000000000000000fb0000001800430061006d006500720061002000440072006f006e0065000000033b0000006a0000000000000000fb0000000a0049006d00610067006502000005800000005900000200000001c2fb0000000a0049006d0061006700650000000252000001530000001600ffffff000000010000017d00000399fc0200000014fb0000002800430061006d006500720061002000570061006c006b0069006e006700200052006f0062006f00740100000028000001b20000000000000000fb0000001800430061006d006500720061002000440072006f006e006501000001e0000001c50000000000000000fb0000000a0049006d00610067006501000000280000021f0000000000000000fb0000000a0049006d006100670065010000024d000001740000000000000000fb0000000a0049006d00610067006501000001df000001e20000000000000000fb0000000a0049006d0061006700650000000163000001130000000000000000fc000001f2000001b30000000000fffffffa000000000100000004fb0000000a0049006d0061006700650000000000ffffffff0000000000000000fb0000000a0049006d0061006700650000000000ffffffff0000000000000000fb0000000a0049006d0061006700650000000000ffffffff0000000000000000fb0000000a0049006d00610067006501000002140000018b0000000000000000fb0000000a0049006d00610067006501000001f1000001b40000000000000000fb0000000c00430061006d00650072006100000000280000037d0000000000000000fb0000000a0049006d00610067006500000000280000037d0000000000000000fb0000000a0049006d00610067006500000001e3000001c20000000000000000fb0000000e0043006c00690065006e007400300100000028000000420000000000000000fc000000700000003e0000000000fffffffa000000000100000003fb0000000e0043006c00690065006e007400320000000000ffffffff0000000000000000fb0000000e0043006c00690065006e007400310100000000ffffffff0000000000000000fb0000000e0043006c00690065006e007400330000000000ffffffff0000000000000000fb000000220056006900650077002000470072006f0075006e006400200052006f0062006f007400000001e8000000bc0000000000000000fb00000010005600690065007700200055004100560000000264000001410000000000000000fb0000000e0043006c00690065006e00740032000000037b000000460000000000000000fb0000000e0043006c00690065006e00740033000000029d000001240000000000000000fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0049006d00610067006500000000d7000002e70000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000009bf000000e9fc0100000002fb0000000a0049006d0061006700650100000000000009bf0000000000000000fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003a00000003bfc0100000002fb0000000800540069006d00650100000000000003a00000030000fffffffb0000000800540069006d00650100000000000004500000000000000000000003a00000037d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: true
+  Width: 928
+  X: 992
+  Y: 24
