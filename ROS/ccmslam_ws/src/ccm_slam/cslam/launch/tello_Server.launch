@@ -38,4 +38,20 @@
 </node>
 
   </group>
+
+  <node name="cloud_map_saver_for_server" pkg="flock_driver" type="cloud_map_saver_for_server.py" output="screen">
+<!--   <param name="~ID" type="int" value="$(arg GLOBAL_ID)" /> -->
+  <!-- <param name="OUT_FILE_PATH" type="string" value="/home/arkadiros/map_point_client$(arg GLOBAL_ID).txt" /> -->
+  <param name="CLOUD0_TOPIC_NAME" type="string" value="/ccmslam/ClientMapPointsMap0" />
+  <param name="CLOUD1_TOPIC_NAME" type="string" value="/ccmslam/ClientMapPointsMap1" />
+  <!-- <param name="TRIGGER_TOPIC_NAME" type="string" value="/save_cloud_trigger_client$(arg GLOBAL_ID)" /> -->
+  <param name="POSE0_TOPIC_NAME" type="string" value="/ccmslam/PoseOutClient0" />
+  <param name="POSE1_TOPIC_NAME" type="string" value="/ccmslam/PoseOutClient1" />
+  <param name="CAMERA0_TOPIC_NAME" type="string" value="/ccmslam/ImageClient0" />
+  <param name="CAMERA1_TOPIC_NAME" type="string" value="/ccmslam/ImageClient1" />
+  <!-- <param name="CLOUD_SERVER_TOPIC_NAME" type="string" value="/ccmslam/LocalMPs0" /> -->
+  
+</node>
+
+
 </launch>

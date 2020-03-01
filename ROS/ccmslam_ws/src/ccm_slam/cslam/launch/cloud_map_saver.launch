@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+
+<node name="cloud_map_saver" pkg="flock_driver" type="cloud_map_saver.py" output="screen">
+  <param name="OUT_FILE_PATH" type="string" value="/home/arkadiros/map_point.txt" />
+  <param name="CLOUD_TOPIC_NAME" type="string" value="/ccmslam/ClientMapPointsMap0" />
+  <param name="TRIGGER_TOPIC_NAME" type="string" value="/save_cloud_trigger" />
+</node>
+
+  
+</launch>

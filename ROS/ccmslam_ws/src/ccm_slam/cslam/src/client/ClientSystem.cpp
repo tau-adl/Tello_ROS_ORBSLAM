@@ -63,7 +63,7 @@ ClientSystem::ClientSystem(ros::NodeHandle Nh, ros::NodeHandle NhPrivate, const 
     usleep(10000); //wait to avoid race conditions
     mpAgent->InitializeThreads();
     usleep(10000); //wait to avoid race conditions
-    ptrPoseStamped.reset(new thread(&ClientHandler::PublishPoseThread, mpAgent));
+//    ptrPoseStamped.reset(new thread(&ClientHandler::PublishPoseThread, mpAgent));
 
     //++++++++++
     cout << endl << "Clientsystem initialized (Client ID: " << mClientId << ")" << endl;

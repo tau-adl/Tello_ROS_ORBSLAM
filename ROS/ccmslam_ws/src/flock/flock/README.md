@@ -1,1 +1,0 @@
-Catkin metapackage glue for Flock.

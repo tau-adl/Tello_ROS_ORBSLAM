@@ -46,7 +46,7 @@
 #include <cslam/Database.h>
 #include <cslam/ClientHandler.h>
 #include <cslam/MapMatcher.h>
-//#include <cslam/Viewer.h>
+#include <cslam/Viewer.h>
 
 using namespace std;
 using namespace estd;

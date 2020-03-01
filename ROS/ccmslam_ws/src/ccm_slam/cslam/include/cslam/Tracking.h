@@ -194,7 +194,7 @@ protected:
 
     //Last Frame, KeyFrame and Relocalisation Info
     kfptr mpLastKeyFrame;
-    
+    //frameptr mLastFrame;
     idpair mLastKeyFrameId;
     idpair mLastRelocFrameId;
 

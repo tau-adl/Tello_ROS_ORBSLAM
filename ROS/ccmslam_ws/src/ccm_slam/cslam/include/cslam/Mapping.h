@@ -94,6 +94,8 @@ public:
 
     void InsertKeyFrame(kfptr pKF);
 
+    kfptr mpCurrentKeyFrame;
+
     // Thread Synch
     void RequestStop();
     void RequestReset();
@@ -151,7 +153,7 @@ protected:
     //data
     std::list<kfptr> mlNewKeyFrames;
     std::list<kfptr> mlKfsForLBA;
-    kfptr mpCurrentKeyFrame;
+
     std::list<mpptr> mlpRecentAddedMapPoints;
     std::list<kfptr> mlpRecentAddedKFs;
     set<kfptr>mspKFsCheckedForCulling;

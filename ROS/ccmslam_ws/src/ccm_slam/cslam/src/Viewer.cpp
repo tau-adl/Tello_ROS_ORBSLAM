@@ -653,22 +653,21 @@ void Viewer::PubKeyFramesAsFrusta()
         cv::Mat p4w = Twc*p4;
 
         geometry_msgs::Point msgs_o,msgs_p1, msgs_p2, msgs_p3, msgs_p4;
-//        geometry_msgs::Point msgs_p1, msgs_p2, msgs_p3, msgs_p4;
-        msgs_o.x=(fScale)*ow.at<float>(0);
-        msgs_o.y=(fScale)*ow.at<float>(1);
-        msgs_o.z=(fScale)*ow.at<float>(2);
-        msgs_p1.x=(fScale)*p1w.at<float>(0);
-        msgs_p1.y=(fScale)*p1w.at<float>(1);
-        msgs_p1.z=(fScale)*p1w.at<float>(2);
-        msgs_p2.x=(fScale)*p2w.at<float>(0);
-        msgs_p2.y=(fScale)*p2w.at<float>(1);
-        msgs_p2.z=(fScale)*p2w.at<float>(2);
-        msgs_p3.x=(fScale)*p3w.at<float>(0);
-        msgs_p3.y=(fScale)*p3w.at<float>(1);
-        msgs_p3.z=(fScale)*p3w.at<float>(2);
-        msgs_p4.x=(fScale)*p4w.at<float>(0);
-        msgs_p4.y=(fScale)*p4w.at<float>(1);
-        msgs_p4.z=(fScale)*p4w.at<float>(2);
+        msgs_o.x=(fScale)*ow.at<float>(2);
+        msgs_o.y=-(fScale)*ow.at<float>(0);
+        msgs_o.z=-(fScale)*ow.at<float>(1);
+        msgs_p1.x=(fScale)*p1w.at<float>(2);
+        msgs_p1.y=-(fScale)*p1w.at<float>(0);
+        msgs_p1.z=-(fScale)*p1w.at<float>(1);
+        msgs_p2.x=(fScale)*p2w.at<float>(2);
+        msgs_p2.y=-(fScale)*p2w.at<float>(0);
+        msgs_p2.z=-(fScale)*p2w.at<float>(1);
+        msgs_p3.x=(fScale)*p3w.at<float>(2);
+        msgs_p3.y=-(fScale)*p3w.at<float>(0);
+        msgs_p3.z=-(fScale)*p3w.at<float>(1);
+        msgs_p4.x=(fScale)*p4w.at<float>(2);
+        msgs_p4.y=-(fScale)*p4w.at<float>(0);
+        msgs_p4.z=-(fScale)*p4w.at<float>(1);
 
         if(mpCC->mSysState == eSystemState::SERVER && mCurVisBundle.msCurKFIds.count(pKFi->mId))
         {
@@ -806,9 +805,9 @@ void Viewer::PubMapPointsAsCloud()
 
         pcl::PointXYZRGB p;
         cv::Mat Tworld = pMPi->GetWorldPos();
-        p.x = (params::vis::mfScaleFactor)*((double)(Tworld.at<float>(0,0)));
-        p.y = (params::vis::mfScaleFactor)*((double)(Tworld.at<float>(0,1)));
-        p.z = (params::vis::mfScaleFactor)*((double)(Tworld.at<float>(0,2)));
+        p.x = (params::vis::mfScaleFactor)*((double)(Tworld.at<float>(0,2)));
+        p.y = -(params::vis::mfScaleFactor)*((double)(Tworld.at<float>(0,0)));
+        p.z = -(params::vis::mfScaleFactor)*((double)(Tworld.at<float>(0,1)));
 
         if(pMPi->mbFromServer && pMPi->mbMultiUse)
         {
@@ -1005,9 +1004,9 @@ void Viewer::PubTrajectories()
 
             geometry_msgs::Point p;
 
-            p.x = fScale*(T.at<float>(0,3));
-            p.y = fScale*(T.at<float>(1,3));
-            p.z = fScale*(T.at<float>(2,3));
+            p.x = fScale*(T.at<float>(2,3));
+            p.y = -fScale*(T.at<float>(0,3));
+            p.z = -fScale*(T.at<float>(1,3));
 
             if(pKFi->mId.first == 0)
             {
@@ -1139,13 +1138,13 @@ void Viewer::PubCovGraph()
             geometry_msgs::Point p1;
             geometry_msgs::Point p2;
 
-            p1.x = fScale*((double)(T1.at<float>(0,3)));
-            p1.y = fScale*((double)(T1.at<float>(1,3)));
-            p1.z = fScale*((double)(T1.at<float>(2,3)));
+            p1.x = fScale*((double)(T1.at<float>(2,3)));
+            p1.y = -fScale*((double)(T1.at<float>(0,3)));
+            p1.z = -fScale*((double)(T1.at<float>(1,3)));
 
-            p2.x = fScale*((double)(T2.at<float>(0,3)));
-            p2.y = fScale*((double)(T2.at<float>(1,3)));
-            p2.z = fScale*((double)(T2.at<float>(2,3)));
+            p2.x = fScale*((double)(T2.at<float>(2,3)));
+            p2.y = -fScale*((double)(T2.at<float>(0,3)));
+            p2.z = -fScale*((double)(T2.at<float>(1,3)));
 
             if(pKFi->mId.second == pKFcon->mId.second)
             {
@@ -1471,23 +1470,21 @@ void Viewer::PubFramePoseAsFrustum()
     cv::Mat p4w = Twc*p4;
 
     geometry_msgs::Point msgs_o,msgs_p1, msgs_p2, msgs_p3, msgs_p4;
-    msgs_o.x=(fScale)*ow.at<float>(0);
-    msgs_o.y=(fScale)*ow.at<float>(1);
-    msgs_o.z=(fScale)*ow.at<float>(2);
-    msgs_p1.x=(fScale)*p1w.at<float>(0);
-    msgs_p1.y=(fScale)*p1w.at<float>(1);
-    msgs_p1.z=(fScale)*p1w.at<float>(2);
-    msgs_p2.x=(fScale)*p2w.at<float>(0);
-    msgs_p2.y=(fScale)*p2w.at<float>(1);
-    msgs_p2.z=(fScale)*p2w.at<float>(2);
-    msgs_p3.x=(fScale)*p3w.at<float>(0);
-    msgs_p3.y=(fScale)*p3w.at<float>(1);
-    msgs_p3.z=(fScale)*p3w.at<float>(2);
-    msgs_p4.x=(fScale)*p4w.at<float>(0);
-    msgs_p4.y=(fScale)*p4w.at<float>(1);
-    msgs_p4.z=(fScale)*p4w.at<float>(2);
-
-    msg_point_out = msgs_o;
+    msgs_o.x=(fScale)*ow.at<float>(2);
+    msgs_o.y=-(fScale)*ow.at<float>(0);
+    msgs_o.z=-(fScale)*ow.at<float>(1);
+    msgs_p1.x=(fScale)*p1w.at<float>(2);
+    msgs_p1.y=-(fScale)*p1w.at<float>(0);
+    msgs_p1.z=-(fScale)*p1w.at<float>(1);
+    msgs_p2.x=(fScale)*p2w.at<float>(2);
+    msgs_p2.y=-(fScale)*p2w.at<float>(0);
+    msgs_p2.z=-(fScale)*p2w.at<float>(1);
+    msgs_p3.x=(fScale)*p3w.at<float>(2);
+    msgs_p3.y=-(fScale)*p3w.at<float>(0);
+    msgs_p3.z=-(fScale)*p3w.at<float>(1);
+    msgs_p4.x=(fScale)*p4w.at<float>(2);
+    msgs_p4.y=-(fScale)*p4w.at<float>(0);
+    msgs_p4.z=-(fScale)*p4w.at<float>(1);
 
     Frame.points.push_back(msgs_o);
     Frame.points.push_back(msgs_p1);

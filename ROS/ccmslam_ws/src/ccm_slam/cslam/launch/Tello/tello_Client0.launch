@@ -2,24 +2,28 @@
 <launch>
 
 <arg name="dist" default="0"/>
-<arg name="cam" default="$(find ccmslam)/conf/Tello_58B4D9.yaml"/>
+<!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_58B4D9.yaml"/> -->
+<arg name="cam" default="$(find ccmslam)/conf/Tello_B62241.yaml"/>
+
+<!-- <arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/> -->
 <arg name="GLOBAL_ID" default="0"/>
 
 <group ns="ccmslam">
 
-  <node pkg="tf" type="static_transform_publisher" name="linkC0_broadcaster" args="0 0 0 0 0 0 world odomC0 100" /> 
+  <node pkg="tf" type="static_transform_publisher" name="linkC$(arg GLOBAL_ID)_broadcaster" args="0 0 0 0 0 0 world odomC$(arg GLOBAL_ID) 100" /> 
 
   <node pkg="ccmslam" type="ccmslamClientNode" name="ccmslamClientNode$(arg GLOBAL_ID)" args="$(find ccmslam)/conf/ORBvoc.txt $(arg cam)" output="screen">
 
     <!-- ++++++++++++++++++++++++++++++++++++++++++++++ -->
     <!-- Agent Specific Params - !!!MUST BE ADJUSTED!!! -->
 
-    <param name="~FrameId" type="string" value="odomC0" />
+    <param name="~FrameId" type="string" value="odomC$(arg GLOBAL_ID)" />
     <param name="~ClientId" type="int" value="$(arg GLOBAL_ID)" />
 
     <!-- <param name="~TopicNameCamSub" type="string" value="/cam0/image_raw" /> -->
-    <param name="~TopicNameCamSub" type="string" value="/tello$(arg GLOBAL_ID)/camera/image_raw" />
 
+
+    <param name="~TopicNameCamSub" type="string" value="/tello$(arg GLOBAL_ID)/camera/image_raw" />
     <param name="~MapInTopicName" type="string" value="MapOutServer$(arg GLOBAL_ID)" unless="$(arg dist)" />
     <param name="~MapInTopicName" type="string" value="MapOutServer$(arg GLOBAL_ID)Disturbed" if="$(arg dist)" /> 
 
@@ -30,24 +34,43 @@
       <param name="ID" type="string" value="$(arg GLOBAL_ID)" />
 </node>  -->
 
-<node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
+<!-- <node name="flock_driver_node$(arg GLOBAL_ID)" pkg="flock_driver" type="flock_driver.py" output="screen" >
     <param name="network_interface" type="string" value="" />
-    <!-- <param name="network_interface" type="string" value="" /> -->
     <param name="ID" type="string" value="$(arg GLOBAL_ID)" />
+
+ -->
+
+    <!-- <param name="network_interface" type="string" value="" /> -->
     <!-- <param name="TELLO_IP" type="string" value="192.168.43.98" /> -->
 
     <!-- <remap from="tello0/camera/image_raw" to="rectify/image_mono" /> -->
     <!-- <remap from="/rectify/image_mono" to="tello0/camera/image_mono" /> -->
     <!-- <remap from="tello0/camera/image_raw" to="/image" /> -->
 
-</node>
+<!-- </node> -->
 
-<node name="tello_slam_control" pkg="flock_driver" type="tello_slam_control.py" output="screen">
+
+<node name="tello_slam_control$(arg GLOBAL_ID)" pkg="flock_driver" type="tello_slam_control.py" output="screen">
+  <param name="~ID" type="int" value="$(arg GLOBAL_ID)" />
   <remap from="orb_slam2_mono/pose" to="/tello$(arg GLOBAL_ID)/pose" />
 </node>
 
-<node name="tello_ui" pkg="flock_driver" type="tello_ui.py" output="screen">
+
+<!-- <node name="tello_ui$(arg GLOBAL_ID)" pkg="flock_driver" type="tello_ui.py" output="screen">
+  <param name="~ID" type="int" value="$(arg GLOBAL_ID)" />
   <remap from="orb_slam2_mono/pose" to="/tello$(arg GLOBAL_ID)/pose" />
+</node>
+ -->
+
+<node name="cloud_map_saver$(arg GLOBAL_ID)" pkg="flock_driver" type="cloud_map_saver.py" output="screen">
+  <param name="~ID" type="int" value="$(arg GLOBAL_ID)" />
+  <param name="OUT_FILE_PATH" type="string" value="/home/arkadiros/map_point_client$(arg GLOBAL_ID).txt" />
+  <param name="CLOUD_TOPIC_NAME" type="string" value="/ccmslam/ClientMapPointsMap$(arg GLOBAL_ID)" />
+  <param name="TRIGGER_TOPIC_NAME" type="string" value="/save_cloud_trigger_client$(arg GLOBAL_ID)" />
+  <param name="POSE_TOPIC_NAME" type="string" value="/ccmslam/PoseOutClient$(arg GLOBAL_ID)" />
+  <param name="CAMERA_TOPIC_NAME" type="string" value="/ccmslam/ImageClient$(arg GLOBAL_ID)" />
+  <param name="CLOUD_SERVER_TOPIC_NAME" type="string" value="/ccmslam/LocalMPs0" />
+  
 </node>
 
 <!-- <node name="tello_keyboard_node" pkg="flock_driver" type="tello_keyboard.py" output="screen" >
@@ -56,7 +79,7 @@
   <remap from="/tello/takeoff" to="/tello$(arg GLOBAL_ID)/takeoff" />
   <remap from="/tello/land" to="/tello$(arg GLOBAL_ID)/land" />
 
-</node> -->
-
+</node>
+ -->
   
 </launch>

@@ -23,7 +23,7 @@
       <param name="min_num_kf_in_map" type="int" value="15" />
   </node>
 
-  <node name="image_muxer" pkg="flock_driver" type="image_muxer.py" output="screen" />
+  <!-- <node name="image_muxer" pkg="flock_driver" type="image_muxer.py" output="screen" /> -->
 
 
 </launch>

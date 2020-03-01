@@ -74,7 +74,6 @@ private:
     const string mstrCamFile;
     dbptr mpKFDB;
     mapptr mpMap;
-    threadptr ptrPoseStamped;
 
 
     const uidptr mpUID;

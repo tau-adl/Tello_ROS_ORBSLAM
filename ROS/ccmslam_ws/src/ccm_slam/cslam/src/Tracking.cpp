@@ -211,15 +211,10 @@ void Tracking::Track()
                 if (lost_tracking_counter > 300) {
                     mState = LOST;
                     cout << "\033[1;35m!!! +++ Tracking: Lost +++ !!!\033[0m" << endl;
-//                    bOK = false;
                 }
             }
         }
 
-//        if ()
-//        else
-//            mState=NOT_INITIALIZED;
-//            mState=LOST;
 
         // Update drawer
         if(params::vis::mbActive) mpViewer->UpdateAndDrawFrame();

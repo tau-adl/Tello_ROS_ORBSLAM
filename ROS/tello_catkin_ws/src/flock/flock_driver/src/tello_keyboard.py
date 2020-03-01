@@ -207,14 +207,23 @@ def reset_command(keyname, twist):
 
     return twist
 
+def limit_twist(twist):
+    twist.linear.x = ((twist.linear.x > 0)*2-1) * min(abs(twist.linear.x), 0.3)
+    twist.linear.y = ((twist.linear.y > 0)*2-1) * min(abs(twist.linear.y), 0.3)
+    twist.angular.z = ((twist.angular.z > 0)*2-1) * min(abs(twist.angular.z), 0.3)
+    twist.linear.z = ((twist.linear.z > 0)*2-1) * min(abs(twist.linear.z), 0.3)
+    return twist
+
 if __name__=="__main__":
     # settings = termios.tcgetattr(sys.stdin)
 
-    pub_twist = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
-    pub_takeoff = rospy.Publisher('takeoff', Empty, queue_size=1)
-    pub_land = rospy.Publisher('land', Empty, queue_size=1)
+    time.sleep(1)
+
+    pub_twist = rospy.Publisher('/tello/cmd_vel', Twist, queue_size = 1)
+    pub_takeoff = rospy.Publisher('/tello/takeoff', Empty, queue_size=1)
+    pub_land = rospy.Publisher('/tello/land', Empty, queue_size=1)
     # rospy.Subscriber("camera/image_raw", Image, videoFrameHandler)
-    rospy.Subscriber("orb_slam2_mono/debug_image", Image, videoFrameHandler)
+    rospy.Subscriber("/camera/image_raw", Image, videoFrameHandler)
     
 
     pygame.init()
@@ -279,6 +288,7 @@ if __name__=="__main__":
                 
             
 
+            twist = limit_twist(twist)
             pub_twist.publish(twist)
 
             time.sleep(0.033)  # loop with pygame.event.get() is too mush tight w/o some sleep

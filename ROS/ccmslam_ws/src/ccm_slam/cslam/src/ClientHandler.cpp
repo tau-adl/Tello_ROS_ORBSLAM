@@ -162,7 +162,7 @@ void ClientHandler::InitializeClient()
     ss = new stringstream;
     *ss << "PoseOut" << "Client" << mClientId;
     string PubPoseTopicName = ss->str();
-    mPubPose = mNh.advertise<geometry_msgs::PoseStamped>(PubPoseTopicName, 1);
+    mPubPose = mNh.advertise<geometry_msgs::PoseStamped>(PubPoseTopicName, 10);
 
     //+++++ Create Drawers. These are used by the Viewer +++++
     mpViewer.reset(new Viewer(mpMap,mpCC));
@@ -190,19 +190,23 @@ void ClientHandler::InitializeClient()
     mptMapping.reset(new thread(&LocalMapping::RunClient,mpMapping));
     mptComm.reset(new thread(&Communicator::RunClient,mpComm));
     mptViewer.reset(new thread(&Viewer::RunClient,mpViewer));
-//    ptrPoseStamped.reset(new thread(&ClientHandler::PublishPoseThread, mpTracking));
+    ptrPoseStamped.reset(new thread(&ClientHandler::PublishPoseThread, this));
     usleep(10000);
-
 }
 
 void ClientHandler::InitializeServer()
 {
     cout << "Client " << mClientId << " --> Initialize Threads" << endl;
+    std::stringstream* ss;
+    ss = new stringstream;
+    *ss << "TransOut" << "Server" << mClientId;
+    string PubTransTopicName = ss->str();
 
     //+++++ Initialize the Loop Finder thread and launch +++++
     mpLoopFinder.reset(new LoopFinder(mpCC,mpKFDB,mpVoc,mpMap));
     mptLoopClosure.reset(new thread(&LoopFinder::Run,mpLoopFinder));
     usleep(10000);
+    mPubTrans = mNh.advertise<geometry_msgs::TransformStamped>(PubTransTopicName, 1);
     //+++++ Initialize the Local Mapping thread +++++
     mpMapping.reset(new LocalMapping(mpCC,mpMap,mpKFDB,mpViewer));
     mpMapping->SetLoopFinder(mpLoopFinder); //tempout
@@ -218,6 +222,7 @@ void ClientHandler::InitializeServer()
     //Should not do that before, a fast system might already use a pointer before it was set -> segfault
     mptMapping.reset(new thread(&LocalMapping::RunServer,mpMapping));
     mptComm.reset(new thread(&Communicator::RunServer,mpComm));
+    ptrTransformStamped.reset(new thread(&ClientHandler::PublishTransThread, this));
     usleep(10000);
     if(mpCC->mpCH == nullptr)
     {
@@ -320,12 +325,14 @@ void ClientHandler::CamImgCb(sensor_msgs::ImageConstPtr pMsg)
 }
 
 void ClientHandler::PublishPoseThread(){
+    float fScale = static_cast<float>(params::vis::mfScaleFactor);
     geometry_msgs::PoseStamped pose_msg;
     tf2::Quaternion tfQuaternion;
     geometry_msgs::Quaternion quat_msg;
     cv::Mat Tcw;
     cv::Mat Rcw;
-
+    cv::Mat tcw;
+    cv::Mat ow;
     pose_msg.header.frame_id = "world";
     while(1) {
 //        usleep(33333);
@@ -336,23 +343,32 @@ void ClientHandler::PublishPoseThread(){
 
 
                 Tcw = mpTracking->mCurrentFrame->mTcw;
-
                 if (Tcw.dims >= 2) {
 
 
                     Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
+                    tcw = Tcw.rowRange(0,3).col(3);
+                    ow = -Rcw.t()*tcw;
 
-                    double pitch = std::atan2(Rcw.at<float>(2, 0), Rcw.at<float>(2, 1));
-                    double roll = std::acos(Rcw.at<float>(2, 2));
-                    double yaw = -std::atan2(Rcw.at<float>(0, 2), Rcw.at<float>(1, 2));
+                    // this suppose to be roll, so new_pitch = old_roll
+                    double pitch = std::atan2(Rcw.at<float>(2, 1), Rcw.at<float>(2, 2));
 
-                    tfQuaternion.setRPY(pitch, roll, yaw);
+                    // this suppose to be pitch, so new_yaw = old_pitch
+                    double yaw = std::atan2(-Rcw.at<float>(2, 0),
+                            sqrt(pow(Rcw.at<float>(2, 1), 2) + pow(Rcw.at<float>(2, 2), 2)));
+
+                    // this suppose to be yaw, so new_roll = -old_yaw
+                    double roll = -std::atan2(Rcw.at<float>(1, 0), Rcw.at<float>(0, 0));
+
+
+                    tfQuaternion.setRPY(roll, pitch, yaw);
+
                     quat_msg = tf2::toMsg(tfQuaternion);
 
 
-                    pose_msg.pose.position.x = mpViewer->msg_point_out.z;
-                    pose_msg.pose.position.y = -mpViewer->msg_point_out.x;
-                    pose_msg.pose.position.z = -mpViewer->msg_point_out.y;
+                    pose_msg.pose.position.x = (fScale)*ow.at<float>(2);   // x = z
+                    pose_msg.pose.position.y = -(fScale)*ow.at<float>(0);  // y = -x
+                    pose_msg.pose.position.z = -(fScale)*ow.at<float>(1); // z = -y
                     pose_msg.header.stamp = ros::Time::now();
                     pose_msg.pose.orientation = quat_msg;
                     mPubPose.publish(pose_msg);
@@ -361,6 +377,144 @@ void ClientHandler::PublishPoseThread(){
         }
     }
 }
+
+void ClientHandler::PublishTransThread(){
+    tf2::Quaternion tfQuaternion;
+    g2o::Sim3 g2oS_wnewmap_wcurmap;
+    geometry_msgs::TransformStamped msgtf;
+    cv::Mat Tcw;
+    cv::Mat Rcw;
+    cv::Mat tcw;
+    cv::Mat ow;
+    msgtf.header.frame_id = "world";
+    msgtf.child_frame_id = "idk";
+    double s;
+    while(1) {
+        usleep(3333);
+        g2oS_wnewmap_wcurmap = mpCC->mg2oS_wcurmap_wclientmap;
+        s = g2oS_wnewmap_wcurmap.scale();
+        msgtf.transform.translation.x = g2oS_wnewmap_wcurmap.translation()[2] * s;
+        msgtf.transform.translation.y = -g2oS_wnewmap_wcurmap.translation()[0] * s;
+        msgtf.transform.translation.z = -g2oS_wnewmap_wcurmap.translation()[1] * s;
+
+        // I can use this primitive Eigen::Matrix3d eigR = g2oCorrectedSiw.rotation().toRotationMatrix(); in order to get
+        // back to rotation coords and correct the same as we did in the Pose Publisher.
+//        msgtf.transform.rotation.w = g2oS_wnewmap_wcurmap.rotation().coeffs()[0];
+//        msgtf.transform.rotation.x = g2oS_wnewmap_wcurmap.rotation().coeffs()[1];
+//        msgtf.transform.rotation.y = g2oS_wnewmap_wcurmap.rotation().coeffs()[2];
+//        msgtf.transform.rotation.z = g2oS_wnewmap_wcurmap.rotation().coeffs()[3];
+
+
+        tf::Quaternion q(
+                g2oS_wnewmap_wcurmap.rotation().coeffs()[0],
+                g2oS_wnewmap_wcurmap.rotation().coeffs()[1],
+                g2oS_wnewmap_wcurmap.rotation().coeffs()[2],
+                g2oS_wnewmap_wcurmap.rotation().coeffs()[3]);
+
+        tf::Matrix3x3 m(q);
+        double roll, pitch, yaw;
+
+        // this suppose to be roll, so new_pitch = old_roll
+        // this suppose to be pitch, so new_yaw = old_pitch
+        // this suppose to be yaw, so new_roll = -old_yaw
+
+        m.getRPY(roll, pitch, yaw);
+
+
+        tfQuaternion.setRPY(-yaw, roll, pitch);
+
+
+        geometry_msgs::Quaternion quat_msg = tf2::toMsg(tfQuaternion);
+
+        msgtf.transform.rotation.w = quat_msg.w;
+        msgtf.transform.rotation.x = quat_msg.x;
+        msgtf.transform.rotation.y = quat_msg.y;
+        msgtf.transform.rotation.z = quat_msg.z;
+
+        msgtf.header.stamp = ros::Time::now();
+        mPubTrans.publish(msgtf);
+    }
+}
+
+
+void ClientHandler::PublishPose(cv::Mat Tcw){
+    float fScale = static_cast<float>(params::vis::mfScaleFactor);
+    geometry_msgs::PoseStamped pose_msg;
+    tf2::Quaternion tfQuaternion;
+    geometry_msgs::Quaternion quat_msg;
+    cv::Mat Rcw;
+    cv::Mat tcw;
+    cv::Mat ow;
+    pose_msg.header.frame_id = "world";
+
+
+    if (Tcw.dims >= 2) {
+
+
+        Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
+        tcw = Tcw.rowRange(0,3).col(3);
+        ow = -Rcw.t()*tcw;
+        double roll = std::atan2(Rcw.at<float>(2, 1), Rcw.at<float>(2, 2));
+        double yaw = std::atan2(-Rcw.at<float>(2, 0),
+                                 sqrt(pow(Rcw.at<float>(2, 1), 2) + pow(Rcw.at<float>(2, 2), 2)));
+        double pitch = -std::atan2(Rcw.at<float>(1, 0), Rcw.at<float>(0, 0));
+
+        tfQuaternion.setRPY(pitch, roll, yaw);
+        quat_msg = tf2::toMsg(tfQuaternion);
+
+
+        pose_msg.pose.position.x = (fScale)*ow.at<float>(2);   // x = z
+        pose_msg.pose.position.y = -(fScale)*ow.at<float>(0);  // y = -x
+        pose_msg.pose.position.z = -(fScale)*ow.at<float>(1); // z = -y
+        pose_msg.header.stamp = ros::Time::now();
+        pose_msg.pose.orientation = quat_msg;
+        mPubPose.publish(pose_msg);
+    }
+}
+
+
+//void ClientHandler::PublishPoseThread(){
+//    geometry_msgs::PoseStamped pose_msg;
+//    tf2::Quaternion tfQuaternion;
+//    geometry_msgs::Quaternion quat_msg;
+//    cv::Mat Tcw;
+//    cv::Mat Rcw;
+//
+//    pose_msg.header.frame_id = "world";
+//    while(1) {
+////        usleep(33333);
+//        usleep(3333);
+//        if (receivedImageFlag) {
+//            receivedImageFlag = false;
+//            if (mpTracking->mState == mpTracking->OK) {
+//
+//
+//                Tcw = mpTracking->mCurrentFrame->mTcw;
+//
+//                if (Tcw.dims >= 2) {
+//
+//
+//                    Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
+//
+//                    double pitch = std::atan2(Rcw.at<float>(2, 0), Rcw.at<float>(2, 1));
+//                    double roll = std::acos(Rcw.at<float>(2, 2));
+//                    double yaw = -std::atan2(Rcw.at<float>(0, 2), Rcw.at<float>(1, 2));
+//
+//                    tfQuaternion.setRPY(pitch, roll, yaw);
+//                    quat_msg = tf2::toMsg(tfQuaternion);
+//
+//
+//                    pose_msg.pose.position.x = mpViewer->msg_point_out.z;
+//                    pose_msg.pose.position.y = -mpViewer->msg_point_out.x;
+//                    pose_msg.pose.position.z = -mpViewer->msg_point_out.y;
+//                    pose_msg.header.stamp = ros::Time::now();
+//                    pose_msg.pose.orientation = quat_msg;
+//                    mPubPose.publish(pose_msg);
+//                }
+//            }
+//        }
+//    }
+//}
 
 //void ClientHandler::PublishPositionAsPoseStamped (cv::Mat position) {
 //    std::stringstream* ss;

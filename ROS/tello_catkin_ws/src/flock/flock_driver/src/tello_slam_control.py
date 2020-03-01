@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from geometry_msgs.msg import Twist, PoseStamped, Point, Pose, Quaternion
+from geometry_msgs.msg import Twist, PoseStamped, Point, Pose, Quaternion, PoseArray
 from std_msgs.msg import Empty, Bool, Int32, Float32
 from flock_msgs.msg import Flip, FlightData
 from nav_msgs.msg import Path
@@ -10,15 +10,16 @@ import time
 import threading
 import math
 import numpy as np
+from copy import deepcopy
 
 
 class TelloSlamControler(object):
 
     def __init__(self):
-        # Initialize ROS
-        rospy.init_node('tello_slam_control', anonymous=False)
         
 
+        # Initialize ROS
+        rospy.init_node('tello_slam_control', anonymous=False)
 
         
         # rospy.Subscriber('land', Empty, self.land_callback)
@@ -28,8 +29,10 @@ class TelloSlamControler(object):
         try: 
             self.id                = rospy.get_param('~ID')
         except KeyError:
-            self.id = 0
+            self.id = ''
+
         self.publish_prefix = "tello{}/".format(self.id)
+
 
 
         self.pub_twist = rospy.Publisher(self.publish_prefix+'cmd_vel', Twist, queue_size = 1)
@@ -39,8 +42,11 @@ class TelloSlamControler(object):
         self.rotated_pos_pub = rospy.Publisher(self.publish_prefix+'rotated_pos', Point, queue_size = 1)
         self.slam_orientation_pub = rospy.Publisher(self.publish_prefix+'orientation', Point, queue_size = 1)
         self.move_up_publisher = rospy.Publisher(self.publish_prefix+'move_up', Float32, queue_size = 1)
+        self.pose_trail_publisher = rospy.Publisher(self.publish_prefix+'pose_trail', PoseArray, queue_size = 1)
+        self.path_publisher = rospy.Publisher(self.publish_prefix+'path_trail', Path, queue_size = 1)
 
 
+        self.path_trail_msg = Path()
         self.command_pos = Point()
         self.command_orientation_deg = Point()
         self.twist = Twist()
@@ -78,6 +84,14 @@ class TelloSlamControler(object):
         self.control_mult_factor_z = 4
 
         self.time_threshold = 1
+
+
+        self.last_time_added_pose = time.time()
+        self.time_until_add_pose = 0.3
+        self.stamped_pose_trail_list = 30*[PoseStamped()]
+        self.pose_trail_list = []
+        self.pose_trail_msg = PoseArray()
+
 
         self.counter_before_map_exists_flag = 0
         self.counter_before_no_map_flag = 0
@@ -164,7 +178,7 @@ class TelloSlamControler(object):
             linear, yaw = self.calculate_control_algorithm()
 
             self.twist.linear = self.clip_point(linear, self.caution_speed_threshold)
-            self.twist.angular.z = self.clip_value(-yaw, self.caution_speed_yaw)
+            self.twist.angular.z = self.clip_value(yaw, self.caution_speed_yaw)
 
 
         else:
@@ -242,8 +256,12 @@ class TelloSlamControler(object):
         y_rotated = pos_error_copy.y*math.cos(self.orientation_alpha_rad) - pos_error_copy.x*math.sin(self.orientation_alpha_rad)
 
 
-        self.pos_error.x = x_rotated
-        self.pos_error.y = y_rotated
+        # self.pos_error.x = x_rotated
+        # self.pos_error.y = y_rotated
+
+        self.pos_error.x = pos_error_copy.x
+        self.pos_error.y = pos_error_copy.y
+
 
         self.delta_pub.publish(self.pos_error)
 
@@ -264,9 +282,9 @@ class TelloSlamControler(object):
         # speed.z = 0
 
 
-        yaw = -(self.Kp_yaw*self.rotation_error_deg)
+        # yaw = -(self.Kp_yaw*self.rotation_error_deg)
 
-        # yaw = -(self.Kp_yaw*self.rotation_error_deg + self.Kd_yaw*self.rotation_err_filtered_derivative)
+        yaw = (self.Kp_yaw*self.rotation_error_deg + self.Kd_yaw*self.rotation_err_filtered_derivative)
         # yaw = 0
 
 
@@ -423,6 +441,28 @@ class TelloSlamControler(object):
         self.real_world_scale_pub.publish(self.real_world_scale)
         self.real_world_pub.publish(self.real_world)
         self.rotated_pos_pub.publish(self.rotated_pos)
+
+
+        if time.time() - self.last_time_added_pose > self.time_until_add_pose:
+            self.stamped_pose_trail_list.append(deepcopy(self.real_world))
+            self.stamped_pose_trail_list.pop(0)
+            self.pose_trail_list = [element.pose for element in self.stamped_pose_trail_list]
+            self.pose_trail_msg.poses = self.pose_trail_list
+            self.pose_trail_msg.header.frame_id = 'world'
+            self.pose_trail_msg.header.stamp = rospy.Time.now()
+            self.pose_trail_publisher.publish(self.pose_trail_msg)
+
+            # self.path_trail_msg.header = deepcopy(slam_msg.header)
+            self.path_trail_msg.header.seq += 1
+            self.path_trail_msg.header.frame_id = 'world'
+            self.path_trail_msg.header.stamp = rospy.Time.now()
+            self.path_trail_msg.poses = deepcopy(self.stamped_pose_trail_list)
+            self.path_publisher.publish(self.path_trail_msg)
+
+
+            self.last_time_added_pose = time.time()
+
+
 
     def move_up(self, distance):
         self.move_up_publisher.publish(distance)
