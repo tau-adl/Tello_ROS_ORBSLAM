@@ -1,1 +1,0 @@
-/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_description/lib/pkgconfig/flock_description.pc

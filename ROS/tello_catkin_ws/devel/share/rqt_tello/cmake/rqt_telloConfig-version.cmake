@@ -1,1 +1,0 @@
-/home/arkadiros/ROS/tello_catkin_ws/devel/.private/rqt_tello/share/rqt_tello/cmake/rqt_telloConfig-version.cmake

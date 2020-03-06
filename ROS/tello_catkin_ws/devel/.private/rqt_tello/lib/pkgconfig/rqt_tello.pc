@@ -1,8 +1,0 @@
-prefix=/home/arkadiros/ROS/tello_catkin_ws/devel/.private/rqt_tello
-
-Name: rqt_tello
-Description: Description of rqt_tello
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/arkadiros/ROS/tello_catkin_ws/devel/.private/rqt_tello/lib 
-Requires: 

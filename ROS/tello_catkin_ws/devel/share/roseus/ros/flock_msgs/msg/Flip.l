@@ -1,1 +1,0 @@
-/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_msgs/share/roseus/ros/flock_msgs/msg/Flip.l

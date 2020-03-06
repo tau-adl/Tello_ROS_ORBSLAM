@@ -1,8 +1,0 @@
-prefix=/home/arkadiros/ROS/tello_catkin_ws/devel/.private/vikit_py
-
-Name: vikit_py
-Description: Description of vikit_py
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/arkadiros/ROS/tello_catkin_ws/devel/.private/vikit_py/lib 
-Requires: 

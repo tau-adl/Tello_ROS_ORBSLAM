@@ -1,8 +1,0 @@
-prefix=/home/arkadiros/ROS/tello_catkin_ws/devel/.private/rqt_svo
-
-Name: rqt_svo
-Description: Description of rqt_svo
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/arkadiros/ROS/tello_catkin_ws/devel/.private/rqt_svo/lib 
-Requires: 
