@@ -1,8 +1,0 @@
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/install/strip.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/install/local.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/fast_test.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/edit_cache.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/fast.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/rebuild_cache.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/list_install_components.dir
-/home/arkadiros/ROS/tello_catkin_ws/build/fast/CMakeFiles/install.dir

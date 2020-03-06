@@ -1616,3 +1616,24 @@
 /ROS/tello_catkin_ws/logs/
 /ROS/tello_catkin_ws/.catkin_tools/
 /ROS/tello_catkin_ws/src/rqt_tello/
+*.pyc
+/ROS/tello_catkin_ws/devel/
+/ROS/tello_catkin_ws/build/
+/Hard Copy/
+/ROS/ccmslam_ws/logs/
+/ROS/ccmslam_ws/devel/
+/ROS/ccmslam_ws/.catkin_tools/
+/ROS/ccmslam_ws/build/
+/ROS/ccmslam_ws/src/ccm_slam/cslam/.idea/
+/ROS/ccmslam_ws/src/ccm_slam/cslam/cmake-build-debug/
+*.pack
+*.idx
+/ROS/tello_catkin_ws/src/orb_slam_2_ros/.git/
+/ROS/tello_catkin_ws/bags/
+/TelloPy/.git/
+/ROS/tello_catkin_ws/src/flock/.git/
+*.py.bak
+/ROS/ccmslam_ws/src/ccm_slam/.git/
+/ROS/ccmslam_ws/src/kitti_player/
+/ROS/ccmslam_ws/src/flock/.git/
+/ROS/tello_catkin_ws/camera_calibaration_data/Tello/calibrationdata_*

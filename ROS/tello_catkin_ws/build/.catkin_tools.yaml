@@ -1,6 +1,0 @@
-devel_space: /home/arkadiros/ROS/tello_catkin_ws/devel
-install: false
-install_space: /home/arkadiros/ROS/tello_catkin_ws/install
-profile: default
-source_space: /home/arkadiros/ROS/tello_catkin_ws/src
-workspace: /home/arkadiros/ROS/tello_catkin_ws

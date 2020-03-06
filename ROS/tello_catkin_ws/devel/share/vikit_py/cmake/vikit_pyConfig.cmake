@@ -1,1 +1,0 @@
-/home/arkadiros/ROS/tello_catkin_ws/devel/.private/vikit_py/share/vikit_py/cmake/vikit_pyConfig.cmake

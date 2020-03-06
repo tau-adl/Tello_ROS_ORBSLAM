@@ -1,8 +1,0 @@
-prefix=/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_description
-
-Name: flock_description
-Description: Description of flock_description
-Version: 0.1.0
-Cflags: 
-Libs: -L/home/arkadiros/ROS/tello_catkin_ws/devel/.private/flock_description/lib 
-Requires: 
