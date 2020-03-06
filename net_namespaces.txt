@@ -1,0 +1,58 @@
+ip netns add int_ns
+
+ip link add v-eth-int type veth peer name v-peer-int
+
+ip link set v-peer-int netns int_ns
+
+ip addr add 192.168.9.50/24 dev v-eth-int
+
+ip link set v-eth-int up
+
+ip netns exec int_ns ip addr add 192.168.9.51/24 dev v-peer-int
+ip netns exec int_ns ip link set v-peer-int up
+
+ip netns exec int_ns ip route add default via 192.168.9.50
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+iptables -P FORWARD DROP
+iptables -F FORWARD
+
+iptables -t nat -F
+
+iptables -t nat -A POSTROUTING -s 192.168.9.0/255.255.255.0 -o wlp5s0 -j MASQUERADE
+
+iptables -A FORWARD -i wlp5s0 -o v-eth-int -j ACCEPT
+iptables -A FORWARD -o wlp5s0 -i v-eth-int -j ACCEPT
+
+
+
+
+
+
+ip netns add ext_ns
+
+ip link add v-eth-ext type veth peer name v-peer-ext
+
+ip link set v-peer-ext netns ext_ns
+
+ip addr add 192.168.8.50/24 dev v-eth-ext
+
+ip link set v-eth-ext up
+
+ip netns exec ext_ns ip addr add 192.168.8.51/24 dev v-peer-ext
+ip netns exec ext_ns ip link set v-peer-ext up
+
+ip netns exec ext_ns ip route add default via 192.168.8.50
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+iptables -P FORWARD DROP
+iptables -F FORWARD
+
+iptables -t nat -F
+
+iptables -t nat -A POSTROUTING -s 192.168.8.0/255.255.255.0 -o wlp5s0 -j MASQUERADE
+
+iptables -A FORWARD -i wlx08beac00da30 -o v-eth-ext -j ACCEPT
+iptables -A FORWARD -o wlx08beac00da30 -i v-eth-ext -j ACCEPT
