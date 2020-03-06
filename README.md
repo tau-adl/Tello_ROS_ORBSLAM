@@ -1,5 +1,42 @@
 # Tello_ROS_ORBSLAM
+In this project we provide a full and whole framework for using Drones in general, and the DJI Tello specifficaly.
 
+In this project you will find a GUI that will allow you to control the Tello and command it to move in the x,y,z,pitch,roll,yaw plane.
+
+Using this GUI will allow fast development of SLAM algorithms and integrate them with real Tello hardware.
+
+The coordinates are derived from a pose that is published in one of the 2 slam algorithms (orbslam2 or ccmslam)
+
+Inside the files, you will find a joystick/keyboard to control the tello from within ROS, instead of using your android phone.
+
+Tello UI:
+![Image of Tello UI](https://github.com/tau-adl/Tello_ROS_ORBSLAM/Images/tello_ui.png)
+
+Tello Client 0:
+![Image of Tello Client 0](https://github.com/tau-adl/Tello_ROS_ORBSLAM/Images/tello_client0.png)
+
+Tello Client 1:
+![Image of Tello Client 1](https://github.com/tau-adl/Tello_ROS_ORBSLAM/Images/tello_client1.png)
+
+# Usage
+## orbslam2
+```
+roslaunch flock_driver orbslam2_with_cloud_map.launch
+```
+## ccmslam
+### Server:
+```
+roslaunch ccmslam tello_Server.launch 
+```
+### Client0:
+```
+roslaunch ccmslam tello_Client0.launch
+```
+### Client1:
+```
+roslaunch ccmslam tello_Client1.launch
+```
+# Install Guide
 ## Installing ROS melodic
 
 Following this page: http://wiki.ros.org/melodic/Installation/Ubuntu
