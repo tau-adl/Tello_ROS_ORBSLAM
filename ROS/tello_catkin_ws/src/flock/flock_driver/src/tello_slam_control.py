@@ -62,7 +62,7 @@ class TelloSlamControler(object):
         self.rotation_err_filtered_derivative = 0
         self.Kp = Point(0.6, 0.6, 1.5)
         self.Kd = Point(1.0, 1.0, 1.5)
-        self.Kp_yaw = 0.005
+        self.Kp_yaw = 0.015 # 0.005
         self.Kd_yaw = 0.01 # 0.2 = 360 deg / 38 sec = 9 deg/sec
 
         self.orientation_buffer_len = 10
@@ -100,7 +100,7 @@ class TelloSlamControler(object):
 
         # self.caution_speed_threshold = Point(0.25, 0.25, 0.3)
         self.caution_speed_threshold = Point(0.3, 0.3, 0.5)
-        self.caution_speed_yaw = 0.34
+        self.caution_speed_yaw = 0.1 # 0.34
 
 
         self.map_exists_flag = False

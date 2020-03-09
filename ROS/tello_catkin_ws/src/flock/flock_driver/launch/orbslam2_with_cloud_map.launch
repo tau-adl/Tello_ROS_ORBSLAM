@@ -26,15 +26,15 @@
 
   <!-- <node name="image_muxer" pkg="flock_driver" type="image_muxer.py" output="screen" /> -->
 
-  <node name="cloud_map_saver" pkg="flock_driver" type="cloud_map_saver.py" output="screen">
-  <param name="OUT_FILE_PATH" type="string" value="/home/arkadiros/map_point.txt" />
-  <param name="CLOUD_TOPIC_NAME" type="string" value="/orb_slam2_mono/map_points" />
-  <param name="TRIGGER_TOPIC_NAME" type="string" value="/save_cloud_trigger" />
-  <param name="POSE_TOPIC_NAME" type="string" value="/orb_slam2_mono/pose" />
-  <param name="CAMERA_TOPIC_NAME" type="string" value="/orb_slam2_mono/debug_image" />
+<!--   <node name="cloud_map_saver" pkg="flock_driver" type="cloud_map_saver.py" output="screen">
+    <param name="OUT_FILE_PATH" type="string" value="/home/arkadiros/map_point.txt" />
+    <param name="CLOUD_TOPIC_NAME" type="string" value="/orb_slam2_mono/map_points" />
+    <param name="TRIGGER_TOPIC_NAME" type="string" value="/save_cloud_trigger" />
+    <param name="POSE_TOPIC_NAME" type="string" value="/orb_slam2_mono/pose" />
+    <param name="CAMERA_TOPIC_NAME" type="string" value="/orb_slam2_mono/debug_image" />
 
   
-</node>
+  </node> -->
 
 
 <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
@@ -62,6 +62,11 @@
     <remap from="/tello0/pose" to="/orb_slam2_mono/pose" />
     <param name="ID" type="string" value="0" />
   </node> 
+
+  <node name="RosImageSaver" pkg="flock_driver" type="ros_image_saver.py" output="screen">
+    <param name="ID" type="string" value="0" />
+    <param name="PICTURE_DIR" type="string" value="~/ROS/" />
+  </node>
 
   <!-- <node name="tello_keyboard_node" pkg="flock_driver" type="tello_keyboard.py" output="screen">
       <remap from="/tello/cmd_vel" to="/tello0/cmd_vel" />

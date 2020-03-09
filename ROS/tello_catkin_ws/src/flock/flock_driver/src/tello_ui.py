@@ -91,10 +91,12 @@ class TelloUI(object):
         self.init_angle_calc_frame_flag = False
         self.init_rotated_frame_flag = False
 
-        self.trajectory_threshold = Point(0.2, 0.2, 0.2)
-        self.trajectory_orientation_threshold = Point(10, 10, 10)
+        self.trajectory_threshold = Point(0.25, 0.25, 0.25)
+        self.trajectory_orientation_threshold = Point(3, 3, 3)
         self.trajectory_list = []
         self.last_trajectory = []
+
+        self.lock = threading.Lock()
 
 
 
@@ -104,6 +106,7 @@ class TelloUI(object):
         self.init_real_world_frame()
 
         self.init_rotated_frame()
+
         # self.init_slam_pose_frame()
 
         self.init_delta_frame()
@@ -161,6 +164,7 @@ class TelloUI(object):
         self.kp_publisher = rospy.Publisher(self.publish_prefix+'kp', Pose, queue_size = 1)
         self.pub_mux =  rospy.Publisher('tello_mux', Int32, queue_size = 1)
         self.path_publisher = rospy.Publisher(self.publish_prefix+'path', Path, queue_size = 1)
+        self.take_picure_publisher = rospy.Publisher(self.publish_prefix+'take_picure', Empty, queue_size=1)
         
 
         self.publish_command()
@@ -877,7 +881,7 @@ class TelloUI(object):
         self.kd_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.kd_strigvar_yaw)
         self.kd_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
         self.kd_entry_yaw.delete(0, tki.END)
-        self.kd_entry_yaw.insert(0, "0.001")
+        self.kd_entry_yaw.insert(0, "0.01")
 
         self.frame_column = 0
         self.frame_row += 1
@@ -935,7 +939,7 @@ class TelloUI(object):
         self.kp_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.kp_strigvar_yaw)
         self.kp_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
         self.kp_entry_yaw.delete(0, tki.END)
-        self.kp_entry_yaw.insert(0, "0.03")
+        self.kp_entry_yaw.insert(0, "0.015")
 
         self.row += 1
         self.column = 0
@@ -1132,12 +1136,20 @@ class TelloUI(object):
         trajectory_thread.start()
 
     def load_last_trajectory_callback(self):
+        self.lock.acquire()
         self.trajectory_list = [element for element in self.last_trajectory]
         self.update_gui_trajectory()
+        self.lock.release()
 
     def trajectory_pushup_callback(self):
+        self.lock.acquire()
         self.trajectory_list.pop(0)
         self.update_gui_trajectory()
+        self.lock.release()
+        self.take_picure()
+
+    def take_picure(self):
+        self.take_picure_publisher.publish()
 
     def trajectory_load_callback(self):
         trajectory_path = tkFileDialog.askopenfilename(initialdir = "~/ROS/ccmslam_ws/src/flock/flock_driver/src/",title = "Select Trajectory file",filetypes = (("csv files","*.csv"),("all files","*.*")))    
@@ -1199,10 +1211,14 @@ class TelloUI(object):
 
         degree_point = Point()
 
-        rospy.loginfo("Started trajectory_thread with {}".format(self.trajectory_list))
+        
 
         path_msg = Path()
         command_pos = Pose()
+
+        self.lock.acquire()
+        rospy.loginfo("Started trajectory_thread with {}".format(self.trajectory_list))
+
 
 
         for trajectory_idx, trajectory_line in enumerate(self.trajectory_list):
@@ -1222,6 +1238,7 @@ class TelloUI(object):
             pose_stamped.pose.orientation = command_pos.orientation
             path_msg.header = pose_stamped.header
             path_msg.poses.append(pose_stamped)
+        self.lock.release()
         self.path_publisher.publish(path_msg)
 
         time.sleep(0.5)
@@ -1230,9 +1247,10 @@ class TelloUI(object):
         command_yaw = self.point_command_pos_yaw
 
         while not rospy.is_shutdown():
-            if not (command_pos == self.received_command_pos and command_yaw == self.point_command_pos_yaw):
-                rospy.loginfo("Trajectory have Lost control")
-                return
+            time.sleep(0.2)
+            # if not (command_pos == self.received_command_pos and command_yaw == self.point_command_pos_yaw):
+            #     rospy.loginfo("Trajectory have Lost control")
+            #     return
 
             if self.quit_flag:
                 rospy.loginfo("Trajectory Quit due to Quit GUI")
@@ -1250,8 +1268,8 @@ class TelloUI(object):
             if abs(command_pos.position.x - self.real_world_pos.x) < self.trajectory_threshold.x:
                 if abs(command_pos.position.y - self.real_world_pos.y) < self.trajectory_threshold.y:
                     if abs(command_pos.position.z - self.real_world_pos.z) < self.trajectory_threshold.z:
-                        # if self.find_min_distance_in_orientation(command_yaw, self.orientation_degree.z) < self.trajectory_orientation_threshold.z:
-                        self.trajectory_pushup_callback()
+                        if self.find_min_distance_in_orientation(command_yaw, self.orientation_degree.z) < self.trajectory_orientation_threshold.z:
+                            self.trajectory_pushup_callback()
 
 
             if len(self.trajectory_list) > 0:
