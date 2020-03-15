@@ -42,6 +42,13 @@ class TelloUI(object):
         self.publish_prefix = "tello{}/".format(self.id)
 
 
+
+        try:
+            self.pose_topic_name = rospy.get_param('~POSE_TOPIC_NAME')
+        except KeyError:
+            self.pose_topic_name = '/ccmslam/PoseOutClient'+str(self.id)
+
+
         self.point_command_pos = Point(0.0, 0.0, 1.0)
         self.point_command_pos_yaw = 0.0
         self.command_pos = Pose()
@@ -62,6 +69,8 @@ class TelloUI(object):
        # self.panel_for_pose_handle_show = None
 
         # self.client = dynamic_reconfigure.client.Client("orb_slam2_mono")
+
+        self.use_merge_coordinates = False
        
 
         # create buttons
@@ -91,35 +100,53 @@ class TelloUI(object):
         self.init_angle_calc_frame_flag = False
         self.init_rotated_frame_flag = False
 
-        self.trajectory_threshold = Point(0.2, 0.2, 0.2)
-        self.trajectory_orientation_threshold = Point(10, 10, 10)
+        self.trajectory_threshold = Point(0.25, 0.25, 0.25)
+        self.trajectory_orientation_threshold = Point(3, 3, 3)
         self.trajectory_list = []
         self.last_trajectory = []
 
+        self.lock = threading.Lock()
+
+        self.default_bg = '#d9d9d9'
 
 
 
-        self.init_command_pos_frame()
+        self.left_frame = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.left_frame.grid(row=0, column=0)
 
-        self.init_real_world_frame()
+        self.init_command_pos_frame(self.left_frame)
 
-        self.init_rotated_frame()
-        # self.init_slam_pose_frame()
+        self.init_real_world_frame(self.left_frame)
 
-        self.init_delta_frame()
+        self.init_rotated_frame(self.left_frame)
 
-        self.init_speed_frame()
+        self.init_slam_pose_frame(self.left_frame)
 
-        self.init_info_frame()
+        self.init_delta_frame(self.left_frame)
 
-        self.init_manual_control_frame()
+        self.init_speed_frame(self.left_frame)
+
+        self.init_info_frame(self.left_frame)
+
+        self.init_manual_control_frame(self.left_frame)
 
         # self.init_angle_calc_frame()
 
         # self.init_kd_kp_frame()
 
         self.number_of_trajectory_points_ui = 10
-        self.init_trajectory_frame()
+
+        self.right_frame = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.right_frame.grid(row=0, column=1)
+        self.row = 0
+        self.column = 0
+
+        self.init_merge_map_frame(self.right_frame)
+        self.init_trajectory_frame(self.right_frame)
+
+
+
+
 
         self.update_command_pos_to_gui()
 
@@ -139,7 +166,7 @@ class TelloUI(object):
         self.kp = Pose()
 
         # rospy.Subscriber('/orb_slam2_mono/pose', PoseStamped, self.slam_callback)
-        rospy.Subscriber('/ccmslam/PoseOutClient'+str(self.id), PoseStamped, self.slam_callback)
+        rospy.Subscriber(self.pose_topic_name, PoseStamped, self.slam_callback)
         rospy.Subscriber(self.publish_prefix+'delta_pos', Point, self.delta_pos_callback)
         rospy.Subscriber(self.publish_prefix+'cmd_vel', Twist, self.speed_callback)
         rospy.Subscriber(self.publish_prefix+'flight_data', FlightData, self.flightdata_callback)
@@ -162,6 +189,8 @@ class TelloUI(object):
         self.kp_publisher = rospy.Publisher(self.publish_prefix+'kp', Pose, queue_size = 1)
         self.pub_mux =  rospy.Publisher('tello_mux', Int32, queue_size = 1)
         self.path_publisher = rospy.Publisher(self.publish_prefix+'path', Path, queue_size = 1)
+        self.take_picure_publisher = rospy.Publisher(self.publish_prefix+'take_picure', Empty, queue_size=1)
+        self.merge_coordinates_pub = rospy.Publisher(self.publish_prefix+'TransformerState', Bool, queue_size=1)
         
 
         self.publish_command()
@@ -174,62 +203,65 @@ class TelloUI(object):
         return
 
 
-    def init_command_pos_frame(self):
+    def init_command_pos_frame(self, root_frame):
         self.init_command_pos_frame_flag = True
-        self.frame_command = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_command = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("command_pos_frame in row={} column={}".format(self.row, self.column))
         self.frame_command.grid(row=self.row, column=self.column)
 
-        self.title_label_command_pos = tki.Label(self.frame_command, text="Command Position[Meters]", font=("Helvetica", 13))
-        self.title_label_command_pos.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.current_frame = self.frame_command
+
+        self.title_label_command_pos = tki.Label(self.current_frame, text="Command Position[Meters]", font=("Helvetica", 13))
+        self.title_label_command_pos.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.frame_row += 1
 
-        self.command_label_x = tki.Label(self.frame_command, text="X[m]")
-        self.command_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.command_label_x = tki.Label(self.current_frame, text="X[m]")
+        self.command_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
-        self.command_label_y = tki.Label(self.frame_command, text="Y[m]")
-        self.command_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.command_label_y = tki.Label(self.current_frame, text="Y[m]")
+        self.command_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
-        self.command_label_z = tki.Label(self.frame_command, text="Z[m]")
-        self.command_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.command_label_z = tki.Label(self.current_frame, text="Z[m]")
+        self.command_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
-        self.command_label_yaw = tki.Label(self.frame_command, text="Yaw[Degree]")
-        self.command_label_yaw.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.command_label_yaw = tki.Label(self.current_frame, text="Yaw[Degree]")
+        self.command_label_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.frame_row += 1
         self.frame_column = 0
 
         self.command_strigvar_x = tki.StringVar()
-        self.command_entry_x = tki.Entry(self.frame_command, width=9, textvariable=self.command_strigvar_x)
-        self.command_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.command_entry_x = tki.Entry(self.current_frame, width=9, textvariable=self.command_strigvar_x)
+        self.command_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.command_entry_x.delete(0, tki.END)
         self.command_entry_x.insert(0, "0.0")
 
         self.frame_column += 1
 
         self.command_strigvar_y = tki.StringVar()
-        self.command_entry_y = tki.Entry(self.frame_command, width=9, textvariable=self.command_strigvar_y)
-        self.command_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.command_entry_y = tki.Entry(self.current_frame, width=9, textvariable=self.command_strigvar_y)
+        self.command_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.command_entry_y.delete(0, tki.END)
         self.command_entry_y.insert(0, "0.0")
 
         self.frame_column += 1
 
         self.command_strigvar_z = tki.StringVar()
-        self.command_entry_z = tki.Entry(self.frame_command, width=9, textvariable=self.command_strigvar_z)
-        self.command_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.command_entry_z = tki.Entry(self.current_frame, width=9, textvariable=self.command_strigvar_z)
+        self.command_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.command_entry_z.delete(0, tki.END)
         self.command_entry_z.insert(0, "1.0")
 
         self.frame_column += 1
 
         self.command_strigvar_yaw = tki.StringVar()
-        self.command_entry_yaw = tki.Entry(self.frame_command, width=9, textvariable=self.command_strigvar_yaw)
-        self.command_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.command_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.command_strigvar_yaw)
+        self.command_entry_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.command_entry_yaw.delete(0, tki.END)
         self.command_entry_yaw.insert(0, "0.0")
 
@@ -238,82 +270,85 @@ class TelloUI(object):
         self.frame_row += 1
         self.frame_column = 0
 
-        self.btn_takeoff = tki.Button(self.frame_command, text="Takeoff!", command=self.takeoff)
-        self.btn_takeoff.grid(row=self.frame_row, column=0, padx=3, pady=3)
+        self.btn_takeoff = tki.Button(self.current_frame, text="Takeoff!", command=self.takeoff, bg='yellow')
+        self.btn_takeoff.grid(row=self.frame_row, column=0)#, padx=3, pady=3)
 
-        self.btn_publish_command = tki.Button(self.frame_command, text="Publish Command!", command=self.publish_command)
-        self.btn_publish_command.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.btn_publish_command = tki.Button(self.current_frame, text="Publish Command!", command=self.publish_command)
+        self.btn_publish_command.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
-        self.btn_land = tki.Button(self.frame_command, text="Land!", command=self.land_callback)
-        self.btn_land.grid(row=self.frame_row, column=2, padx=3, pady=3)
+        self.btn_land = tki.Button(self.current_frame, text="Land!", command=self.land_callback, fg='green', bg='white')
+        self.btn_land.grid(row=self.frame_row, column=2)#, padx=3, pady=3)
 
-        self.btn_reset_map = tki.Button(self.frame_command, text="Reset Map!", command=self.reset_map_callback)
-        self.btn_reset_map.grid(row=self.frame_row, column=3, padx=3, pady=3)
+        # self.btn_reset_map = tki.Button(self.current_frame, text="Reset Map!", command=self.reset_map_callback)
+        # self.btn_reset_map.grid(row=self.frame_row, column=3)#, padx=3, pady=3)
 
         self.frame_row += 1
 
-        self.btn_scan_room_right = tki.Button(self.frame_command, text="Scan Room Right!", command=self.scan_room_right_callback)
-        self.btn_scan_room_right.grid(row=self.frame_row, column=0, padx=3, pady=3)
+        # self.btn_scan_room_right = tki.Button(self.current_frame, text="Scan Room Right!", command=self.scan_room_right_callback)
+        # self.btn_scan_room_right.grid(row=self.frame_row, column=0)#, padx=3, pady=3)
 
-        self.btn_scan_room_left = tki.Button(self.frame_command, text="Scan Room Left!", command=self.scan_room_left_callback)
-        self.btn_scan_room_left.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        # self.btn_scan_room_left = tki.Button(self.current_frame, text="Scan Room Left!", command=self.scan_room_left_callback)
+        # self.btn_scan_room_left.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
-        self.btn_stay_in_place = tki.Button(self.frame_command, text="Stay In Place!", command=self.stay_in_place)
-        self.btn_stay_in_place.grid(row=self.frame_row, column=2, padx=3, pady=3)
+        self.btn_stay_in_place = tki.Button(self.current_frame, text="Stay In Place!", command=self.stay_in_place)
+        self.btn_stay_in_place.grid(row=self.frame_row, column=0)#, padx=3, pady=3)
 
-        self.btn_calibrate_z = tki.Button(self.frame_command, text="Calibrate Z!", command=self.calibrate_z_callback)
-        self.btn_calibrate_z.grid(row=self.frame_row, column=3, padx=3, pady=3)
+        self.btn_calibrate_z = tki.Button(self.current_frame, text="Calibrate Z!", command=self.calibrate_z_callback, bg='yellow')
+        self.btn_calibrate_z.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.row += 1
         self.column = 0
 
-    def init_slam_pose_frame(self):
+    def init_slam_pose_frame(self, root_frame):
         self.init_slam_pose_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_pose = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_pose = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("slam_pose_frame in row={} column={}".format(self.row, self.column))
         self.frame_pose.grid(row=self.row, column=self.column)
 
-        self.title_label_pose = tki.Label(self.frame_pose, text="Slam Pose", font=("Helvetica", 13))
-        self.title_label_pose.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.current_frame = self.frame_pose
+
+        self.title_label_pose = tki.Label(self.current_frame, text="Slam Pose", font=("Helvetica", 13))
+        self.title_label_pose.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.frame_row += 1
 
-        self.slam_pose_label_x = tki.Label(self.frame_pose, text="X")
-        self.slam_pose_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.slam_pose_label_x = tki.Label(self.current_frame, text="X")
+        self.slam_pose_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
-        self.slam_pose_label_y = tki.Label(self.frame_pose, text="Y")
-        self.slam_pose_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.slam_pose_label_y = tki.Label(self.current_frame, text="Y")
+        self.slam_pose_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
-        self.slam_pose_label_z = tki.Label(self.frame_pose, text="Z")
-        self.slam_pose_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.slam_pose_label_z = tki.Label(self.current_frame, text="Z")
+        self.slam_pose_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.frame_row += 1
         self.frame_column = 0
 
         self.slam_pose_strigvar_x = tki.StringVar()
-        self.slam_pose_entry_x = tki.Entry(self.frame_pose, width=9, textvariable=self.slam_pose_strigvar_x)
-        self.slam_pose_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.slam_pose_entry_x = tki.Entry(self.current_frame, width=9, textvariable=self.slam_pose_strigvar_x)
+        self.slam_pose_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.slam_pose_entry_x.delete(0, tki.END)
         self.slam_pose_entry_x.insert(0, "0.0")
 
         self.frame_column += 1
 
         self.slam_pose_strigvar_y = tki.StringVar()
-        self.slam_pose_entry_y = tki.Entry(self.frame_pose, width=9, textvariable=self.slam_pose_strigvar_y)
-        self.slam_pose_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.slam_pose_entry_y = tki.Entry(self.current_frame, width=9, textvariable=self.slam_pose_strigvar_y)
+        self.slam_pose_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.slam_pose_entry_y.delete(0, tki.END)
         self.slam_pose_entry_y.insert(0, "0.0")
 
         self.frame_column += 1
 
         self.slam_pose_strigvar_z = tki.StringVar()
-        self.slam_pose_entry_z = tki.Entry(self.frame_pose, width=9, textvariable=self.slam_pose_strigvar_z)
-        self.slam_pose_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.slam_pose_entry_z = tki.Entry(self.current_frame, width=9, textvariable=self.slam_pose_strigvar_z)
+        self.slam_pose_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.slam_pose_entry_z.delete(0, tki.END)
         self.slam_pose_entry_z.insert(0, "0.0")
 
@@ -322,31 +357,42 @@ class TelloUI(object):
         self.row += 1
         self.column = 0
 
-    def init_delta_frame(self):
+    def init_delta_frame(self, root_frame):
         self.init_delta_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_delta = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_delta = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("delta_frame in row={} column={}".format(self.row, self.column))
+
+
         self.frame_delta.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_delta
 
-        self.title_label_dela = tki.Label(self.current_frame, text="Delta Between Command and Real World [Meters]", font=("Helvetica", 13))
-        self.title_label_dela.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.frame_delta_header = tki.Frame(self.current_frame, relief=tki.SUNKEN)
+        self.frame_delta_header.grid(row=0, column=0)
+
+        self.title_label_delta = tki.Label(self.frame_delta_header, text="Delta Between Command and Real World [Meters]", font=("Helvetica", 13))
+        self.title_label_delta.grid(row=0, column=0)#, padx=3, pady=3)
 
         self.frame_row += 1
 
+        self.frame_delta_2 = tki.Frame(self.current_frame, relief=tki.SUNKEN)
+        self.frame_delta_2.grid(row=1, column=0)
+
+        self.current_frame = self.frame_delta_2
+
         self.delta_label_x = tki.Label(self.current_frame, text="X")
-        self.delta_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.delta_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.delta_label_y = tki.Label(self.current_frame, text="Y")
-        self.delta_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.delta_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.delta_label_z = tki.Label(self.current_frame, text="Z")
-        self.delta_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.delta_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.frame_row += 1
@@ -354,7 +400,7 @@ class TelloUI(object):
 
         self.delta_strigvar_x = tki.StringVar()
         self.delta_entry_x = tki.Entry(self.current_frame, width=9, textvariable=self.delta_strigvar_x)
-        self.delta_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.delta_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.delta_entry_x.delete(0, tki.END)
         self.delta_entry_x.insert(0, "0.0")
 
@@ -362,7 +408,7 @@ class TelloUI(object):
 
         self.delta_strigvar_y = tki.StringVar()
         self.delta_entry_y = tki.Entry(self.current_frame, width=9, textvariable=self.delta_strigvar_y)
-        self.delta_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.delta_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.delta_entry_y.delete(0, tki.END)
         self.delta_entry_y.insert(0, "0.0")
 
@@ -370,7 +416,7 @@ class TelloUI(object):
 
         self.delta_strigvar_z = tki.StringVar()
         self.delta_entry_z = tki.Entry(self.current_frame, width=9, textvariable=self.delta_strigvar_z)
-        self.delta_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.delta_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.delta_entry_z.delete(0, tki.END)
         self.delta_entry_z.insert(0, "0.0")
 
@@ -378,35 +424,36 @@ class TelloUI(object):
         self.row += 1
         self.column = 0
     
-    def init_speed_frame(self):
+    def init_speed_frame(self, root_frame):
         self.init_speed_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_speed = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_speed = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("speed_frame in row={} column={}".format(self.row, self.column))
         self.frame_speed.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_speed
 
         self.title_label_speed = tki.Label(self.current_frame, text="Speed", font=("Helvetica", 13))
-        self.title_label_speed.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.title_label_speed.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.frame_row += 1
 
         self.speed_label_pitch = tki.Label(self.current_frame, text="Pitch")
-        self.speed_label_pitch.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.speed_label_pitch.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.speed_label_roll = tki.Label(self.current_frame, text="Roll")
-        self.speed_label_roll.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.speed_label_roll.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.speed_label_throttle = tki.Label(self.current_frame, text="Throttle")
-        self.speed_label_throttle.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.speed_label_throttle.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.speed_label_yaw = tki.Label(self.current_frame, text="Yaw")
-        self.speed_label_yaw.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.speed_label_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
 
@@ -415,7 +462,7 @@ class TelloUI(object):
 
         self.speed_strigvar_pitch = tki.StringVar()
         self.speed_entry_pitch = tki.Entry(self.current_frame, width=9, textvariable=self.speed_strigvar_pitch)
-        self.speed_entry_pitch.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.speed_entry_pitch.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.speed_entry_pitch.delete(0, tki.END)
         self.speed_entry_pitch.insert(0, "0.0")
 
@@ -423,7 +470,7 @@ class TelloUI(object):
 
         self.speed_strigvar_roll = tki.StringVar()
         self.speed_entry_roll = tki.Entry(self.current_frame, width=9, textvariable=self.speed_strigvar_roll)
-        self.speed_entry_roll.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.speed_entry_roll.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.speed_entry_roll.delete(0, tki.END)
         self.speed_entry_roll.insert(0, "0.0")
 
@@ -431,7 +478,7 @@ class TelloUI(object):
 
         self.speed_strigvar_throttle = tki.StringVar()
         self.speed_entry_throttle = tki.Entry(self.current_frame, width=9, textvariable=self.speed_strigvar_throttle)
-        self.speed_entry_throttle.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.speed_entry_throttle.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.speed_entry_throttle.delete(0, tki.END)
         self.speed_entry_throttle.insert(0, "0.0")
 
@@ -439,41 +486,42 @@ class TelloUI(object):
 
         self.speed_strigvar_yaw = tki.StringVar()
         self.speed_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.speed_strigvar_yaw)
-        self.speed_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.speed_entry_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.speed_entry_yaw.delete(0, tki.END)
         self.speed_entry_yaw.insert(0, "0.0")
 
         self.row += 1
         self.column = 0
 
-    def init_info_frame(self):
+    def init_info_frame(self, root_frame):
         self.init_info_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_etc = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_etc = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("info_frame in row={} column={}".format(self.row, self.column))
         self.frame_etc.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_etc
 
 
         self.altitude_label = tki.Label(self.current_frame, text="Altitude")
-        self.altitude_label.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.altitude_label.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
         self.frame_column += 1
 
         self.battery_label = tki.Label(self.current_frame, text="Battery %")
-        self.battery_label.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.battery_label.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
         self.frame_column += 1
 
-        self.flight_time_remaining_label = tki.Label(self.current_frame, text="flight time remaining")
-        self.flight_time_remaining_label.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        # self.flight_time_remaining_label = tki.Label(self.current_frame, text="flight time remaining")
+        # self.flight_time_remaining_label.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
         self.frame_column += 1
 
-        self.allow_slam_control_btn = tki.Button(self.current_frame, text="Toggle Slam Control!",  command=self.allow_slam_control_btn_callback)
-        self.allow_slam_control_btn.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.allow_slam_control_btn = tki.Button(self.current_frame, text="Toggle Slam Control!",  command=self.allow_slam_control_btn_callback, bg='yellow')
+        self.allow_slam_control_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
 
         self.frame_row += 1
@@ -481,7 +529,7 @@ class TelloUI(object):
 
         self.altitude_strigvar = tki.StringVar()
         self.altitude_entry = tki.Entry(self.current_frame, width=9, textvariable=self.altitude_strigvar)
-        self.altitude_entry.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.altitude_entry.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.altitude_entry.delete(0, tki.END)
         self.altitude_entry.insert(0, "0.0")
 
@@ -489,72 +537,73 @@ class TelloUI(object):
 
         self.battery_strigvar = tki.StringVar()
         self.battery_entry = tki.Entry(self.current_frame, width=9, textvariable=self.battery_strigvar)
-        self.battery_entry.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.battery_entry.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.battery_entry.delete(0, tki.END)
         self.battery_entry.insert(0, "0.0")
 
         self.frame_column += 1
 
-        self.flight_time_remaining_strigvar = tki.StringVar()
-        self.flight_time_remaining_entry = tki.Entry(self.current_frame, width=9, textvariable=self.flight_time_remaining_strigvar)
-        self.flight_time_remaining_entry.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
-        self.flight_time_remaining_entry.delete(0, tki.END)
-        self.flight_time_remaining_entry.insert(0, "0.0")
+        # self.flight_time_remaining_strigvar = tki.StringVar()
+        # self.flight_time_remaining_entry = tki.Entry(self.current_frame, width=9, textvariable=self.flight_time_remaining_strigvar)
+        # self.flight_time_remaining_entry.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
+        # self.flight_time_remaining_entry.delete(0, tki.END)
+        # self.flight_time_remaining_entry.insert(0, "0.0")
 
         self.frame_column += 1
 
         self.allow_slam_control_strigvar = tki.StringVar()
         self.allow_slam_control_entry = tki.Entry(self.current_frame, width=9, textvariable=self.allow_slam_control_strigvar)
-        self.allow_slam_control_entry.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.allow_slam_control_entry.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.allow_slam_control_entry.delete(0, tki.END)
         self.allow_slam_control_entry.insert(0, "{}".format(self.allow_slam_control))
 
         self.row += 1
         self.column = 0
 
-    def init_manual_control_frame(self):
+    def init_manual_control_frame(self, root_frame):
         self.init_manual_control_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_manual_control = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_manual_control = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("manual_control_frame in row={} column={}".format(self.row, self.column))
         self.frame_manual_control.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_manual_control
 
         self.title_label_manual_control = tki.Label(self.current_frame, text="Manual Control", font=("Helvetica", 13))
-        self.title_label_manual_control.grid(row=self.frame_row, column=2, padx=3, pady=3)
+        self.title_label_manual_control.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
+
+        self.manual_control_set_btn = tki.Button(self.current_frame, text="Manual Control Set!",  command=self.manual_control_set_callback, bg='yellow')
+        self.manual_control_set_btn.grid(row=self.frame_row, column=2)#, padx=3, pady=3)
+
+        self.manual_control_clear_btn = tki.Button(self.current_frame, text="Manual Control Clear!",  command=self.manual_control_clear_callback)
+        self.manual_control_clear_btn.grid(row=self.frame_row, column=3)#, padx=3, pady=3)
 
         self.frame_row += 1
 
         self.manual_control_label_pitch = tki.Label(self.current_frame, text="Pitch")
-        self.manual_control_label_pitch.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.manual_control_label_pitch.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.manual_control_label_roll = tki.Label(self.current_frame, text="Roll")
-        self.manual_control_label_roll.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.manual_control_label_roll.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.manual_control_label_throttle = tki.Label(self.current_frame, text="Throttle")
-        self.manual_control_label_throttle.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.manual_control_label_throttle.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.manual_control_label_yaw = tki.Label(self.current_frame, text="Yaw")
-        self.manual_control_label_yaw.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.manual_control_label_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
-
-        self.manual_control_set_btn = tki.Button(self.current_frame, text="Manual Control Set!",  command=self.manual_control_set_callback)
-        self.manual_control_set_btn.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
-
-        self.frame_column += 1
-
 
         self.frame_row += 1
         self.frame_column = 0
 
         self.manual_control_strigvar_pitch = tki.StringVar()
         self.manual_control_entry_pitch = tki.Entry(self.current_frame, width=9, textvariable=self.manual_control_strigvar_pitch)
-        self.manual_control_entry_pitch.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.manual_control_entry_pitch.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.manual_control_entry_pitch.delete(0, tki.END)
         self.manual_control_entry_pitch.insert(0, "0.0")
 
@@ -562,7 +611,7 @@ class TelloUI(object):
 
         self.manual_control_strigvar_roll = tki.StringVar()
         self.manual_control_entry_roll = tki.Entry(self.current_frame, width=9, textvariable=self.manual_control_strigvar_roll)
-        self.manual_control_entry_roll.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.manual_control_entry_roll.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.manual_control_entry_roll.delete(0, tki.END)
         self.manual_control_entry_roll.insert(0, "0.0")
 
@@ -570,7 +619,7 @@ class TelloUI(object):
 
         self.manual_control_strigvar_throttle = tki.StringVar()
         self.manual_control_entry_throttle = tki.Entry(self.current_frame, width=9, textvariable=self.manual_control_strigvar_throttle)
-        self.manual_control_entry_throttle.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.manual_control_entry_throttle.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.manual_control_entry_throttle.delete(0, tki.END)
         self.manual_control_entry_throttle.insert(0, "0.0")
 
@@ -578,53 +627,49 @@ class TelloUI(object):
 
         self.manual_control_strigvar_yaw = tki.StringVar()
         self.manual_control_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.manual_control_strigvar_yaw)
-        self.manual_control_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.manual_control_entry_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.manual_control_entry_yaw.delete(0, tki.END)
         self.manual_control_entry_yaw.insert(0, "0.0")
-
-        self.frame_column += 1
-
-        self.manual_control_clear_btn = tki.Button(self.current_frame, text="Manual Control Clear!",  command=self.manual_control_clear_callback)
-        self.manual_control_clear_btn.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
 
         self.frame_column += 1
 
         self.row += 1
         self.column = 0
 
-    def init_angle_calc_frame(self):
+    def init_angle_calc_frame(self, root_frame):
         self.init_angle_calc_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_angle_calc = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_angle_calc = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("angle_calc_frame in row={} column={}".format(self.row, self.column))
         self.frame_angle_calc.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_angle_calc
 
         self.title_label_angle_calc = tki.Label(self.current_frame, text="Angel Calc", font=("Helvetica", 13))
-        self.title_label_angle_calc.grid(row=self.frame_row, column=2, padx=3, pady=3)
+        self.title_label_angle_calc.grid(row=self.frame_row, column=2)#, padx=3, pady=3)
 
         self.frame_row += 1
 
         self.angle_calc_label_x_moved = tki.Label(self.current_frame, text="X Moved")
-        self.angle_calc_label_x_moved.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.angle_calc_label_x_moved.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.angle_calc_label_y_moved = tki.Label(self.current_frame, text="Y Moved")
-        self.angle_calc_label_y_moved.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.angle_calc_label_y_moved.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.angle_calc_label_z_moved = tki.Label(self.current_frame, text="Z Moved")
-        self.angle_calc_label_z_moved.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.angle_calc_label_z_moved.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.angle_calc_label_angle = tki.Label(self.current_frame, text="Angle")
-        self.angle_calc_label_angle.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.angle_calc_label_angle.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.angle_calc_set_btn = tki.Button(self.current_frame, text="Calculate Angle!",  command=self.angle_calc_set_callback)
-        self.angle_calc_set_btn.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.angle_calc_set_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
         self.frame_column += 1
 
@@ -634,7 +679,7 @@ class TelloUI(object):
 
         self.angle_calc_strigvar_x_moved = tki.StringVar()
         self.angle_calc_entry_x_moved = tki.Entry(self.current_frame, width=9, textvariable=self.angle_calc_strigvar_x_moved)
-        self.angle_calc_entry_x_moved.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.angle_calc_entry_x_moved.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.angle_calc_entry_x_moved.delete(0, tki.END)
         self.angle_calc_entry_x_moved.insert(0, "0.0")
 
@@ -642,7 +687,7 @@ class TelloUI(object):
 
         self.angle_calc_strigvar_y_moved = tki.StringVar()
         self.angle_calc_entry_y_moved = tki.Entry(self.current_frame, width=9, textvariable=self.angle_calc_strigvar_y_moved)
-        self.angle_calc_entry_y_moved.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.angle_calc_entry_y_moved.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.angle_calc_entry_y_moved.delete(0, tki.END)
         self.angle_calc_entry_y_moved.insert(0, "0.0")
 
@@ -650,7 +695,7 @@ class TelloUI(object):
 
         self.angle_calc_strigvar_z_moved = tki.StringVar()
         self.angle_calc_entry_z_moved = tki.Entry(self.current_frame, width=9, textvariable=self.angle_calc_strigvar_z_moved)
-        self.angle_calc_entry_z_moved.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.angle_calc_entry_z_moved.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.angle_calc_entry_z_moved.delete(0, tki.END)
         self.angle_calc_entry_z_moved.insert(0, "0.0")
 
@@ -658,7 +703,7 @@ class TelloUI(object):
 
         self.angle_calc_strigvar_angle = tki.StringVar()
         self.angle_calc_entry_angle = tki.Entry(self.current_frame, width=9, textvariable=self.angle_calc_strigvar_angle)
-        self.angle_calc_entry_angle.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.angle_calc_entry_angle.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.angle_calc_entry_angle.delete(0, tki.END)
         self.angle_calc_entry_angle.insert(0, "0.0")
         self.angle_calc_strigvar_angle.set('%.4f'%(self.angle))  
@@ -666,40 +711,41 @@ class TelloUI(object):
         self.frame_column += 1
 
         self.angle_calc_clear_btn = tki.Button(self.current_frame, text="Clear Angle!",  command=self.angle_calc_clear_callback)
-        self.angle_calc_clear_btn.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.angle_calc_clear_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
         self.frame_column += 1
 
         self.row += 1
         self.column = 0
     
-    def init_rotated_frame(self):
+    def init_rotated_frame(self, root_frame):
         self.init_rotated_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_rotated = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_rotated = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("rotated_frame in row={} column={}".format(self.row, self.column))
         self.frame_rotated.grid(row=self.row, column=self.column)
 
         self.title_label_rotated = tki.Label(self.frame_rotated, text="Rotated SLAM Coordinates", font=("Helvetica", 13))
-        self.title_label_rotated.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.title_label_rotated.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.frame_row += 1
 
         self.rotated_label_x = tki.Label(self.frame_rotated, text="X")
-        self.rotated_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.rotated_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.rotated_label_y = tki.Label(self.frame_rotated, text="Y")
-        self.rotated_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.rotated_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.rotated_label_z = tki.Label(self.frame_rotated, text="Z")
-        self.rotated_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.rotated_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.rotated_label_orientation = tki.Label(self.frame_rotated, text="Orientation")
-        self.rotated_label_orientation.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.rotated_label_orientation.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.frame_row += 1
@@ -707,7 +753,7 @@ class TelloUI(object):
 
         self.rotated_strigvar_x = tki.StringVar()
         self.rotated_entry_x = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_x)
-        self.rotated_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.rotated_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_x.delete(0, tki.END)
         self.rotated_entry_x.insert(0, "0.0")
 
@@ -715,7 +761,7 @@ class TelloUI(object):
 
         self.rotated_strigvar_y = tki.StringVar()
         self.rotated_entry_y = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_y)
-        self.rotated_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.rotated_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_y.delete(0, tki.END)
         self.rotated_entry_y.insert(0, "0.0")
 
@@ -723,7 +769,7 @@ class TelloUI(object):
 
         self.rotated_strigvar_z = tki.StringVar()
         self.rotated_entry_z = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_z)
-        self.rotated_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.rotated_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_z.delete(0, tki.END)
         self.rotated_entry_z.insert(0, "0.0")
 
@@ -731,7 +777,7 @@ class TelloUI(object):
 
         self.rotated_strigvar_orientation = tki.StringVar()
         self.rotated_entry_orientation = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_orientation)
-        self.rotated_entry_orientation.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.rotated_entry_orientation.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_orientation.delete(0, tki.END)
         self.rotated_entry_orientation.insert(0, "0.0")
 
@@ -740,36 +786,37 @@ class TelloUI(object):
         self.row += 1
         self.column = 0
 
-    def init_real_world_frame(self):
+    def init_real_world_frame(self, root_frame):
         self.init_real_world_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_real_world = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.frame_real_world = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("real_world_frame in row={} column={}".format(self.row, self.column))
         self.frame_real_world.grid(row=self.row, column=self.column)
 
         self.title_label_real_world = tki.Label(self.frame_real_world, text="Real World Position[Meters]", font=("Helvetica", 13))
-        self.title_label_real_world.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.title_label_real_world.grid(row=self.frame_row, column=1)#)#, padx=3, pady=3)
 
-        self.btn_change_mux_toggle = tki.Button(self.frame_real_world, text="Change Mux!", command=self.change_mux)
-        self.btn_change_mux_toggle.grid(row=self.frame_row, column=3, padx=3, pady=3)
+        # self.btn_change_mux_toggle = tki.Button(self.frame_real_world, text="Change Mux!", command=self.change_mux)
+        # self.btn_change_mux_toggle.grid(row=self.frame_row, column=3)#)#, padx=3, pady=3)
 
         self.frame_row += 1
 
         self.real_world_label_x = tki.Label(self.frame_real_world, text="X")
-        self.real_world_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.real_world_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.real_world_label_y = tki.Label(self.frame_real_world, text="Y")
-        self.real_world_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.real_world_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.real_world_label_z = tki.Label(self.frame_real_world, text="Z")
-        self.real_world_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.real_world_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.real_world_label_scale = tki.Label(self.frame_real_world, text="Altitude Scale")
-        self.real_world_label_scale.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.real_world_label_scale.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.frame_row += 1
@@ -777,7 +824,7 @@ class TelloUI(object):
 
         self.real_world_strigvar_x = tki.StringVar()
         self.real_world_entry_x = tki.Entry(self.frame_real_world, width=9, textvariable=self.real_world_strigvar_x)
-        self.real_world_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.real_world_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.real_world_entry_x.delete(0, tki.END)
         self.real_world_entry_x.insert(0, "0.0")
 
@@ -785,7 +832,7 @@ class TelloUI(object):
 
         self.real_world_strigvar_y = tki.StringVar()
         self.real_world_entry_y = tki.Entry(self.frame_real_world, width=9, textvariable=self.real_world_strigvar_y)
-        self.real_world_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.real_world_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.real_world_entry_y.delete(0, tki.END)
         self.real_world_entry_y.insert(0, "0.0")
 
@@ -793,7 +840,7 @@ class TelloUI(object):
 
         self.real_world_strigvar_z = tki.StringVar()
         self.real_world_entry_z = tki.Entry(self.frame_real_world, width=9, textvariable=self.real_world_strigvar_z)
-        self.real_world_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.real_world_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.real_world_entry_z.delete(0, tki.END)
         self.real_world_entry_z.insert(0, "0.0")
 
@@ -801,7 +848,7 @@ class TelloUI(object):
 
         self.real_world_strigvar_scale = tki.StringVar()
         self.real_world_entry_scale = tki.Entry(self.frame_real_world, width=9, textvariable=self.real_world_strigvar_scale)
-        self.real_world_entry_scale.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.real_world_entry_scale.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.real_world_entry_scale.delete(0, tki.END)
         self.real_world_entry_scale.insert(0, "0.0")
 
@@ -810,40 +857,41 @@ class TelloUI(object):
         self.row += 1
         self.column = 0
     
-    def init_kd_kp_frame(self):
+    def init_kd_kp_frame(self, root_frame):
         self.init_kd_kp_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_kd_kp = tki.Frame(self.root, relief=tki.SUNKEN)
+        self.kd_kp_frame = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("kd_kp_frame in row={} column={}".format(self.row, self.column))
         self.frame_kd_kp.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_kd_kp
 
 
         self.title_label_kd = tki.Label(self.current_frame, text="Kd", font=("Helvetica", 13))
-        self.title_label_kd.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.title_label_kd.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.kp_kd_btn = tki.Button(self.current_frame, text="Publish Kd/Kp!",  command=self.kd_kp_callback)
-        self.kp_kd_btn.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kp_kd_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
 
         self.frame_row += 1
 
         self.kd_label_x = tki.Label(self.current_frame, text="X")
-        self.kd_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kd_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.kd_label_y = tki.Label(self.current_frame, text="Y")
-        self.kd_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kd_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.kd_label_z = tki.Label(self.current_frame, text="Z")
-        self.kd_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kd_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.kd_label_yaw = tki.Label(self.current_frame, text="Yaw")
-        self.kd_label_yaw.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kd_label_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
 
@@ -852,7 +900,7 @@ class TelloUI(object):
 
         self.kd_strigvar_x = tki.StringVar()
         self.kd_entry_x = tki.Entry(self.current_frame, width=9, textvariable=self.kd_strigvar_x)
-        self.kd_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kd_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kd_entry_x.delete(0, tki.END)
         self.kd_entry_x.insert(0, "1.0")
 
@@ -860,7 +908,7 @@ class TelloUI(object):
 
         self.kd_strigvar_y = tki.StringVar()
         self.kd_entry_y = tki.Entry(self.current_frame, width=9, textvariable=self.kd_strigvar_y)
-        self.kd_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kd_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kd_entry_y.delete(0, tki.END)
         self.kd_entry_y.insert(0, "1.0")
 
@@ -868,7 +916,7 @@ class TelloUI(object):
 
         self.kd_strigvar_z = tki.StringVar()
         self.kd_entry_z = tki.Entry(self.current_frame, width=9, textvariable=self.kd_strigvar_z)
-        self.kd_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kd_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kd_entry_z.delete(0, tki.END)
         self.kd_entry_z.insert(0, "1.5")
 
@@ -876,32 +924,32 @@ class TelloUI(object):
 
         self.kd_strigvar_yaw = tki.StringVar()
         self.kd_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.kd_strigvar_yaw)
-        self.kd_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kd_entry_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kd_entry_yaw.delete(0, tki.END)
-        self.kd_entry_yaw.insert(0, "0.001")
+        self.kd_entry_yaw.insert(0, "0.01")
 
         self.frame_column = 0
         self.frame_row += 1
 
         self.title_label_kp = tki.Label(self.current_frame, text="Kp", font=("Helvetica", 13))
-        self.title_label_kp.grid(row=self.frame_row, column=1, padx=3, pady=3)
+        self.title_label_kp.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
 
         self.frame_row += 1
 
         self.kp_label_x = tki.Label(self.current_frame, text="X")
-        self.kp_label_x.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kp_label_x.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.kp_label_y = tki.Label(self.current_frame, text="Y")
-        self.kp_label_y.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kp_label_y.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.kp_label_z = tki.Label(self.current_frame, text="Z")
-        self.kp_label_z.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kp_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.kp_label_yaw = tki.Label(self.current_frame, text="Yaw")
-        self.kp_label_yaw.grid(row=self.frame_row, column=self.frame_column, padx=3, pady=3)
+        self.kp_label_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
 
@@ -910,7 +958,7 @@ class TelloUI(object):
 
         self.kp_strigvar_x = tki.StringVar()
         self.kp_entry_x = tki.Entry(self.current_frame, width=9, textvariable=self.kp_strigvar_x)
-        self.kp_entry_x.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kp_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kp_entry_x.delete(0, tki.END)
         self.kp_entry_x.insert(0, "0.6")
 
@@ -918,7 +966,7 @@ class TelloUI(object):
 
         self.kp_strigvar_y = tki.StringVar()
         self.kp_entry_y = tki.Entry(self.current_frame, width=9, textvariable=self.kp_strigvar_y)
-        self.kp_entry_y.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kp_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kp_entry_y.delete(0, tki.END)
         self.kp_entry_y.insert(0, "0.6")
 
@@ -926,7 +974,7 @@ class TelloUI(object):
 
         self.kp_strigvar_z = tki.StringVar()
         self.kp_entry_z = tki.Entry(self.current_frame, width=9, textvariable=self.kp_strigvar_z)
-        self.kp_entry_z.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kp_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kp_entry_z.delete(0, tki.END)
         self.kp_entry_z.insert(0, "1.5")
 
@@ -934,30 +982,61 @@ class TelloUI(object):
 
         self.kp_strigvar_yaw = tki.StringVar()
         self.kp_entry_yaw = tki.Entry(self.current_frame, width=9, textvariable=self.kp_strigvar_yaw)
-        self.kp_entry_yaw.grid(row=self.frame_row, column=self.frame_column, padx=5, pady=5)
+        self.kp_entry_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.kp_entry_yaw.delete(0, tki.END)
-        self.kp_entry_yaw.insert(0, "0.03")
+        self.kp_entry_yaw.insert(0, "0.015")
 
         self.row += 1
         self.column = 0
 
-    
-    def init_trajectory_frame(self):
-        self.init_trajectory_frame_flag = True
+    def init_merge_map_frame(self, root_frame):
+        
+
+        self.init_merge_map_frame_flag = True
         self.frame_column = 0
         self.frame_row = 0
 
-        self.frame_trajectory_main = tki.Frame(self.root, relief=tki.SUNKEN)
-        self.frame_trajectory_main.grid(row=0, column=1)
+        self.frame_merge_map = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("merge_map_frame in row={} column={}".format(self.row, self.column))
+        self.frame_merge_map.grid(row=self.row, column=self.column)
+        # self.frame_merge_map = self.frame_trajectory_main
 
-        self.current_frame = self.frame_trajectory_main
+        self.current_frame = self.frame_merge_map
+
+        self.toogle_merge_coordinates_btn = tki.Button(self.current_frame, text="Toggle Use Merged Coordinates",  command=self.toggle_merge_coordinates_publish, bg='yellow')
+        self.toogle_merge_coordinates_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
+
+        self.frame_row += 1
+
+        self.row += 1
+        self.column = 0
+
+
+
+    
+    def init_trajectory_frame(self, root_frame):
+        
+        self.init_trajectory_frame_flag = True
+        
+
+        self.frame_trajectory_main = tki.Frame(root_frame, relief=tki.SUNKEN, borderwidth = 1)
+        rospy.loginfo("trajectory_frame in row={} column={}".format(self.row, self.column))
+        self.frame_trajectory_main.grid(row=self.row, column=self.column)
+
+        self.frame_trajectory_1 = tki.Frame(self.frame_trajectory_main, relief=tki.SUNKEN, borderwidth = 1)
+        self.frame_trajectory_1.grid(row=0, column=0)
+
+        self.current_frame = self.frame_trajectory_1
+
+        self.frame_column = 0
+        self.frame_row = 0
 
         self.title_label_trajectory = tki.Label(self.current_frame, text="Trajectory Control", font=("Helvetica", 13))
         self.title_label_trajectory.grid(row=self.frame_row, column=0)#, padx=3, pady=3)
 
         self.frame_row += 1
 
-        self.trajectory_set_btn = tki.Button(self.current_frame, text="Publish Trajectory!",  command=self.trajectory_publish_callback)
+        self.trajectory_set_btn = tki.Button(self.current_frame, text="Publish Trajectory!",  command=self.trajectory_publish_callback, bg='yellow')
         self.trajectory_set_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
         self.frame_row += 1
@@ -975,7 +1054,6 @@ class TelloUI(object):
         self.trajectory_pushup_btn = tki.Button(self.current_frame, text="Push Up!",  command=self.trajectory_pushup_callback)
         self.trajectory_pushup_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
-        
 
         self.frame_row += 1
 
@@ -983,8 +1061,17 @@ class TelloUI(object):
         self.trajectory_kill_btn.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
 
 
-        self.frame_trajectory_points = tki.Frame(self.root, relief=tki.SUNKEN)
-        self.frame_trajectory_points.grid(row=1, column=1)
+        self.frame_trajectory_2 = tki.Frame(self.frame_trajectory_main, relief=tki.SUNKEN, borderwidth = 1)
+        self.frame_trajectory_2.grid(row=1, column=0)        
+
+        self.current_frame = self.frame_trajectory_2
+
+        self.row += 1
+        self.column = 1
+
+
+        self.frame_trajectory_points = tki.Frame(self.current_frame, relief=tki.SUNKEN, borderwidth = 1)
+        self.frame_trajectory_points.grid(row=self.row, column=self.column)
 
         self.current_frame = self.frame_trajectory_points
         self.frame_row = 0
@@ -1062,6 +1149,7 @@ class TelloUI(object):
 
     def calibrate_z_callback(self):
         self.calibrate_real_world_scale_publisher.publish()
+        self.btn_calibrate_z.configure(fg = 'red', bg = 'black')
 
     def scan_room_left_callback(self):
         rospy.loginfo('pressed Scan Room Left!')
@@ -1072,12 +1160,20 @@ class TelloUI(object):
         self.scan_room_publisher.publish(False)
 
     def allow_slam_control_btn_callback(self):
+        if self.allow_slam_control:
+            self.allow_slam_control_btn.configure(bg='yellow', fg='black')
+            self.btn_calibrate_z.configure(bg='yellow')
+        else:
+            self.allow_slam_control_btn.configure(bg='black', fg='yellow')
+            self.btn_calibrate_z.configure(bg=self.default_bg)
         self.pub_allow_slam_control.publish(not self.allow_slam_control)
 
     def real_world_scale_callback(self, msg):
         self.real_world_scale = float(msg.data)
         if self.init_real_world_frame_flag:
             self.real_world_strigvar_scale.set('%.4f'%(self.real_world_scale)) 
+        self.btn_calibrate_z.configure(fg = 'green', bg = 'yellow')
+
 
     def real_world_pos_callback(self, msg):
         self.real_world_pos = msg.pose.position
@@ -1091,7 +1187,7 @@ class TelloUI(object):
         if self.init_info_frame_flag:
             self.altitude_strigvar.set('%.4f'%(self.altitude))
             self.battery_strigvar.set('%.2f'%(flight_data.battery_percent))
-            self.flight_time_remaining_strigvar.set('%.2f'%(flight_data.estimated_flight_time_remaining))
+            # self.flight_time_remaining_strigvar.set('%.2f'%(flight_data.estimated_flight_time_remaining))
         # try:
             # if self.altitude > 0.2:
                 # self.real_world_scale = self.altitude / self.rotated_pos.z
@@ -1124,6 +1220,15 @@ class TelloUI(object):
         self.kd_publisher.publish(self.kd)
         self.kp_publisher.publish(self.kp)
 
+    def toggle_merge_coordinates_publish(self):
+        self.use_merge_coordinates = not(self.use_merge_coordinates)
+        self.merge_coordinates_pub.publish(Bool(self.use_merge_coordinates))
+        if self.use_merge_coordinates:
+            self.toogle_merge_coordinates_btn.configure(fg='red', bg='black')
+        else:
+            self.toogle_merge_coordinates_btn.configure(bg='yellow', fg='black')
+        print("toggle_merge_coordinates_publish", self.use_merge_coordinates)
+
     def trajectory_publish_callback(self):
         self.update_trajectory_list_from_gui()
         self.last_trajectory = [element for element in self.trajectory_list]
@@ -1131,14 +1236,23 @@ class TelloUI(object):
         self.trajectory_kill = False
         trajectory_thread = threading.Thread(target=self.trajectory_thread, args=())
         trajectory_thread.start()
+        self.trajectory_set_btn.configure(fg='green', bg=self.default_bg)
 
     def load_last_trajectory_callback(self):
+        self.lock.acquire()
         self.trajectory_list = [element for element in self.last_trajectory]
         self.update_gui_trajectory()
+        self.lock.release()
 
     def trajectory_pushup_callback(self):
+        self.lock.acquire()
         self.trajectory_list.pop(0)
         self.update_gui_trajectory()
+        self.lock.release()
+        self.take_picure()
+
+    def take_picure(self):
+        self.take_picure_publisher.publish()
 
     def trajectory_load_callback(self):
         trajectory_path = tkFileDialog.askopenfilename(initialdir = "~/ROS/ccmslam_ws/src/flock/flock_driver/src/",title = "Select Trajectory file",filetypes = (("csv files","*.csv"),("all files","*.*")))    
@@ -1150,6 +1264,7 @@ class TelloUI(object):
 
     def trajectory_kill_callback(self):
         self.trajectory_kill = True
+        self.trajectory_set_btn.configure(fg='black', bg='yellow')
 
     def update_trajectory_list_from_gui(self):
         out = []
@@ -1205,6 +1320,10 @@ class TelloUI(object):
         path_msg = Path()
         command_pos = Pose()
 
+        self.lock.acquire()
+        rospy.loginfo("Started trajectory_thread with {}".format(self.trajectory_list))
+
+
 
         for trajectory_idx, trajectory_line in enumerate(self.trajectory_list):
             pose_stamped = PoseStamped()
@@ -1223,6 +1342,7 @@ class TelloUI(object):
             pose_stamped.pose.orientation = command_pos.orientation
             path_msg.header = pose_stamped.header
             path_msg.poses.append(pose_stamped)
+        self.lock.release()
         self.path_publisher.publish(path_msg)
 
         time.sleep(0.5)
@@ -1231,28 +1351,32 @@ class TelloUI(object):
         command_yaw = self.point_command_pos_yaw
 
         while not rospy.is_shutdown():
-            if not (command_pos == self.received_command_pos and command_yaw == self.point_command_pos_yaw):
-                rospy.loginfo("Trajectory have Lost control")
-                return
+            time.sleep(0.2)
+            # if not (command_pos == self.received_command_pos and command_yaw == self.point_command_pos_yaw):
+            #     rospy.loginfo("Trajectory have Lost control")
+            #     return
 
             if self.quit_flag:
                 rospy.loginfo("Trajectory Quit due to Quit GUI")
+                self.trajectory_set_btn.configure(fg='black', bg='yellow')
                 return
 
 
             if self.land:
                 rospy.loginfo("Trajectory Quit due to Landing")
+                self.trajectory_set_btn.configure(fg='black', bg='yellow')
                 return
 
             if self.trajectory_kill:
                 rospy.loginfo("Trajectory Quit due to Killing Command")
+                self.trajectory_set_btn.configure(fg='black', bg='yellow')
                 return
 
             if abs(command_pos.position.x - self.real_world_pos.x) < self.trajectory_threshold.x:
                 if abs(command_pos.position.y - self.real_world_pos.y) < self.trajectory_threshold.y:
                     if abs(command_pos.position.z - self.real_world_pos.z) < self.trajectory_threshold.z:
-                        # if self.find_min_distance_in_orientation(command_yaw, self.orientation_degree.z) < self.trajectory_orientation_threshold.z:
-                        self.trajectory_pushup_callback()
+                        if self.find_min_distance_in_orientation(command_yaw, self.orientation_degree.z) < self.trajectory_orientation_threshold.z:
+                            self.trajectory_pushup_callback()
 
 
             if len(self.trajectory_list) > 0:
@@ -1268,6 +1392,7 @@ class TelloUI(object):
 
             else:
                 rospy.loginfo("Trajectory Finished")
+                self.trajectory_set_btn.configure(fg='black', bg='yellow')
                 return
 
             time.sleep(1)
@@ -1372,6 +1497,17 @@ class TelloUI(object):
             self.angle_calc_strigvar_x_moved.set('%.4f'%(self.slam_pos.x - self.angle_delta_x))
             self.angle_calc_strigvar_y_moved.set('%.4f'%(self.slam_pos.y - self.angle_delta_y))
             self.angle_calc_strigvar_z_moved.set('%.4f'%(self.slam_pos.z - self.angle_delta_z))  
+        if self.manual_control_clear_btn.cget('background') == 'black':
+            if self.manual_control_clear_btn.cget('foreground') == 'yellow':
+                self.manual_control_clear_btn.configure(bg = 'black', fg = 'red')
+            else:
+                self.manual_control_clear_btn.configure(bg = 'black', fg = 'yellow')
+        if self.allow_slam_control_btn.cget('background') == 'black':
+            if self.allow_slam_control_btn.cget('foreground') == 'yellow':
+                self.allow_slam_control_btn.configure(bg = 'black', fg = 'red')
+            else:
+                self.allow_slam_control_btn.configure(bg = 'black', fg = 'yellow')
+
 
     def update_command_pos_from_gui(self):
         if self.init_command_pos_frame_flag:
@@ -1433,6 +1569,9 @@ class TelloUI(object):
         except ValueError:
             self.twist_manual_control = Twist()
         self.cmd_val_publisher.publish(self.twist_manual_control)
+        self.manual_control_set_btn.configure(fg = 'green', bg=self.default_bg)
+        self.manual_control_clear_btn.configure(bg = 'black', fg = 'yellow')
+        self.btn_calibrate_z.configure(bg=self.default_bg)
 
     def manual_control_clear_callback(self):
         self.twist_manual_control.linear.x = 0
@@ -1440,6 +1579,9 @@ class TelloUI(object):
         self.twist_manual_control.linear.z = 0
         self.twist_manual_control.angular.z = 0
         self.cmd_val_publisher.publish(self.twist_manual_control)
+        self.manual_control_set_btn.configure(fg = 'black',  bg = 'yellow')
+        self.manual_control_clear_btn.configure(bg = self.default_bg, fg = 'black')
+        self.btn_calibrate_z.configure(bg='yellow')
 
     def reset_map_callback(self):
         self.client.update_configuration({"reset_map": True})
@@ -1448,6 +1590,8 @@ class TelloUI(object):
     def takeoff(self):
         self.land = False
         self.pub_takeoff.publish()
+        self.btn_takeoff.configure(fg='green', bg='white')
+        self.btn_land.configure(fg='black', bg='yellow')
 
 
     def change_mux(self):
@@ -1457,6 +1601,8 @@ class TelloUI(object):
     def land_callback(self):
         self.land = True
         self.pub_land.publish()
+        self.btn_takeoff.configure(fg='black', bg='yellow')
+        self.btn_land.configure(fg='green', bg='white')
 
 
     def onClose(self, *args):

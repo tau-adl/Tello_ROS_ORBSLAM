@@ -22,6 +22,7 @@ from PIL import Image as ImagePIL
 from PIL import ImageTk as ImageTkPIL
 import time
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import traceback
 
 
 
@@ -51,7 +52,7 @@ class CloudMapSaver(object):
         self.trigger_topic_name = rospy.get_param('~TRIGGER_TOPIC_NAME')
         self.pose_topic_name = rospy.get_param('~POSE_TOPIC_NAME')
         self.camera_topic_name = rospy.get_param('~CAMERA_TOPIC_NAME')
-        # self.cloud_server_topic_name = rospy.get_param('~CLOUD_SERVER_TOPIC_NAME')
+#        self.cloud_server_topic_name = rospy.get_param('~CLOUD_SERVER_TOPIC_NAME')
 
         self.received_image = False
 
@@ -223,7 +224,9 @@ class CloudMapSaver(object):
             thread_tmp = threading.Thread(target=self._getGUIImage)
             thread_tmp.start()
         except CvBridgeError as e:
-            print(e)
+            # print(e)
+            print(traceback.format_exc())
+
 
 
 
@@ -254,7 +257,7 @@ class CloudMapSaver(object):
 
             if len(self.list_of_pure_lines) > 0:
                 x = np.asarray([float(element[0]) for element in self.list_of_pure_lines])
-                y = np.asarray([float(element[1]) for element in self.list_of_pure_lines])
+                y = np.asarray([-float(element[1]) for element in self.list_of_pure_lines])
                 z = np.asarray([float(element[2]) for element in self.list_of_pure_lines])
 
             # self.x_min = min(x.min(), self.x_min)
@@ -267,7 +270,7 @@ class CloudMapSaver(object):
 
 
 
-                a.scatter(x, z, color='red', s=0.2)
+                a.scatter(y, x, color='red', s=0.2)
             # a.scatter(self.position.y, self.position.x, color='blue')
 
             # x_arrow_final = self.position.x + math.cos(self.deg_to_rad(self.orientation_deg.z))*1
@@ -281,22 +284,25 @@ class CloudMapSaver(object):
             # a.arrow(self.position.y, self.position.x, math.sin(self.deg_to_rad(self.orientation_deg.z))/2, math.cos(self.deg_to_rad(self.orientation_deg.z))/2, 
             #     color='blue', head_width=0.01)
 
+                # we want to look at the X-Y plane. so we want to replace the x and y.
+
                 a.arrow(-self.position.y, self.position.x, math.sin(self.deg_to_rad(-self.orientation_deg.z))/5, math.cos(self.deg_to_rad(-self.orientation_deg.z))/5, 
                     color='blue')
 
         except Exception as e:
-            print(e)
+            # print(e)
+            print(traceback.format_exc())
 
-        a.axis(xmin=self.z_min, xmax=self.z_max)
+        a.axis(xmin=self.y_min, xmax=self.y_max)
         a.axis(ymin=self.x_min, ymax=self.x_max)
         # fig.xlim(self.y_min, self.y_min)
         # fig.ylim(self.z_min, self.z_min)
         # a.plot(p, range(2 +max(x)),color='blue')
         # a.invert_yaxis()
 
-        a.set_title ("X-Z", fontsize=16)
-        a.set_ylabel("Z", fontsize=14)
-        a.set_xlabel("X", fontsize=14)
+        a.set_title ("X-Y", fontsize=16)
+        a.set_ylabel("X", fontsize=14)
+        a.set_xlabel("Y", fontsize=14)
 
 
 
@@ -430,7 +436,7 @@ class CloudMapSaver(object):
 
         if ccm_slam_mode:
             color_id = [list_of_strings[x+3] for x in range(0, len(list_of_strings), 4)]
-            print(color_id)
+            # print(color_id)
         else:
             color_id = []
 

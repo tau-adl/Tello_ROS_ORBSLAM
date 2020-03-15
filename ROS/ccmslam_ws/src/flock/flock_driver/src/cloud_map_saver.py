@@ -52,7 +52,7 @@ class CloudMapSaver(object):
         self.trigger_topic_name = rospy.get_param('~TRIGGER_TOPIC_NAME')
         self.pose_topic_name = rospy.get_param('~POSE_TOPIC_NAME')
         self.camera_topic_name = rospy.get_param('~CAMERA_TOPIC_NAME')
-        self.cloud_server_topic_name = rospy.get_param('~CLOUD_SERVER_TOPIC_NAME')
+#        self.cloud_server_topic_name = rospy.get_param('~CLOUD_SERVER_TOPIC_NAME')
 
         self.received_image = False
 
@@ -283,6 +283,8 @@ class CloudMapSaver(object):
 
             # a.arrow(self.position.y, self.position.x, math.sin(self.deg_to_rad(self.orientation_deg.z))/2, math.cos(self.deg_to_rad(self.orientation_deg.z))/2, 
             #     color='blue', head_width=0.01)
+
+                # we want to look at the X-Y plane. so we want to replace the x and y.
 
                 a.arrow(-self.position.y, self.position.x, math.sin(self.deg_to_rad(-self.orientation_deg.z))/5, math.cos(self.deg_to_rad(-self.orientation_deg.z))/5, 
                     color='blue')

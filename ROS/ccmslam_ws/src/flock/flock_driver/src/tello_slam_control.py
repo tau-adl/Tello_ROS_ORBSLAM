@@ -27,9 +27,16 @@ class TelloSlamControler(object):
         self.time_of_takeoff = time.time() - 1000
 
         try: 
-            self.id                = rospy.get_param('~ID')
+            self.id = rospy.get_param('~ID')
         except KeyError:
             self.id = ''
+
+        
+        try:
+            self.pose_topic_name = rospy.get_param('~POSE_TOPIC_NAME')
+        except KeyError:
+            self.pose_topic_name = '/ccmslam/PoseOutClient'+str(self.id)
+
 
         self.publish_prefix = "tello{}/".format(self.id)
 
@@ -62,7 +69,7 @@ class TelloSlamControler(object):
         self.rotation_err_filtered_derivative = 0
         self.Kp = Point(0.6, 0.6, 1.5)
         self.Kd = Point(1.0, 1.0, 1.5)
-        self.Kp_yaw = 0.005
+        self.Kp_yaw = 0.015 # 0.005
         self.Kd_yaw = 0.01 # 0.2 = 360 deg / 38 sec = 9 deg/sec
 
         self.orientation_buffer_len = 10
@@ -100,7 +107,7 @@ class TelloSlamControler(object):
 
         # self.caution_speed_threshold = Point(0.25, 0.25, 0.3)
         self.caution_speed_threshold = Point(0.3, 0.3, 0.5)
-        self.caution_speed_yaw = 0.34
+        self.caution_speed_yaw = 0.1 # 0.34
 
 
         self.map_exists_flag = False
@@ -128,7 +135,7 @@ class TelloSlamControler(object):
 
         # ROS subscriptions
         # rospy.Subscriber('/orb_slam2_mono/pose', PoseStamped, self.slam_callback)
-        rospy.Subscriber('/ccmslam/PoseOutClient'+str(self.id), PoseStamped, self.slam_callback)
+        rospy.Subscriber(self.pose_topic_name,  PoseStamped, self.slam_callback)
         rospy.Subscriber(self.publish_prefix+'command_pos', Pose, self.command_pos_callback)
         rospy.Subscriber(self.publish_prefix+'allow_slam_control', Bool, self.allow_slam_control_callback)
         rospy.Subscriber(self.publish_prefix+'flight_data', FlightData, self.flightdata_callback)

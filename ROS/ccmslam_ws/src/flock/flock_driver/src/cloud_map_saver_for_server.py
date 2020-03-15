@@ -5,7 +5,8 @@ import rospy
 import math
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import Empty 
-from geometry_msgs.msg import PoseStamped, Point, TransformStamped
+# from geometry_msgs.msg import PoseStamped, Point, TransformStamped, Quaternion
+from geometry_msgs.msg import *
 from sensor_msgs.msg import Image
 import struct
 import signal
@@ -21,12 +22,15 @@ from cv_bridge import CvBridge, CvBridgeError
 from PIL import Image as ImagePIL
 from PIL import ImageTk as ImageTkPIL
 import time
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_multiply
+import tf.transformations
+import tf2_geometry_msgs
 import traceback
+from copy import deepcopy
 
 
 
-class CloudMapSaver(object):
+class CloudMapSaverForServer(object):
 
     def __init__(self, root):
 
@@ -72,6 +76,14 @@ class CloudMapSaver(object):
 
         self.position = Point()
         self.orientation = Point()
+        self.pose_0_transformed = PoseStamped()
+        self.pose_1_transformed = PoseStamped()
+        self.pose_0 = PoseStamped()
+        self.pose_1 = PoseStamped()
+        self.position_transformed_0 = Point()
+        self.position_transformed_1 = Point()
+        self.orientation_deg_transformed_0 = Point()
+        self.orientation_deg_transformed_1 = Point()
 
         
         self.x_min = -0.5
@@ -111,32 +123,313 @@ class CloudMapSaver(object):
         self.scale_entry.delete(0, tki.END)
         self.scale_entry.insert(0, str(self.scale))
 
-        self.command_label_pitch = tki.Label(self.root, text="Pitch[Deg]")
-        self.command_label_pitch.grid(row=3, column=0, padx=3, pady=3)
+        
+        row = 3
 
-        self.command_label_roll = tki.Label(self.root, text="Roll[Deg]")
-        self.command_label_roll.grid(row=3, column=1, padx=3, pady=3)
+        ##########################################
 
-        self.command_label_yaw = tki.Label(self.root, text="Yaw[Deg]")
-        self.command_label_yaw.grid(row=3, column=2, padx=3, pady=3)
+        self.command_label_x_client0 = tki.Label(self.root, text="x0")
+        self.command_label_x_client0.grid(row=row, column=0, padx=3, pady=3)
 
-        self.command_strigvar_pitch = tki.StringVar()
-        self.command_entry_pitch = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_pitch)
-        self.command_entry_pitch.grid(row=4, column=0, padx=3, pady=3)
-        self.command_entry_pitch.delete(0, tki.END)
-        self.command_entry_pitch.insert(0, "0.0")
+        self.command_label_y_client0 = tki.Label(self.root, text="y0")
+        self.command_label_y_client0.grid(row=row, column=1, padx=3, pady=3)
 
-        self.command_strigvar_roll = tki.StringVar()
-        self.command_entry_roll = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_roll)
-        self.command_entry_roll.grid(row=4, column=1, padx=3, pady=3)
-        self.command_entry_roll.delete(0, tki.END)
-        self.command_entry_roll.insert(0, "0.0")
+        self.command_label_z_client0 = tki.Label(self.root, text="z0")
+        self.command_label_z_client0.grid(row=row, column=2, padx=3, pady=3)
 
-        self.command_strigvar_yaw = tki.StringVar()
-        self.command_entry_yaw = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_yaw)
-        self.command_entry_yaw.grid(row=4, column=2, padx=3, pady=3)
-        self.command_entry_yaw.delete(0, tki.END)
-        self.command_entry_yaw.insert(0, "0.0")
+        row += 1
+
+        self.command_strigvar_x_client0 = tki.StringVar()
+        self.command_entry_x_client0 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_x_client0)
+        self.command_entry_x_client0.grid(row=row, column=0, padx=3, pady=3)
+        self.command_entry_x_client0.delete(0, tki.END)
+        self.command_entry_x_client0.insert(0, "0.0")
+
+        self.command_strigvar_y_client0 = tki.StringVar()
+        self.command_entry_y_client0 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_y_client0)
+        self.command_entry_y_client0.grid(row=row, column=1, padx=3, pady=3)
+        self.command_entry_y_client0.delete(0, tki.END)
+        self.command_entry_y_client0.insert(0, "0.0")
+
+        self.command_strigvar_z_client0 = tki.StringVar()
+        self.command_entry_z_client0 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_z_client0)
+        self.command_entry_z_client0.grid(row=row, column=2, padx=3, pady=3)
+        self.command_entry_z_client0.delete(0, tki.END)
+        self.command_entry_z_client0.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+        self.command_label_pitch_client0 = tki.Label(self.root, text="Pitch0[Deg]")
+        self.command_label_pitch_client0.grid(row=row, column=0, padx=3, pady=3)
+
+        self.command_label_roll_client0 = tki.Label(self.root, text="Roll0[Deg]")
+        self.command_label_roll_client0.grid(row=row, column=1, padx=3, pady=3)
+
+        self.command_label_yaw_client0 = tki.Label(self.root, text="Yaw0[Deg]")
+        self.command_label_yaw_client0.grid(row=row, column=2, padx=3, pady=3)
+
+        row += 1
+
+        self.command_strigvar_pitch_client0 = tki.StringVar()
+        self.command_entry_pitch_client0 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_pitch_client0)
+        self.command_entry_pitch_client0.grid(row=row, column=0, padx=3, pady=3)
+        self.command_entry_pitch_client0.delete(0, tki.END)
+        self.command_entry_pitch_client0.insert(0, "0.0")
+
+        self.command_strigvar_roll_client0 = tki.StringVar()
+        self.command_entry_roll_client0 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_roll_client0)
+        self.command_entry_roll_client0.grid(row=row, column=1, padx=3, pady=3)
+        self.command_entry_roll_client0.delete(0, tki.END)
+        self.command_entry_roll_client0.insert(0, "0.0")
+
+        self.command_strigvar_yaw_client0 = tki.StringVar()
+        self.command_entry_yaw_client0 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_yaw_client0)
+        self.command_entry_yaw_client0.grid(row=row, column=2, padx=3, pady=3)
+        self.command_entry_yaw_client0.delete(0, tki.END)
+        self.command_entry_yaw_client0.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+        self.command_label_x_client1 = tki.Label(self.root, text="x1")
+        self.command_label_x_client1.grid(row=row, column=0, padx=3, pady=3)
+
+        self.command_label_y_client1 = tki.Label(self.root, text="y1")
+        self.command_label_y_client1.grid(row=row, column=1, padx=3, pady=3)
+
+        self.command_label_z_client1 = tki.Label(self.root, text="z1")
+        self.command_label_z_client1.grid(row=row, column=2, padx=3, pady=3)
+
+        row += 1
+
+        self.command_strigvar_x_client1 = tki.StringVar()
+        self.command_entry_x_client1 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_x_client1)
+        self.command_entry_x_client1.grid(row=row, column=0, padx=3, pady=3)
+        self.command_entry_x_client1.delete(0, tki.END)
+        self.command_entry_x_client1.insert(0, "0.0")
+
+        self.command_strigvar_y_client1 = tki.StringVar()
+        self.command_entry_y_client1 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_y_client1)
+        self.command_entry_y_client1.grid(row=row, column=1, padx=3, pady=3)
+        self.command_entry_y_client1.delete(0, tki.END)
+        self.command_entry_y_client1.insert(0, "0.0")
+
+        self.command_strigvar_z_client1 = tki.StringVar()
+        self.command_entry_z_client1 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_z_client1)
+        self.command_entry_z_client1.grid(row=row, column=2, padx=3, pady=3)
+        self.command_entry_z_client1.delete(0, tki.END)
+        self.command_entry_z_client1.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+        self.command_label_pitch_client1 = tki.Label(self.root, text="Pitch1[Deg]")
+        self.command_label_pitch_client1.grid(row=row, column=0, padx=3, pady=3)
+
+        self.command_label_roll_client1 = tki.Label(self.root, text="Roll1[Deg]")
+        self.command_label_roll_client1.grid(row=row, column=1, padx=3, pady=3)
+
+        self.command_label_yaw_client1 = tki.Label(self.root, text="Yaw1[Deg]")
+        self.command_label_yaw_client1.grid(row=row, column=2, padx=3, pady=3)
+
+        row += 1
+
+        self.command_strigvar_pitch_client1 = tki.StringVar()
+        self.command_entry_pitch_client1 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_pitch_client1)
+        self.command_entry_pitch_client1.grid(row=row, column=0, padx=3, pady=3)
+        self.command_entry_pitch_client1.delete(0, tki.END)
+        self.command_entry_pitch_client1.insert(0, "0.0")
+
+        self.command_strigvar_roll_client1 = tki.StringVar()
+        self.command_entry_roll_client1 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_roll_client1)
+        self.command_entry_roll_client1.grid(row=row, column=1, padx=3, pady=3)
+        self.command_entry_roll_client1.delete(0, tki.END)
+        self.command_entry_roll_client1.insert(0, "0.0")
+
+        self.command_strigvar_yaw_client1 = tki.StringVar()
+        self.command_entry_yaw_client1 = tki.Entry(self.root, width=9, textvariable=self.command_strigvar_yaw_client1)
+        self.command_entry_yaw_client1.grid(row=row, column=2, padx=3, pady=3)
+        self.command_entry_yaw_client1.delete(0, tki.END)
+        self.command_entry_yaw_client1.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        row = 3
+
+        ##########################################
+
+    
+
+        self.transform_label_scale_client0 = tki.Label(self.root, text="trans_scale0")
+        self.transform_label_scale_client0.grid(row=row, column=6, padx=3, pady=3)
+
+        self.transform_label_x_client0 = tki.Label(self.root, text="trans_x0")
+        self.transform_label_x_client0.grid(row=row, column=3, padx=3, pady=3)
+
+        self.transform_label_y_client0 = tki.Label(self.root, text="trans_y0")
+        self.transform_label_y_client0.grid(row=row, column=4, padx=3, pady=3)
+
+        self.transform_label_z_client0 = tki.Label(self.root, text="trans_z0")
+        self.transform_label_z_client0.grid(row=row, column=5, padx=3, pady=3)
+
+        row += 1
+
+        self.transform_strigvar_scale_client0 = tki.StringVar()
+        self.transform_entry_scale_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_scale_client0)
+        self.transform_entry_scale_client0.grid(row=row, column=6)
+        self.transform_entry_scale_client0.delete(0, tki.END)
+        self.transform_entry_scale_client0.insert(0, "0.0")
+
+        self.transform_strigvar_x_client0 = tki.StringVar()
+        self.transform_entry_x_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_x_client0)
+        self.transform_entry_x_client0.grid(row=row, column=3, padx=3, pady=3)
+        self.transform_entry_x_client0.delete(0, tki.END)
+        self.transform_entry_x_client0.insert(0, "0.0")
+
+        self.transform_strigvar_y_client0 = tki.StringVar()
+        self.transform_entry_y_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_y_client0)
+        self.transform_entry_y_client0.grid(row=row, column=4, padx=3, pady=3)
+        self.transform_entry_y_client0.delete(0, tki.END)
+        self.transform_entry_y_client0.insert(0, "0.0")
+
+        self.transform_strigvar_z_client0 = tki.StringVar()
+        self.transform_entry_z_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_z_client0)
+        self.transform_entry_z_client0.grid(row=row, column=5, padx=3, pady=3)
+        self.transform_entry_z_client0.delete(0, tki.END)
+        self.transform_entry_z_client0.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+        self.transform_label_pitch_client0 = tki.Label(self.root, text="trans_Pitch0[Deg]")
+        self.transform_label_pitch_client0.grid(row=row, column=3, padx=3, pady=3)
+
+        self.transform_label_roll_client0 = tki.Label(self.root, text="trans_Roll0[Deg]")
+        self.transform_label_roll_client0.grid(row=row, column=4, padx=3, pady=3)
+
+        self.transform_label_yaw_client0 = tki.Label(self.root, text="trans_Yaw0[Deg]")
+        self.transform_label_yaw_client0.grid(row=row, column=5, padx=3, pady=3)
+
+        row += 1
+
+        self.transform_strigvar_pitch_client0 = tki.StringVar()
+        self.transform_entry_pitch_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_pitch_client0)
+        self.transform_entry_pitch_client0.grid(row=row, column=3, padx=3, pady=3)
+        self.transform_entry_pitch_client0.delete(0, tki.END)
+        self.transform_entry_pitch_client0.insert(0, "0.0")
+
+        self.transform_strigvar_roll_client0 = tki.StringVar()
+        self.transform_entry_roll_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_roll_client0)
+        self.transform_entry_roll_client0.grid(row=row, column=4, padx=3, pady=3)
+        self.transform_entry_roll_client0.delete(0, tki.END)
+        self.transform_entry_roll_client0.insert(0, "0.0")
+
+        self.transform_strigvar_yaw_client0 = tki.StringVar()
+        self.transform_entry_yaw_client0 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_yaw_client0)
+        self.transform_entry_yaw_client0.grid(row=row, column=5, padx=3, pady=3)
+        self.transform_entry_yaw_client0.delete(0, tki.END)
+        self.transform_entry_yaw_client0.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+        self.transform_label_scale_client1 = tki.Label(self.root, text="trans_scale1")
+        self.transform_label_scale_client1.grid(row=row, column=6)
+
+        self.transform_label_x_client1 = tki.Label(self.root, text="trans_x1")
+        self.transform_label_x_client1.grid(row=row, column=3, padx=3, pady=3)
+
+        self.transform_label_y_client1 = tki.Label(self.root, text="trans_y1")
+        self.transform_label_y_client1.grid(row=row, column=4, padx=3, pady=3)
+
+        self.transform_label_z_client1 = tki.Label(self.root, text="trans_z1")
+        self.transform_label_z_client1.grid(row=row, column=5, padx=3, pady=3)
+
+        row += 1
+
+        self.transform_strigvar_scale_client1 = tki.StringVar()
+        self.transform_entry_scale_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_scale_client1)
+        self.transform_entry_scale_client1.grid(row=row, column=6)
+        self.transform_entry_scale_client1.delete(0, tki.END)
+        self.transform_entry_scale_client1.insert(0, "0.0")
+
+        self.transform_strigvar_x_client1 = tki.StringVar()
+        self.transform_entry_x_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_x_client1)
+        self.transform_entry_x_client1.grid(row=row, column=3, padx=3, pady=3)
+        self.transform_entry_x_client1.delete(0, tki.END)
+        self.transform_entry_x_client1.insert(0, "0.0")
+
+        self.transform_strigvar_y_client1 = tki.StringVar()
+        self.transform_entry_y_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_y_client1)
+        self.transform_entry_y_client1.grid(row=row, column=4, padx=3, pady=3)
+        self.transform_entry_y_client1.delete(0, tki.END)
+        self.transform_entry_y_client1.insert(0, "0.0")
+
+        self.transform_strigvar_z_client1 = tki.StringVar()
+        self.transform_entry_z_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_z_client1)
+        self.transform_entry_z_client1.grid(row=row, column=5, padx=3, pady=3)
+        self.transform_entry_z_client1.delete(0, tki.END)
+        self.transform_entry_z_client1.insert(0, "0.0")
+
+        row += 1
+
+        ##########################################
+
+        self.transform_label_pitch_client1 = tki.Label(self.root, text="trans_Pitch1[Deg]")
+        self.transform_label_pitch_client1.grid(row=row, column=3, padx=3, pady=3)
+
+        self.transform_label_roll_client1 = tki.Label(self.root, text="trans_Roll1[Deg]")
+        self.transform_label_roll_client1.grid(row=row, column=4, padx=3, pady=3)
+
+        self.transform_label_yaw_client1 = tki.Label(self.root, text="trans_Yaw1[Deg]")
+        self.transform_label_yaw_client1.grid(row=row, column=5, padx=3, pady=3)
+
+        row += 1
+
+        self.transform_strigvar_pitch_client1 = tki.StringVar()
+        self.transform_entry_pitch_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_pitch_client1)
+        self.transform_entry_pitch_client1.grid(row=row, column=3, padx=3, pady=3)
+        self.transform_entry_pitch_client1.delete(0, tki.END)
+        self.transform_entry_pitch_client1.insert(0, "0.0")
+
+        self.transform_strigvar_roll_client1 = tki.StringVar()
+        self.transform_entry_roll_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_roll_client1)
+        self.transform_entry_roll_client1.grid(row=row, column=4, padx=3, pady=3)
+        self.transform_entry_roll_client1.delete(0, tki.END)
+        self.transform_entry_roll_client1.insert(0, "0.0")
+
+        self.transform_strigvar_yaw_client1 = tki.StringVar()
+        self.transform_entry_yaw_client1 = tki.Entry(self.root, width=9, textvariable=self.transform_strigvar_yaw_client1)
+        self.transform_entry_yaw_client1.grid(row=row, column=5, padx=3, pady=3)
+        self.transform_entry_yaw_client1.delete(0, tki.END)
+        self.transform_entry_yaw_client1.insert(0, "0.0")
+
+        row += 1
 
         self.panel = tki.Label(self.root)
         self.panel.grid(row=1, column=3)
@@ -144,6 +437,10 @@ class CloudMapSaver(object):
         self.orientation_deg = Point()
 
         self.during_plot = False
+
+        self.list_of_pure_lines_0 = []
+
+        self.list_of_pure_lines_1 = []
 
         # ROS subscriptions
 
@@ -269,18 +566,30 @@ class CloudMapSaver(object):
         try:
 
             if len(self.list_of_pure_lines_0) > 0:
-                x_0 = np.asarray([(float(element[0]) - self.position_transform_0.x) for element in self.list_of_pure_lines_0])
-                y_0 = np.asarray([-(float(element[1]) - self.position_transform_0.y) for element in self.list_of_pure_lines_0])
-                z_0 = np.asarray([(float(element[2]) - self.position_transform_0.z) for element in self.list_of_pure_lines_0])
+                x_0 = np.asarray([(float(element[0])) for element in self.list_of_pure_lines_0])
+                y_0 = np.asarray([(float(element[1])) for element in self.list_of_pure_lines_0])
+                z_0 = np.asarray([(float(element[2])) for element in self.list_of_pure_lines_0])
 
 
                 a.scatter(y_0, x_0, color='black', s=0.2)
 
-                a.arrow(    -(self.position_0.y - self.position_transform_0.y), 
-                            (self.position_0.x - self.position_transform_0.x) , 
-                            math.sin(self.deg_to_rad(-(self.orientation_deg_0.z - self.orientation_transform_deg_0.z)))/4, 
-                            math.cos(self.deg_to_rad(-(self.orientation_deg_0.z - self.orientation_transform_deg_0.z)))/4, 
-                            color='blue')
+                a.arrow(-self.position_0.y, self.position_0.x, math.sin(self.deg_to_rad(-self.orientation_deg_0.z))/5, math.cos(self.deg_to_rad(-self.orientation_deg_0.z))/5, 
+                    color='blue')
+
+
+                # a.arrow(    -(self.position_0.y - self.position_transform_0.y), 
+                #             (self.position_0.x - self.position_transform_0.x) , 
+                #             math.sin(self.deg_to_rad(-(self.orientation_deg_0.z - self.orientation_transform_deg_0.z)))/4, 
+                #             math.cos(self.deg_to_rad(-(self.orientation_deg_0.z - self.orientation_transform_deg_0.z)))/4, 
+                #             color='blue')
+
+                # a.arrow(    -self.position_transformed_0.y, 
+                #             self.position_transformed_0.x, 
+                #             math.sin(self.deg_to_rad(-self.orientation_deg_transformed_0.z))/4, 
+                #             math.cos(self.deg_to_rad(-self.orientation_deg_transformed_0.z))/4, 
+                #             color='blue')
+
+
         except Exception as e:
             # print(e)
             print(traceback.format_exc())
@@ -288,18 +597,27 @@ class CloudMapSaver(object):
         try:
 
             if len(self.list_of_pure_lines_1) > 0:
-                x_1 = np.asarray([(float(element[0]) - self.position_transform_1.x) for element in self.list_of_pure_lines_1])
-                y_1 = np.asarray([-(float(element[1]) - self.position_transform_1.y) for element in self.list_of_pure_lines_1])
-                z_1 = np.asarray([(float(element[2]) - self.position_transform_1.z) for element in self.list_of_pure_lines_1])
+                x_1 = np.asarray([(float(element[0]) ) for element in self.list_of_pure_lines_1])
+                y_1 = np.asarray([(float(element[1])) for element in self.list_of_pure_lines_1])
+                z_1 = np.asarray([(float(element[2]) ) for element in self.list_of_pure_lines_1])
 
 
                 a.scatter(y_1, x_1, color='red', s=0.2)
 
-                a.arrow(    -(self.position_1.y - self.position_transform_1.y), 
-                            (self.position_1.x - self.position_transform_1.x) , 
-                            math.sin(self.deg_to_rad(-(self.orientation_deg_1.z - self.orientation_transform_deg_1.z)))/4, 
-                            math.cos(self.deg_to_rad(-(self.orientation_deg_1.z - self.orientation_transform_deg_1.z)))/4, 
-                            color='m')
+                # a.arrow(    -(self.position_1.y - self.position_transform_1.y), 
+                #             (self.position_1.x - self.position_transform_1.x) , 
+                #             math.sin(self.deg_to_rad(-(self.orientation_deg_1.z - self.orientation_transform_deg_1.z)))/4, 
+                #             math.cos(self.deg_to_rad(-(self.orientation_deg_1.z - self.orientation_transform_deg_1.z)))/4, 
+                #             color='m')
+
+                # a.arrow(    -self.position_transformed_1.y, 
+                #             self.position_transformed_1.x, 
+                #             math.sin(self.deg_to_rad(-self.orientation_deg_transformed_1.z))/4, 
+                #             math.cos(self.deg_to_rad(-self.orientation_deg_transformed_1.z))/4, 
+                #             color='m')
+
+                a.arrow(-self.position_1.y, self.position_1.x, math.sin(self.deg_to_rad(-self.orientation_deg_1.z))/5, math.cos(self.deg_to_rad(-self.orientation_deg_1.z))/5, 
+                    color='m')
 
         except Exception as e:
             # print(e)
@@ -339,52 +657,246 @@ class CloudMapSaver(object):
 
 
     def pose0_callback(self, pose_msg):
-        self.orientation_deg_0, self.position_0 = self.pose_callback(pose_msg)
+        self.pose_0 = deepcopy(pose_msg)
+        self.orientation_deg_0, self.position_0, self.orientation_quat_0 = self.pose_callback(pose_msg)
+
+        self.command_strigvar_x_client0.set(str(self.position_0.x))
+        self.command_strigvar_y_client0.set(str(self.position_0.y))
+        self.command_strigvar_z_client0.set(str(self.position_0.z))
+        
+        self.command_strigvar_pitch_client0.set(str(self.orientation_deg_0.x))
+        self.command_strigvar_roll_client0.set(str(self.orientation_deg_0.y))
+        self.command_strigvar_yaw_client0.set(str(self.orientation_deg_0.z))
+
+
+
         # print("orientation_deg_0 = {}".format(self.orientation_deg_0))
         # self.plot_to_gui()
 
     def pose1_callback(self, pose_msg):
-        self.orientation_deg_1, self.position_1 = self.pose_callback(pose_msg)
+        self.pose_1 = deepcopy(pose_msg)
+        self.orientation_deg_1, self.position_1, self.orientation_quat_1 = self.pose_callback(pose_msg)
+
+        self.command_strigvar_x_client1.set(str(self.position_1.x))
+        self.command_strigvar_y_client1.set(str(self.position_1.y))
+        self.command_strigvar_z_client1.set(str(self.position_1.z))
+        
+        self.command_strigvar_pitch_client1.set(str(self.orientation_deg_1.x))
+        self.command_strigvar_roll_client1.set(str(self.orientation_deg_1.y))
+        self.command_strigvar_yaw_client1.set(str(self.orientation_deg_1.z))
+
         # print("orientation_deg_1 = {}".format(self.orientation_deg_1))
         # self.plot_to_gui()
 
     def pose_callback(self, pose_msg):
+        if not type(pose_msg) == PoseStamped:
+            raise ValueError("Did not receive PoseStamped. received {} instead".format(type(pose_msg)))
+
+
+        # pose_msg is PoseStamped
+        if not type(pose_msg.pose) == Pose:
+            raise ValueError("Did not receive Pose. received {} instead".format(type(pose_msg.pose)))
+
+        if not type(pose_msg.pose.orientation) == Quaternion:
+            q = Quaternion(pose_msg.pose.orientation[0], pose_msg.pose.orientation[1], pose_msg.pose.orientation[2], pose_msg.pose.orientation[3])
+            raise ValueError("Did not receive Quaternion. received {} instead".format(type(pose_msg.pose.orientation)))
+        else:
+            q = pose_msg.pose.orientation
+
+        # print(type(pose_msg.pose.orientation))
+        # print(pose_msg.pose.orientation)
+
         position = pose_msg.pose.position
-        orientation_deg = self.quatenrion_point_to_euler_degree(pose_msg.pose.orientation)
+        orientation_deg = self.quatenrion_point_to_euler_degree(q)
         orientation_deg.x = self.clip_angle(orientation_deg.x)
         orientation_deg.y = self.clip_angle(orientation_deg.y)
         orientation_deg.z = self.clip_angle(orientation_deg.z)
+        orientation_quat = deepcopy(pose_msg.pose.orientation)
         # self.orientation_rad = self.euler_point_deg_to_rad(self.orientation_deg)
         # self.command_strigvar_pitch.set('%.4f'%(self.orientation_deg.x))
         # self.command_strigvar_roll.set('%.4f'%(self.orientation_deg.y))
         # self.command_strigvar_yaw.set('%.4f'%(self.orientation_deg.z))
-        return orientation_deg, position
+        return orientation_deg, position, orientation_quat
 
     def transform_callback(self, msg):
+        if not type(msg) == TransformStamped:
+            raise ValueError("Did not receive TransformStamped. received {} instead".format(type(msg)))
+
+        scale = float(msg.child_frame_id)
         position = msg.transform.translation
+
+        # this suppose to be roll, so new_pitch = old_roll
+        # this suppose to be pitch, so new_yaw = old_pitch
+        # this suppose to be yaw, so new_roll = -old_yaw
+
+
+
         orientation_deg = self.quatenrion_point_to_euler_degree(msg.transform.rotation)
         orientation_deg.x = self.clip_angle(orientation_deg.x)
         orientation_deg.y = self.clip_angle(orientation_deg.y)
         orientation_deg.z = self.clip_angle(orientation_deg.z)
+
+        pitch = orientation_deg.y
+        yaw = orientation_deg.x
+        roll = -orientation_deg.z
+
+        q_vect = self.orientation_to_quaternion(pitch, roll, yaw)
+
+        if not type(q_vect) == Quaternion:
+            raise ValueError("Did not receive Quaternion. received {} instead".format(type(q_vect)))
+
+        msg.transform.rotation = q_vect
+
+        orientation_deg = self.quatenrion_point_to_euler_degree(msg.transform.rotation)
+        orientation_deg.x = self.clip_angle(orientation_deg.x)
+        orientation_deg.y = self.clip_angle(orientation_deg.y)
+        orientation_deg.z = self.clip_angle(orientation_deg.z)
+
+        orientation_quat = msg.transform.rotation
         # self.orientation_rad = self.euler_point_deg_to_rad(self.orientation_deg)
         # self.command_strigvar_pitch.set('%.4f'%(self.orientation_deg.x))
         # self.command_strigvar_roll.set('%.4f'%(self.orientation_deg.y))
         # self.command_strigvar_yaw.set('%.4f'%(self.orientation_deg.z))
-        return orientation_deg, position
+        return orientation_deg, position, scale, orientation_quat
 
     def transform0_callback(self, msg):
-        self.orientation_transform_deg_0, self.position_transform_0 = self.transform_callback(msg)
+        self.transform0 = msg
+        self.orientation_transform_deg_0, self.position_transform_0, self.scale_transform_0, self.orientation_transform_quat_0 = self.transform_callback(msg)
+
+        # self.transform_strigvar_scale_client0.set(str(self.scale_transform_0))
+        # self.transform_strigvar_x_client0.set(str(self.position_transform_0.x))
+        # self.transform_strigvar_y_client0.set(str(self.position_transform_0.y))
+        # self.transform_strigvar_z_client0.set(str(self.position_transform_0.z))
+        
+        # self.transform_strigvar_pitch_client0.set(str(self.orientation_transform_deg_0.x))
+        # self.transform_strigvar_roll_client0.set(str(self.orientation_transform_deg_0.y))
+        # self.transform_strigvar_yaw_client0.set(str(self.orientation_transform_deg_0.z))
+
+        # try:
+        self.transform_pose0()
+        # except:
+            # pass
+
+
+        self.transform_strigvar_scale_client0.set(str(self.scale_transform_0))
+        self.transform_strigvar_x_client0.set(str(self.position_transformed_0.x))
+        self.transform_strigvar_y_client0.set(str(self.position_transformed_0.y))
+        self.transform_strigvar_z_client0.set(str(self.position_transformed_0.z))
+        
+        self.transform_strigvar_pitch_client0.set(str(self.orientation_transform_deg_0.x))
+        self.transform_strigvar_roll_client0.set(str(self.orientation_transform_deg_0.y))
+        self.transform_strigvar_yaw_client0.set(str(self.orientation_transform_deg_0.z))
+
+
+
         # print("orientation_transform_deg_0 = {}".format(self.orientation_transform_deg_0))
 
     def transform1_callback(self, msg):
-        self.orientation_transform_deg_1, self.position_transform_1 = self.transform_callback(msg)
+        self.transform1 = msg
+        self.orientation_transform_deg_1, self.position_transform_1, self.scale_transform_1, self.orientation_transform_quat_1 = self.transform_callback(msg)
+
+        # self.transform_strigvar_scale_client1.set(str(self.scale_transform_1))
+        # self.transform_strigvar_x_client1.set(str(self.position_transform_1.x))
+        # self.transform_strigvar_y_client1.set(str(self.position_transform_1.y))
+        # self.transform_strigvar_z_client1.set(str(self.position_transform_1.z))
+
+        # self.transform_strigvar_pitch_client1.set(str(self.orientation_transform_deg_1.x))
+        # self.transform_strigvar_roll_client1.set(str(self.orientation_transform_deg_1.y))
+        # self.transform_strigvar_yaw_client1.set(str(self.orientation_transform_deg_1.z))
+
+        self.transform_pose1()
+
+        self.transform_strigvar_scale_client1.set(str(self.scale_transform_1))
+        self.transform_strigvar_x_client1.set(str(self.position_transformed_1.x))
+        self.transform_strigvar_y_client1.set(str(self.position_transformed_1.y))
+        self.transform_strigvar_z_client1.set(str(self.position_transformed_1.z))
+
+        self.transform_strigvar_pitch_client1.set(str(self.orientation_transform_deg_1.x))
+        self.transform_strigvar_roll_client1.set(str(self.orientation_transform_deg_1.y))
+        self.transform_strigvar_yaw_client1.set(str(self.orientation_transform_deg_1.z))
+
         # print("orientation_transform_deg_1 = {}".format(self.orientation_transform_deg_1))
 
+    # rotate vector v1 by quaternion q1 
+    def qv_mult(self, q1, v1):
+        # v1 = tf.transformations.unit_vector(v1)
+        q2 = list(v1)
+        q2.append(0.0)
+        return tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q1, q2), tf.transformations.quaternion_conjugate(q1))[:3]
+
+    def quat_to_vect(self, q):
+        return [q.x, q.y, q.z, q.w]
+
+    def point_to_vect(self, v):
+        return [v.x, v.y, v.z]
+
+
+    def transform_pose0(self):
+        # self.transform0 - TransformStamped so TransformStamped.transform.translation / rotation
+        # self.pose_0 - PoseStamped so PoseStamped.pose.position / orientation
+        # self.pose_0_transformed - PoseStamped so PoseStamped.pose.position / orientation
+        # self.quat_to_vect(v) - v is Quaternion
+        # self.qv_mult(q, v) - q is [1,2,3,1] and v is [1,2,3]
+        # self.pose_0_transformed = PoseStamped()
+
+        quat_multiplied = quaternion_multiply(self.quat_to_vect(self.transform0.transform.rotation), self.quat_to_vect(self.pose_0.pose.orientation))
+        self.pose_0_transformed.pose.orientation = Quaternion(quat_multiplied[0], quat_multiplied[1], quat_multiplied[2], quat_multiplied[3])
+
+        rot = self.transform0.transform.rotation
+        q = [rot.x, rot.y, rot.z, rot.w]
+        pos = self.pose_0.pose.position
+        v = [pos.x, pos.y, pos.z]
+
+        new_v = self.qv_mult(q, v)
+        self.pose_0_transformed.pose.position.x = new_v[0]*self.scale_transform_0 + self.transform0.transform.translation.x
+        self.pose_0_transformed.pose.position.y = new_v[1]*self.scale_transform_0 + self.transform0.transform.translation.y
+        self.pose_0_transformed.pose.position.z = new_v[2]*self.scale_transform_0 + self.transform0.transform.translation.z
+
+
+        if not type(self.pose_0_transformed) == PoseStamped:
+            raise ValueError("Did not receive PoseStamped. received {} instead".format(type(self.pose_0_transformed)))
+
+        if not type(self.pose_0_transformed.pose.orientation) == Quaternion:
+            raise ValueError("Did not receive Quaternion. received {} instead".format(type(self.elf.pose_0_transformed.pose.orientation)))
+
+
+        # self.pose_0_transformed.position = 
+
+        # self.pose_0_transformed = tf2_geometry_msgs.do_transform_pose(self.pose_0, self.transform0)
+        self.orientation_deg_transformed_0, self.position_transformed_0, self.orientation_quat_transformed_0 = self.pose_callback(self.pose_0_transformed)
+
+
+    def transform_pose1(self):
+        self.pose_1_transformed = PoseStamped()
+        quat_multiplied = quaternion_multiply(self.quat_to_vect(self.transform1.transform.rotation), self.quat_to_vect(self.pose_1.pose.orientation))
+        self.pose_1_transformed.pose.orientation = Quaternion(quat_multiplied[0], quat_multiplied[1], quat_multiplied[2], quat_multiplied[3])
+
+        rot = self.transform1.transform.rotation
+        q = [rot.x, rot.y, rot.z, rot.w]
+        pos = self.pose_1.pose.position
+        v = [pos.x, pos.y, pos.z]
+
+        new_v = self.qv_mult(q, v)
+        self.pose_1_transformed.pose.position.x = new_v[0]*self.scale_transform_1 + self.transform1.transform.translation.x
+        self.pose_1_transformed.pose.position.y = new_v[1]*self.scale_transform_1 + self.transform1.transform.translation.y
+        self.pose_1_transformed.pose.position.z = new_v[2]*self.scale_transform_1 + self.transform1.transform.translation.z
+
+        self.orientation_deg_transformed_1, self.position_transformed_1, self.orientation_quat_transformed_1 = self.pose_callback(self.pose_1_transformed)
+
+
+
+
     def quatenrion_point_to_euler_degree(self, slam_quaternion):
+        if not type(slam_quaternion) == Quaternion:
+            raise ValueError("Did not receive Quaternion. received {} instead".format(type(slam_quaternion)))
         rad = self.quatenrion_point_to_euler(slam_quaternion)
         return Point(self.rad_to_deg(rad.x), self.rad_to_deg(rad.y), self.rad_to_deg(rad.z))
 
     def quatenrion_point_to_euler(self, orientation_point):
+        print
+
+        # if not type(orientation_point) == Quaternion:
+        #     raise ValueError("Did not receive Quaternion. received {} instead".format(type(orientation_point)))
         return self.quaternion_to_orientation(orientation_point.x, orientation_point.y, orientation_point.z, orientation_point.w)
 
     def euler_point_deg_to_rad(self, point_deg):
@@ -438,6 +950,7 @@ class CloudMapSaver(object):
         self.once = True
 
     def float_from_4_bytes(self, bytes_list):
+        # print("bytes_list={}".format(bytes_list))
         return struct.unpack('f', bytes_list)[0]
 
     def point_cloud0_callback(self, point_cloud):
@@ -530,5 +1043,5 @@ class CloudMapSaver(object):
 
 if __name__ == '__main__':
     root = tki.Tk()
-    my_gui = CloudMapSaver(root)
+    my_gui = CloudMapSaverForServer(root)
     root.mainloop()
