@@ -5,17 +5,105 @@ In this project you will find a GUI that will allow you to control the Tello and
 
 Using this GUI will allow fast development of SLAM algorithms and integrate them with real Tello hardware.
 
-The coordinates are derived from a pose that is published in one of the 2 slam algorithms (orbslam2 or ccmslam)
+The coordinates are derived from a pose that is published in one of the 2 slam algorithms (currently, orbslam and ccm slam,  but you can easily add your own)
 
 Inside the files, you will find a joystick/keyboard to control the tello from within ROS, instead of using your android phone.
 
-Tello UI:
+## ORBSLAM
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=5tXE1TO7TC8
+" target="_blank"><img src="http://img.youtube.com/vi/5tXE1TO7TC8/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="480" height="360" border="10" /></a>
+
+In this video we can see a brief explenation about how the framework looks like when using the ORBSLAM.
+The Tello sends video stream to the ORBSLAM, the ORBSLAM provides position and orientation to the control, and the control controls the Tello to navigate it to the wanted location.
+
+## ccmslam
+TBD
+
+## Tello UI (User Interface):
 ![Image of Tello UI](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui.png)
 
-Tello Client 0:
+The Tello UI is conssited of multiple tools that allows you to control the Tello using a SLAM algorithm or using raw RPY (Roll, Pitch, Yaw).
+
+### Brief Explenation of the UI
+
+#### Command Position Section
+
+![Command Position](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_command_position.png)
+
+##### Takeoff, Land
+Well, it goes without saying - this buttons will make the tello takeoff/land.
+
+##### Calibrate Z!
+Pressing this button will make the Tello elevate ~0.5 meters and then descent ~0.5 meters.
+
+During this time the tello's internal height sensor will be sampled among with the height that is being published by the SLAM algorithm.
+
+At the end of the movement the control calculates:
+
+<img src="https://render.githubusercontent.com/render/math?math=\text{real_world_scale}=\frac{ \Delta \text{height_sensor}} {\Delta \text{SLAM_height}}">
+
+The control will be using that factor to go from the SLAM coordinate system to the real world coordinate system.
+
+##### Publish Command!
+Pushing this button will send the coordinates in the boxes (x, y, z, yaw) to the control, and the control will navigate the tello to those coordinates.
+###### note that the control will control the Tello only if the "Toggle Slam Control!" Button is pressed!
+
+##### Stay In Place!
+This button will command the Tello to stay in the current place using the control.
+
+#### Real World Position Section
+![Real World](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_real_world_position.png)
+
+In this section we can observe the tello's current coordinates in the real world coordinates.
+The Altitude Scale is the factor that was calculated during the Calibrate Z! process.
+
+#### Rotated SLAM Coordinates Section
+![Command Position](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_rotated_slam.png)
+
+In this section we can observe the tello's current coordinates in the SLAM coordinates (after rotating the coordinate system to compensate for the angle of the camera of the Tello).
+
+#### Delta Between Command and Real World Section
+![Delta](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_delta.png)
+
+In this section we can observe the difference between the Tello's current pose, to the desired pose we commanded.
+
+#### Speed Section
+![Speed](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_speed.png)
+
+In this section we can observe the current speed in all the axes (pitch, roll, throttle, yaw) of the Tello.
+Also, we can see some side information about the Tello, likt the Altitude and the remaining Battery[%].
+##### Toggle Slam Control!
+This is a protection button. Pressing this button will allow the control to take over the Tello's speed control.
+
+#### Manual Control Section
+![Manual Control](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_manual_control.png)
+
+In this section we can manually control the speeds of the Tello in all axes.
+Just insert the wanted speed (0-1) in each axis and press Manual Control Set!
+To stop press the Manual Control Clear! button.
+
+#### Trajectory Control Section
+![Trajectory](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui_trajectory.png)
+
+This section allows to command the Tello to go to many points one after the other.
+You can either insert the coordinates manually in the boxes, or load the using Load File button.
+Eventually press the Publish Trajectory! button to start the trajectory.
+###### note that the control will control the Tello only if the "Toggle Slam Control!" Button is pressed! 
+
+#### Toggle Use Merged Coordinates
+This button is used in the ccmslam algorithm.
+After the two drones have merged a map, our modification to ccmslam algorithm allows to control the drones using the same coordinate system.
+In other words, after the map was merged, pressing this button will make the controller of each drone to use the same coordinate system. 
+
+## Tello Viewers:
+In the Viewer we can observe the video stream received from the SLAM algorithm, among with the cloud map in the X-Y plane.
+### Tello Client 0:
 ![Image of Tello Client 0](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_client0.png)
 
-Tello Client 1:
+
+### Tello Client 1:
 ![Image of Tello Client 1](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_client1.png)
 
 # Usage
@@ -36,7 +124,7 @@ roslaunch ccmslam tello_Client0.launch
 ```
 roslaunch ccmslam tello_Client1.launch
 ```
-# Install Guide
+# Installation Guide
 ## Installing ROS melodic
 
 Following this page: http://wiki.ros.org/melodic/Installation/Ubuntu
@@ -85,6 +173,7 @@ sudo apt install python-rosinstall python-rosinstall-generator python-wstool bui
 ```
 
 # Install Prerequisites
+Please install all the prerequisites, no matter which algorithm you want to use.
 ## Easy Install Prerequisites
 ### catking tools
 First you must have the ROS repositories which contain the .deb for catkin_tools:
@@ -223,7 +312,7 @@ catkin config --extend /opt/ros/melodic
 catkin build ccmslam --cmake-args -DG2O_U14=0 -DCMAKE_BUILD_TYPE=Release
 ```
 
-If Gives error -  ROS distro neither indigo nor kinetic - change the makefile
+If Gives error -  ROS distro neither indigo nor kinetic - change the makefile, use CmakeFile_changed2.
 ## Add the enviroment setup to bashrc
 ```
 echo "source $PWD/devel/setup.bash" >> ~/.bashrc
