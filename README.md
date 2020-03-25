@@ -18,9 +18,6 @@ alt="IMAGE ALT TEXT HERE" width="480" height="360" border="10" /></a>
 In this video we can see a brief explenation about how the framework looks like when using the ORBSLAM.
 The Tello sends video stream to the ORBSLAM, the ORBSLAM provides position and orientation to the control, and the control controls the Tello to navigate it to the wanted location.
 
-## ccmslam
-TBD
-
 ## Tello UI (User Interface):
 ![Image of Tello UI](https://raw.githubusercontent.com/tau-adl/Tello_ROS_ORBSLAM/master/Images/tello_ui.png)
 
