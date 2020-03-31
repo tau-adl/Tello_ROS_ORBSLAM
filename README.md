@@ -261,7 +261,7 @@ rosdep install --from-paths src --ignore-src -r -y
 ```
 
 # Installing orbslam2
-based on https://github.com/appliedAI-Initiative/orb_slam_2_ros
+based on https://github.com/appliedAI-Initiative/orb_slam_2_ros and https://github.com/rayvburn/ORB-SLAM2_ROS
 First - if using Melodic version of ROS, change the ~/ROS/Tello_ROS_ORBSLAM/ROS/tello_catkin_ws/src/orb_slam_2_ros/CMakeLists.txt
 To the CMakeLists_melodic.txt
 ## Build the code:
