@@ -37,11 +37,11 @@
 </node>
 
 
-<!-- <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
+ <node name="flock_driver_node" pkg="flock_driver" type="flock_driver.py" output="screen" >
     <param name="network_interface" type="string" value="" />
     <param name="ID" type="string" value="0" />
 
- -->
+ 
 
     <!-- <param name="network_interface" type="string" value="" /> -->
     <!-- <param name="TELLO_IP" type="string" value="192.168.43.98" /> -->
@@ -50,7 +50,7 @@
     <!-- <remap from="/rectify/image_mono" to="tello0/camera/image_mono" /> -->
     <!-- <remap from="tello0/camera/image_raw" to="/image" /> -->
 
-<!-- </node> -->
+ </node>
 
 
 <node name="tello_slam_control" pkg="flock_driver" type="tello_slam_control.py" output="screen">
