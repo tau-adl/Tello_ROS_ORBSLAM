@@ -18,11 +18,28 @@ import random
 import numpy as np
 import threading
 
+def cosd(deg):
+        return cos(deg * math.pi / 180)
+
+def sind(deg):
+    return sin(deg * math.pi / 180)
+
 class telloSlamSimulation(object):
 
     def __init__(self, initial_x=0, initial_y=0, initial_z=0, initial_yaw=0):
         # Initialize ROS
         rospy.init_node('tello_slam_simulation', anonymous=False)
+
+        try: 
+            self.id                = rospy.get_param('~ID')
+        except KeyError:
+            self.id = ''
+        self.publish_prefix = "tello{}/".format(self.id)
+
+        try:
+            self.pose_topic_name = rospy.get_param('~POSE_TOPIC_NAME')
+        except KeyError:
+            self.pose_topic_name = '/ccmslam/PoseOutClient'+str(self.id)
 
 
         # rospy.Subscriber('/orb_slam2_mono/pose', PoseStamped, self.slam_callback)
@@ -57,13 +74,13 @@ class telloSlamSimulation(object):
         self.throttle_factor = 0.6 # 30 cm for second
         self.pitch_factor = 0.8 # 30 cm for second
         self.roll_factor = 0.8 # 30 cm for second
-        self.yaw_factor = 45 # degree for second
+        self.yaw_factor = 90 # degree for second
 
 
         self.last_time_rx_command = time.time()
 
-        self.pose_publisher = rospy.Publisher('/orb_slam2_mono/pose2', PoseStamped, queue_size=1)
-        self.flightdata_publisher = rospy.Publisher('flight_data2', FlightData, queue_size=1)
+        self.pose_publisher = rospy.Publisher(self.pose_topic_name, PoseStamped, queue_size=1)
+        self.flightdata_publisher = rospy.Publisher(self.publish_prefix+'flight_data', FlightData, queue_size=1)
         # self.pose_publisher = rospy.Subscriber('/tello/command_pos', Point,, queue_size=1)
         # self.pose_publisher = rospy.Subscriber('/tello/allow_slam_control', Bool, queue_size=1)
         # self.pose_publisher = rospy.Subscriber('/flight_data', FlightData, queue_size=1)
@@ -71,10 +88,9 @@ class telloSlamSimulation(object):
         # self.pose_publisher = rospy.Subscriber('/tello/calibrate_real_world_scale', Empty, queue_size=1)
         # self.pose_publisher = rospy.Subscriber('/tello/scan_room', Bool, queue_size=1)
 
-
-        rospy.Subscriber('cmd_vel', Twist, self.cmd_vel_callback)
-        rospy.Subscriber('takeoff', Empty, self.takeoff_callback)
-        rospy.Subscriber('/tello/real_world_scale', Float32, self.real_world_scale_callback)
+        rospy.Subscriber(self.publish_prefix+'cmd_vel', Twist, self.cmd_vel_callback)
+        rospy.Subscriber(self.publish_prefix+'takeoff', Empty, self.takeoff_callback)
+        rospy.Subscriber(self.publish_prefix+'real_world_scale', Float32, self.real_world_scale_callback)
 
         worker = threading.Thread(target=self.periodic_publish)
         worker.start()
@@ -124,6 +140,8 @@ class telloSlamSimulation(object):
         # self.flight_data.altitude = round(self.pose_stamped.pose.position.z * self.real_world_scale, 1)
         self.flight_data.altitude = round(self.pose_stamped.pose.position.z, 1)
 
+    
+
 
     def periodic_publish(self):
         rate = rospy.Rate(30)
@@ -133,11 +151,13 @@ class telloSlamSimulation(object):
             time_passed = time.time() - self.last_time_rx_command
             self.pose_stamped.pose.position.z += self.throttle * time_passed * self.throttle_factor
             self.update_altitude()
-            speed_x = self.pitch * cos(self.orientation_euler_deg.z) * self.pitch_factor + self.roll  * sin(self.orientation_euler_deg.z) * self.roll_factor
-            speed_y = -self.roll * cos(self.orientation_euler_deg.z) * self.roll_factor + self.pitch * sin(self.orientation_euler_deg.z) * self.pitch_factor
+            speed_x = self.pitch * cosd(self.orientation_euler_deg.z) * self.pitch_factor + self.roll  * sind(self.orientation_euler_deg.z) * self.roll_factor
+            speed_y = -self.roll * cosd(self.orientation_euler_deg.z) * self.roll_factor + self.pitch * sind(self.orientation_euler_deg.z) * self.pitch_factor
 
             self.pose_stamped.pose.position.x += speed_x * time_passed
             self.pose_stamped.pose.position.y += speed_y * time_passed
+
+
             
 
             self.orientation_euler_deg.z += -self.yaw * time_passed * self.yaw_factor
@@ -161,6 +181,8 @@ class telloSlamSimulation(object):
             self.pose_stamped.pose.position = copy
             self.orientation_euler_deg.z = copy_orientation_euler_deg_z
             self.last_time_rx_command = time.time()
+            # print("speed_x={:.2f} , speed_y={:.2f}, yaw_angle={:.2f}".format(speed_x, speed_y, self.orientation_euler_deg.z))
+            # print("pitch={:.2f} , roll={:.2f}, yaw={:.2f}".format(self.pitch, self.roll, self.yaw))
             rate.sleep()
 
     def cmd_vel_callback(self, msg):

@@ -1,0 +1,25 @@
+<launch>
+
+	<node name="images_publisher" pkg="flock_driver" type="images_publisher.py" output="screen" >
+
+	<param name="IMAGES_DIR" type="string" value="/home/arkadiros/ROS/tello_catkin_ws/camera_calibaration_data/Tello/calibrationdata_57A6A7" />
+
+
+		
+	<!-- <remap from="tello0/camera/image_raw" to="/image" /> -->
+	<!-- <remap from="/camera/camera_info" to="/monocular/camera_info" /> -->
+	</node>
+
+<!--     <node name="tello_camera_info" pkg="flock_driver" type="tello_camera_info.py" output="screen" >
+        <remap from="/camera/camera_info" to="/monocular/camera_info" />
+        
+    </node> -->
+
+
+
+  <!--  rosrun camera_calibration cameracheck.py -s 8x6 -q 0.036775  -->
+
+
+
+
+</launch>

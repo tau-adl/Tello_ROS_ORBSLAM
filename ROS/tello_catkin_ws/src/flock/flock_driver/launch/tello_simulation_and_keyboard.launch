@@ -8,10 +8,10 @@
   		<param name="ID" type="string" value="" />
     </node>
 
-    <node name="tello_slam_control" pkg="flock_driver" type="tello_slam_control.py" output="screen">
+ <!--    <node name="tello_slam_control" pkg="flock_driver" type="tello_slam_control.py" output="screen">
   <param name="~POSE_TOPIC_NAME" type="string" value="/tello0/pose" />
   <param name="ID" type="string" value="" />
-</node>
+</node> -->
 
 
 <node name="tello_ui" pkg="flock_driver" type="tello_ui.py" output="screen">
@@ -19,6 +19,13 @@
   <param name="~POSE_TOPIC_NAME" type="string" value="/tello0/pose" />
 </node> 
 
+
+<node name="tello_keyboard_node" pkg="flock_driver" type="tello_keyboard.py" output="screen">
+<!--     <remap from="/tello/cmd_vel" to="/tello0/cmd_vel" />
+    <remap from="/tello/takeoff" to="/tello0/takeoff" />
+    <remap from="/tello/land" to="/tello0/land" />
+ -->
+</node>
 
     <!-- <node name="rviz" pkg="rviz" type="rviz" output="screen" /> -->
 

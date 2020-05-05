@@ -264,11 +264,11 @@ class TelloSlamControler(object):
         y_rotated = pos_error_copy.y*math.cos(self.orientation_alpha_rad) - pos_error_copy.x*math.sin(self.orientation_alpha_rad)
 
 
-        # self.pos_error.x = x_rotated
-        # self.pos_error.y = y_rotated
+        self.pos_error.x = x_rotated
+        self.pos_error.y = y_rotated
 
-        self.pos_error.x = pos_error_copy.x
-        self.pos_error.y = pos_error_copy.y
+        # self.pos_error.x = pos_error_copy.x
+        # self.pos_error.y = pos_error_copy.y
 
 
         self.delta_pub.publish(self.pos_error)
