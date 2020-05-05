@@ -727,8 +727,11 @@ class TelloUI(object):
         rospy.loginfo("rotated_frame in row={} column={}".format(self.row, self.column))
         self.frame_rotated.grid(row=self.row, column=self.column)
 
-        self.title_label_rotated = tki.Label(self.frame_rotated, text="Rotated SLAM Coordinates", font=("Helvetica", 13))
-        self.title_label_rotated.grid(row=self.frame_row, column=1)#, padx=3, pady=3)
+        self.frame_rotated_header = tki.Frame(self.frame_rotated, relief=tki.SUNKEN)
+        self.frame_rotated_header.grid(row=0, column=2)
+
+        self.title_label_rotated = tki.Label(self.frame_rotated_header, text="Rotated SLAM Coordinates", font=("Helvetica", 13))
+        self.title_label_rotated.grid(row=0, column=0)#, padx=3, pady=3)
 
         self.frame_row += 1
 
@@ -744,15 +747,23 @@ class TelloUI(object):
         self.rotated_label_z.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
-        self.rotated_label_orientation = tki.Label(self.frame_rotated, text="Orientation")
-        self.rotated_label_orientation.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
+        self.rotated_label_pitch = tki.Label(self.frame_rotated, text="Pitch")
+        self.rotated_label_pitch.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
+        self.frame_column += 1
+
+        self.rotated_label_roll = tki.Label(self.frame_rotated, text="Roll")
+        self.rotated_label_roll.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
+        self.frame_column += 1
+
+        self.rotated_label_yaw = tki.Label(self.frame_rotated, text="Yaw")
+        self.rotated_label_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=3, pady=3)
         self.frame_column += 1
 
         self.frame_row += 1
         self.frame_column = 0
 
         self.rotated_strigvar_x = tki.StringVar()
-        self.rotated_entry_x = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_x)
+        self.rotated_entry_x = tki.Entry(self.frame_rotated, width=8, textvariable=self.rotated_strigvar_x)
         self.rotated_entry_x.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_x.delete(0, tki.END)
         self.rotated_entry_x.insert(0, "0.0")
@@ -760,7 +771,7 @@ class TelloUI(object):
         self.frame_column += 1
 
         self.rotated_strigvar_y = tki.StringVar()
-        self.rotated_entry_y = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_y)
+        self.rotated_entry_y = tki.Entry(self.frame_rotated, width=8, textvariable=self.rotated_strigvar_y)
         self.rotated_entry_y.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_y.delete(0, tki.END)
         self.rotated_entry_y.insert(0, "0.0")
@@ -768,18 +779,34 @@ class TelloUI(object):
         self.frame_column += 1
 
         self.rotated_strigvar_z = tki.StringVar()
-        self.rotated_entry_z = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_z)
+        self.rotated_entry_z = tki.Entry(self.frame_rotated, width=8, textvariable=self.rotated_strigvar_z)
         self.rotated_entry_z.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
         self.rotated_entry_z.delete(0, tki.END)
         self.rotated_entry_z.insert(0, "0.0")
 
         self.frame_column += 1
 
-        self.rotated_strigvar_orientation = tki.StringVar()
-        self.rotated_entry_orientation = tki.Entry(self.frame_rotated, width=9, textvariable=self.rotated_strigvar_orientation)
-        self.rotated_entry_orientation.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
-        self.rotated_entry_orientation.delete(0, tki.END)
-        self.rotated_entry_orientation.insert(0, "0.0")
+        self.rotated_strigvar_pitch = tki.StringVar()
+        self.rotated_entry_pitch = tki.Entry(self.frame_rotated, width=8, textvariable=self.rotated_strigvar_pitch)
+        self.rotated_entry_pitch.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
+        self.rotated_entry_pitch.delete(0, tki.END)
+        self.rotated_entry_pitch.insert(0, "0.0")
+
+        self.frame_column += 1
+
+        self.rotated_strigvar_roll = tki.StringVar()
+        self.rotated_entry_roll = tki.Entry(self.frame_rotated, width=8, textvariable=self.rotated_strigvar_roll)
+        self.rotated_entry_roll.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
+        self.rotated_entry_roll.delete(0, tki.END)
+        self.rotated_entry_roll.insert(0, "0.0")
+
+        self.frame_column += 1
+
+        self.rotated_strigvar_yaw = tki.StringVar()
+        self.rotated_entry_yaw = tki.Entry(self.frame_rotated, width=8, textvariable=self.rotated_strigvar_yaw)
+        self.rotated_entry_yaw.grid(row=self.frame_row, column=self.frame_column)#, padx=5, pady=5)
+        self.rotated_entry_yaw.delete(0, tki.END)
+        self.rotated_entry_yaw.insert(0, "0.0")
 
         self.frame_column += 1
 
@@ -1423,8 +1450,10 @@ class TelloUI(object):
 
     def orientation_callback(self, orientation_point):
         self.orientation_degree = orientation_point
-        if self.init_rotated_frame_flag:
-            self.rotated_strigvar_orientation.set('%.4f'%(self.orientation_degree.z))
+        # if self.init_rotated_frame_flag:
+        #     self.rotated_strigvar_pitch.set('%.4f'%(self.orientation_degree.x))
+        #     self.rotated_strigvar_roll.set('%.4f'%(self.orientation_degree.y))
+        #     self.rotated_strigvar_yaw.set('%.4f'%(self.orientation_degree.z))
 
     def delta_pos_callback(self, delta_pos):
         self.delta_pos = delta_pos
@@ -1507,6 +1536,13 @@ class TelloUI(object):
                 self.allow_slam_control_btn.configure(bg = 'black', fg = 'red')
             else:
                 self.allow_slam_control_btn.configure(bg = 'black', fg = 'yellow')
+
+        self.slam_orientation_quaternion = slam_msg.pose.orientation
+        self.slam_orientation_degree_point = self.quatenrion_point_to_euler_degree(self.slam_orientation_quaternion)
+        if self.init_rotated_frame_flag:
+            self.rotated_strigvar_pitch.set('%.4f'%(self.slam_orientation_degree_point.x))
+            self.rotated_strigvar_roll.set('%.4f'%(self.slam_orientation_degree_point.y))
+            self.rotated_strigvar_yaw.set('%.4f'%(self.slam_orientation_degree_point.z))
 
 
     def update_command_pos_from_gui(self):

@@ -153,9 +153,9 @@ class CcmTransformer(object):
 
         position = pose_msg.pose.position
         orientation_deg = self.quatenrion_point_to_euler_degree(q)
-        orientation_deg.x = self.clip_angle(orientation_deg.x)
-        orientation_deg.y = self.clip_angle(orientation_deg.y)
-        orientation_deg.z = self.clip_angle(orientation_deg.z)
+        # orientation_deg.x = self.clip_angle(orientation_deg.x)
+        # orientation_deg.y = self.clip_angle(orientation_deg.y)
+        # orientation_deg.z = self.clip_angle(orientation_deg.z)
         orientation_quat = deepcopy(pose_msg.pose.orientation)
         return orientation_deg, position, orientation_quat
 
@@ -170,17 +170,22 @@ class CcmTransformer(object):
     def apply_coordinate_rotation(self, pose_msg):
         '''
             new_pitch = old_roll
-            new_yaw = old_pitch
             new_roll = -old_yaw
+            new_yaw = old_pitch
+            
             new_x = old z
             new_y = -old_x
             new_z = -old_y
         '''
         orientation_deg, position, orientation_quat = self.extract_from_pose_msg(pose_msg)
         rotated_orientation_deg = Point()
-        rotated_orientation_deg.x = orientation_deg.y
-        rotated_orientation_deg.y = -orientation_deg.z
-        rotated_orientation_deg.z = orientation_deg.x
+        rotated_orientation_deg.x = orientation_deg.y # new_pitch = old_roll
+        rotated_orientation_deg.y = -orientation_deg.z # new_roll = -old_yaw
+        rotated_orientation_deg.z = orientation_deg.x # new_yaw = old_pitch
+
+        # rotated_orientation_deg.x = orientation_deg.y
+        # rotated_orientation_deg.y = orientation_deg.x
+        # rotated_orientation_deg.z = orientation_deg.z
 
         rotated_position = Point()
         rotated_position = self.apply_coordinate_position_rotation(position)
@@ -199,7 +204,10 @@ class CcmTransformer(object):
         '''
         pose_transformed = PoseStamped()
         pose_transformed.header = pose_msg.header
-        transform_scale = float(transform_msg.child_frame_id)
+        try:
+            transform_scale = float(transform_msg.child_frame_id)
+        except:
+            transform_scale = -1
         quat_multiplied = quaternion_multiply(self.quat_to_vect(pose_msg.pose.orientation), 
                                                 tf.transformations.quaternion_conjugate(self.quat_to_vect(transform_msg.transform.rotation)))
         pose_transformed.pose.orientation = Quaternion(quat_multiplied[0], quat_multiplied[1], quat_multiplied[2], quat_multiplied[3])

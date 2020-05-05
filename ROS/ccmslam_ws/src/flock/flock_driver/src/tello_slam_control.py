@@ -42,15 +42,15 @@ class TelloSlamControler(object):
 
 
 
-        self.pub_twist = rospy.Publisher(self.publish_prefix+'cmd_vel', Twist, queue_size = 1)
-        self.delta_pub = rospy.Publisher(self.publish_prefix+'delta_pos', Point, queue_size = 1)
-        self.real_world_pub = rospy.Publisher(self.publish_prefix+'real_world_pos', PoseStamped, queue_size = 1)
-        self.real_world_scale_pub = rospy.Publisher(self.publish_prefix+'real_world_scale', Float32, queue_size = 1)
-        self.rotated_pos_pub = rospy.Publisher(self.publish_prefix+'rotated_pos', Point, queue_size = 1)
-        self.slam_orientation_pub = rospy.Publisher(self.publish_prefix+'orientation', Point, queue_size = 1)
-        self.move_up_publisher = rospy.Publisher(self.publish_prefix+'move_up', Float32, queue_size = 1)
-        self.pose_trail_publisher = rospy.Publisher(self.publish_prefix+'pose_trail', PoseArray, queue_size = 1)
-        self.path_publisher = rospy.Publisher(self.publish_prefix+'path_trail', Path, queue_size = 1)
+        self.pub_twist = rospy.Publisher(self.publish_prefix + 'cmd_vel', Twist, queue_size = 1)
+        self.delta_pub = rospy.Publisher(self.publish_prefix + 'delta_pos', Point, queue_size = 1)
+        self.real_world_pub = rospy.Publisher(self.publish_prefix + 'real_world_pos', PoseStamped, queue_size = 1)
+        self.real_world_scale_pub = rospy.Publisher(self.publish_prefix + 'real_world_scale', Float32, queue_size = 1)
+        self.rotated_pos_pub = rospy.Publisher(self.publish_prefix + 'rotated_pos', Point, queue_size = 1)
+        self.slam_orientation_pub = rospy.Publisher(self.publish_prefix + 'orientation', Point, queue_size = 1)
+        self.move_up_publisher = rospy.Publisher(self.publish_prefix + 'move_up', Float32, queue_size = 1)
+        self.pose_trail_publisher = rospy.Publisher(self.publish_prefix + 'pose_trail', PoseArray, queue_size = 1)
+        self.path_publisher = rospy.Publisher(self.publish_prefix + 'path_trail', Path, queue_size = 1)
 
 
         self.path_trail_msg = Path()
@@ -264,11 +264,11 @@ class TelloSlamControler(object):
         y_rotated = pos_error_copy.y*math.cos(self.orientation_alpha_rad) - pos_error_copy.x*math.sin(self.orientation_alpha_rad)
 
 
-        # self.pos_error.x = x_rotated
-        # self.pos_error.y = y_rotated
+        self.pos_error.x = x_rotated
+        self.pos_error.y = y_rotated
 
-        self.pos_error.x = pos_error_copy.x
-        self.pos_error.y = pos_error_copy.y
+        # self.pos_error.x = pos_error_copy.x
+        # self.pos_error.y = pos_error_copy.y
 
 
         self.delta_pub.publish(self.pos_error)
@@ -400,7 +400,14 @@ class TelloSlamControler(object):
             # return
 
         # self.rotated_pos = slam_msg.pose.position
-        self.slam_pos = slam_msg.pose.position
+        self.slam_pos = deepcopy(slam_msg.pose.position)
+
+        # For CCM SLAM
+        # self.slam_pos.x = slam_msg.pose.position.z
+        # self.slam_pos.y = -slam_msg.pose.position.x
+        # self.slam_pos.z = -slam_msg.pose.position.y
+
+
         self.slam_quaternion = slam_msg.pose.orientation 
         self.slam_orientation_rad_list = euler_from_quaternion([self.slam_quaternion.x, self.slam_quaternion.y, self.slam_quaternion.z, self.slam_quaternion.w])
         self.slam_orientation_rad = Point(self.slam_orientation_rad_list[0], self.slam_orientation_rad_list[1], self.slam_orientation_rad_list[2])
