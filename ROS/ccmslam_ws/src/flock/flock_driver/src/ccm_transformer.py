@@ -179,13 +179,13 @@ class CcmTransformer(object):
         '''
         orientation_deg, position, orientation_quat = self.extract_from_pose_msg(pose_msg)
         rotated_orientation_deg = Point()
-        rotated_orientation_deg.x = orientation_deg.y # new_pitch = old_roll
-        rotated_orientation_deg.y = -orientation_deg.z # new_roll = -old_yaw
-        rotated_orientation_deg.z = orientation_deg.x # new_yaw = old_pitch
+        # rotated_orientation_deg.x = orientation_deg.y # new_pitch = old_roll
+        # rotated_orientation_deg.y = -orientation_deg.z # new_roll = -old_yaw
+        # rotated_orientation_deg.z = orientation_deg.x # new_yaw = old_pitch
 
-        # rotated_orientation_deg.x = orientation_deg.y
-        # rotated_orientation_deg.y = orientation_deg.x
-        # rotated_orientation_deg.z = orientation_deg.z
+        rotated_orientation_deg.x = orientation_deg.x
+        rotated_orientation_deg.y = orientation_deg.z
+        rotated_orientation_deg.z = orientation_deg.y
 
         rotated_position = Point()
         rotated_position = self.apply_coordinate_position_rotation(position)

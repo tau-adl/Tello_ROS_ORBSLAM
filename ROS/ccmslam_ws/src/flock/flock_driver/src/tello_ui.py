@@ -1450,10 +1450,10 @@ class TelloUI(object):
 
     def orientation_callback(self, orientation_point):
         self.orientation_degree = orientation_point
-        # if self.init_rotated_frame_flag:
-        #     self.rotated_strigvar_pitch.set('%.4f'%(self.orientation_degree.x))
-        #     self.rotated_strigvar_roll.set('%.4f'%(self.orientation_degree.y))
-        #     self.rotated_strigvar_yaw.set('%.4f'%(self.orientation_degree.z))
+        if self.init_rotated_frame_flag:
+            self.rotated_strigvar_pitch.set('%.4f'%(self.orientation_degree.x))
+            self.rotated_strigvar_roll.set('%.4f'%(self.orientation_degree.y))
+            self.rotated_strigvar_yaw.set('%.4f'%(self.orientation_degree.z))
 
     def delta_pos_callback(self, delta_pos):
         self.delta_pos = delta_pos
@@ -1539,10 +1539,10 @@ class TelloUI(object):
 
         self.slam_orientation_quaternion = slam_msg.pose.orientation
         self.slam_orientation_degree_point = self.quatenrion_point_to_euler_degree(self.slam_orientation_quaternion)
-        if self.init_rotated_frame_flag:
-            self.rotated_strigvar_pitch.set('%.4f'%(self.slam_orientation_degree_point.x))
-            self.rotated_strigvar_roll.set('%.4f'%(self.slam_orientation_degree_point.y))
-            self.rotated_strigvar_yaw.set('%.4f'%(self.slam_orientation_degree_point.z))
+        # if self.init_rotated_frame_flag:
+        #     self.rotated_strigvar_pitch.set('%.4f'%(self.slam_orientation_degree_point.x))
+        #     self.rotated_strigvar_roll.set('%.4f'%(self.slam_orientation_degree_point.y))
+        #     self.rotated_strigvar_yaw.set('%.4f'%(self.slam_orientation_degree_point.z))
 
 
     def update_command_pos_from_gui(self):
