@@ -4,6 +4,7 @@
 <arg name="dist" default="0"/>
 <!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_58B4D9.yaml"/> -->
 <arg name="cam" default="$(find ccmslam)/conf/Tello_B62241.yaml"/>
+<!-- <arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/> -->
 
 <!-- <arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/> -->
 <arg name="GLOBAL_ID" default="0"/>
@@ -26,6 +27,9 @@
     <param name="~TopicNameCamSub" type="string" value="/tello$(arg GLOBAL_ID)/camera/image_raw" />
     <param name="~MapInTopicName" type="string" value="MapOutServer$(arg GLOBAL_ID)" unless="$(arg dist)" />
     <param name="~MapInTopicName" type="string" value="MapOutServer$(arg GLOBAL_ID)Disturbed" if="$(arg dist)" /> 
+
+    
+    <!-- <remap from="/ccmslam/PoseOutClient$(arg GLOBAL_ID)" to="/tello$(arg GLOBAL_ID)/pose" />  -->
 
   </node>
 </group>

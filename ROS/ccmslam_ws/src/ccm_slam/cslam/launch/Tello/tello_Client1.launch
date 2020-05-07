@@ -3,7 +3,8 @@
 
 <arg name="dist" default="0"/>
 <!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_58B4D9.yaml"/> -->
-<arg name="cam" default="$(find ccmslam)/conf/Tello_B62241.yaml"/>
+<!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_B62241.yaml"/> -->
+<arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/>
 
 <!-- <arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/> -->
 <arg name="GLOBAL_ID" default="1"/>
@@ -34,11 +35,11 @@
       <param name="ID" type="string" value="$(arg GLOBAL_ID)" />
 </node>  -->
 
-<node name="flock_driver_node$(arg GLOBAL_ID)" pkg="flock_driver" type="flock_driver.py" output="screen" >
+<!-- <node name="flock_driver_node$(arg GLOBAL_ID)" pkg="flock_driver" type="flock_driver.py" output="screen" >
     <param name="network_interface" type="string" value="" />
     <param name="ID" type="string" value="$(arg GLOBAL_ID)" />
 
-
+ -->
 
     <!-- <param name="network_interface" type="string" value="" /> -->
     <!-- <param name="TELLO_IP" type="string" value="192.168.43.98" /> -->
@@ -47,7 +48,7 @@
     <!-- <remap from="/rectify/image_mono" to="tello0/camera/image_mono" /> -->
     <!-- <remap from="tello0/camera/image_raw" to="/image" /> -->
 
-</node>
+<!-- </node> -->
 
 
 <node name="tello_slam_control$(arg GLOBAL_ID)" pkg="flock_driver" type="tello_slam_control.py" output="screen">

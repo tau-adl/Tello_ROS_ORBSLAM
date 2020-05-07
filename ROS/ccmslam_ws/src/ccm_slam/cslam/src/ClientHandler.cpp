@@ -23,6 +23,7 @@
 */
 
 #include <cslam/ClientHandler.h>
+#include <Eigen/Geometry>
 
 namespace cslam {
 
@@ -327,7 +328,7 @@ void ClientHandler::CamImgCb(sensor_msgs::ImageConstPtr pMsg)
 void ClientHandler::PublishPoseThread(){
     float fScale = static_cast<float>(params::vis::mfScaleFactor);
     geometry_msgs::PoseStamped pose_msg;
-    tf2::Quaternion tfQuaternion;
+    //tf2::Quaternion tfQuaternion;
     geometry_msgs::Quaternion quat_msg;
     cv::Mat Tcw;
     cv::Mat Rcw;
@@ -350,33 +351,23 @@ void ClientHandler::PublishPoseThread(){
                     tcw = Tcw.rowRange(0,3).col(3);
                     ow = -Rcw.t()*tcw;
 
-                    // this suppose to be roll, so new_pitch = old_roll
-                    double pitch = std::atan2(Rcw.at<float>(2, 1), Rcw.at<float>(2, 2));
+                    Eigen::Quaterniond q = Eigen::Quaterniond(Converter::toMatrix3d(Rcw));
 
-                    // this suppose to be pitch, so new_yaw = old_pitch
-                    double yaw = std::atan2(-Rcw.at<float>(2, 0),
-                            sqrt(pow(Rcw.at<float>(2, 1), 2) + pow(Rcw.at<float>(2, 2), 2)));
-
-                    // this suppose to be yaw, so new_roll = -old_yaw
-                    double roll = -std::atan2(Rcw.at<float>(1, 0), Rcw.at<float>(0, 0));
-
-
-                    tfQuaternion.setRPY(roll, pitch, yaw);
-
-                    quat_msg = tf2::toMsg(tfQuaternion);
-
-
-                    pose_msg.pose.position.x = (fScale)*ow.at<float>(2);   // x = z
-                    pose_msg.pose.position.y = -(fScale)*ow.at<float>(0);  // y = -x
-                    pose_msg.pose.position.z = -(fScale)*ow.at<float>(1); // z = -y
+                    pose_msg.pose.position.x = ow.at<float>(0);
+                    pose_msg.pose.position.y = ow.at<float>(1);
+                    pose_msg.pose.position.z = ow.at<float>(2);
                     pose_msg.header.stamp = ros::Time::now();
-                    pose_msg.pose.orientation = quat_msg;
+                    pose_msg.pose.orientation.x = q.coeffs()[0];
+                    pose_msg.pose.orientation.y = q.coeffs()[1];
+                    pose_msg.pose.orientation.z = q.coeffs()[2];
+                    pose_msg.pose.orientation.w = q.coeffs()[3];
                     mPubPose.publish(pose_msg);
                 }
             }
         }
     }
 }
+
 
 void ClientHandler::PublishTransThread(){
     tf2::Quaternion tfQuaternion;
@@ -387,49 +378,24 @@ void ClientHandler::PublishTransThread(){
     cv::Mat tcw;
     cv::Mat ow;
     msgtf.header.frame_id = "world";
-    msgtf.child_frame_id = "idk";
     double s;
     while(1) {
         usleep(3333);
         g2oS_wnewmap_wcurmap = mpCC->mg2oS_wcurmap_wclientmap;
         s = g2oS_wnewmap_wcurmap.scale();
-        msgtf.transform.translation.x = g2oS_wnewmap_wcurmap.translation()[2] * s;
-        msgtf.transform.translation.y = -g2oS_wnewmap_wcurmap.translation()[0] * s;
-        msgtf.transform.translation.z = -g2oS_wnewmap_wcurmap.translation()[1] * s;
+        std::ostringstream ss;
+        ss << s;
+        msgtf.transform.translation.x = g2oS_wnewmap_wcurmap.translation()[0];
+        msgtf.transform.translation.y = g2oS_wnewmap_wcurmap.translation()[1];
+        msgtf.transform.translation.z = g2oS_wnewmap_wcurmap.translation()[2];
 
-        // I can use this primitive Eigen::Matrix3d eigR = g2oCorrectedSiw.rotation().toRotationMatrix(); in order to get
-        // back to rotation coords and correct the same as we did in the Pose Publisher.
-//        msgtf.transform.rotation.w = g2oS_wnewmap_wcurmap.rotation().coeffs()[0];
-//        msgtf.transform.rotation.x = g2oS_wnewmap_wcurmap.rotation().coeffs()[1];
-//        msgtf.transform.rotation.y = g2oS_wnewmap_wcurmap.rotation().coeffs()[2];
-//        msgtf.transform.rotation.z = g2oS_wnewmap_wcurmap.rotation().coeffs()[3];
+        msgtf.child_frame_id = (ss.str());
 
+        msgtf.transform.rotation.x = g2oS_wnewmap_wcurmap.rotation().coeffs()[0];
+        msgtf.transform.rotation.y = g2oS_wnewmap_wcurmap.rotation().coeffs()[1];
+        msgtf.transform.rotation.z = g2oS_wnewmap_wcurmap.rotation().coeffs()[2];
+        msgtf.transform.rotation.w = g2oS_wnewmap_wcurmap.rotation().coeffs()[3];
 
-        tf::Quaternion q(
-                g2oS_wnewmap_wcurmap.rotation().coeffs()[0],
-                g2oS_wnewmap_wcurmap.rotation().coeffs()[1],
-                g2oS_wnewmap_wcurmap.rotation().coeffs()[2],
-                g2oS_wnewmap_wcurmap.rotation().coeffs()[3]);
-
-        tf::Matrix3x3 m(q);
-        double roll, pitch, yaw;
-
-        // this suppose to be roll, so new_pitch = old_roll
-        // this suppose to be pitch, so new_yaw = old_pitch
-        // this suppose to be yaw, so new_roll = -old_yaw
-
-        m.getRPY(roll, pitch, yaw);
-
-
-        tfQuaternion.setRPY(-yaw, roll, pitch);
-
-
-        geometry_msgs::Quaternion quat_msg = tf2::toMsg(tfQuaternion);
-
-        msgtf.transform.rotation.w = quat_msg.w;
-        msgtf.transform.rotation.x = quat_msg.x;
-        msgtf.transform.rotation.y = quat_msg.y;
-        msgtf.transform.rotation.z = quat_msg.z;
 
         msgtf.header.stamp = ros::Time::now();
         mPubTrans.publish(msgtf);
@@ -437,133 +403,6 @@ void ClientHandler::PublishTransThread(){
 }
 
 
-void ClientHandler::PublishPose(cv::Mat Tcw){
-    float fScale = static_cast<float>(params::vis::mfScaleFactor);
-    geometry_msgs::PoseStamped pose_msg;
-    tf2::Quaternion tfQuaternion;
-    geometry_msgs::Quaternion quat_msg;
-    cv::Mat Rcw;
-    cv::Mat tcw;
-    cv::Mat ow;
-    pose_msg.header.frame_id = "world";
-
-
-    if (Tcw.dims >= 2) {
-
-
-        Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
-        tcw = Tcw.rowRange(0,3).col(3);
-        ow = -Rcw.t()*tcw;
-        double roll = std::atan2(Rcw.at<float>(2, 1), Rcw.at<float>(2, 2));
-        double yaw = std::atan2(-Rcw.at<float>(2, 0),
-                                 sqrt(pow(Rcw.at<float>(2, 1), 2) + pow(Rcw.at<float>(2, 2), 2)));
-        double pitch = -std::atan2(Rcw.at<float>(1, 0), Rcw.at<float>(0, 0));
-
-        tfQuaternion.setRPY(pitch, roll, yaw);
-        quat_msg = tf2::toMsg(tfQuaternion);
-
-
-        pose_msg.pose.position.x = (fScale)*ow.at<float>(2);   // x = z
-        pose_msg.pose.position.y = -(fScale)*ow.at<float>(0);  // y = -x
-        pose_msg.pose.position.z = -(fScale)*ow.at<float>(1); // z = -y
-        pose_msg.header.stamp = ros::Time::now();
-        pose_msg.pose.orientation = quat_msg;
-        mPubPose.publish(pose_msg);
-    }
-}
-
-
-//void ClientHandler::PublishPoseThread(){
-//    geometry_msgs::PoseStamped pose_msg;
-//    tf2::Quaternion tfQuaternion;
-//    geometry_msgs::Quaternion quat_msg;
-//    cv::Mat Tcw;
-//    cv::Mat Rcw;
-//
-//    pose_msg.header.frame_id = "world";
-//    while(1) {
-////        usleep(33333);
-//        usleep(3333);
-//        if (receivedImageFlag) {
-//            receivedImageFlag = false;
-//            if (mpTracking->mState == mpTracking->OK) {
-//
-//
-//                Tcw = mpTracking->mCurrentFrame->mTcw;
-//
-//                if (Tcw.dims >= 2) {
-//
-//
-//                    Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
-//
-//                    double pitch = std::atan2(Rcw.at<float>(2, 0), Rcw.at<float>(2, 1));
-//                    double roll = std::acos(Rcw.at<float>(2, 2));
-//                    double yaw = -std::atan2(Rcw.at<float>(0, 2), Rcw.at<float>(1, 2));
-//
-//                    tfQuaternion.setRPY(pitch, roll, yaw);
-//                    quat_msg = tf2::toMsg(tfQuaternion);
-//
-//
-//                    pose_msg.pose.position.x = mpViewer->msg_point_out.z;
-//                    pose_msg.pose.position.y = -mpViewer->msg_point_out.x;
-//                    pose_msg.pose.position.z = -mpViewer->msg_point_out.y;
-//                    pose_msg.header.stamp = ros::Time::now();
-//                    pose_msg.pose.orientation = quat_msg;
-//                    mPubPose.publish(pose_msg);
-//                }
-//            }
-//        }
-//    }
-//}
-
-//void ClientHandler::PublishPositionAsPoseStamped (cv::Mat position) {
-//    std::stringstream* ss;
-//    tf::Transform grasp_tf = this->TransformFromMat (position);
-//    current_frame_time_ = ros::Time::now();
-//    ss = new stringstream;
-//    *ss << "world";
-//    string map_frame_id_param_ = ss->str();
-//    tf::Stamped<tf::Pose> grasp_tf_pose(grasp_tf, current_frame_time_, map_frame_id_param_);
-//    geometry_msgs::PoseStamped pose_msg;
-//    tf::poseStampedTFToMsg (grasp_tf_pose, pose_msg);
-//    // current_frame_time_.
-//    pose_msg.header.stamp = ros::Time::now();
-//    mPubPose.publish(pose_msg);
-//}
-
-//tf::Transform ClientHandler::TransformFromMat (cv::Mat position_mat) {
-//    cv::Mat rotation(3,3,CV_32F);
-//    cv::Mat translation(3,1,CV_32F);
-//
-//    rotation = position_mat.rowRange(0,3).colRange(0,3);
-//    translation = position_mat.rowRange(0,3).col(3);
-//
-//    tf::Matrix3x3 tf_camera_rotation (rotation.at<float> (0,0), rotation.at<float> (0,1), rotation.at<float> (0,2),
-//                                      rotation.at<float> (1,0), rotation.at<float> (1,1), rotation.at<float> (1,2),
-//                                      rotation.at<float> (2,0), rotation.at<float> (2,1), rotation.at<float> (2,2)
-//    );
-//
-//    tf::Vector3 tf_camera_translation (translation.at<float> (0), translation.at<float> (1), translation.at<float> (2));
-//
-//    //Coordinate transformation matrix from orb coordinate system to ros coordinate system
-//    const tf::Matrix3x3 tf_orb_to_ros (0, 0, 1,
-//                                       -1, 0, 0,
-//                                       0,-1, 0);
-//
-//    //Transform from orb coordinate system to ros coordinate system on camera coordinates
-//    tf_camera_rotation = tf_orb_to_ros*tf_camera_rotation;
-//    tf_camera_translation = tf_orb_to_ros*tf_camera_translation;
-//
-//    //Inverse matrix
-//    tf_camera_rotation = tf_camera_rotation.transpose();
-//    tf_camera_translation = -(tf_camera_rotation*tf_camera_translation);
-//
-//    //Transform from orb coordinate system to ros coordinate system on map coordinates
-//    tf_camera_rotation = tf_orb_to_ros*tf_camera_rotation;
-//    tf_camera_translation = tf_orb_to_ros*tf_camera_translation;
-//
-//    return tf::Transform (tf_camera_rotation, tf_camera_translation);
-//}
 
 void ClientHandler::Reset()
 {
