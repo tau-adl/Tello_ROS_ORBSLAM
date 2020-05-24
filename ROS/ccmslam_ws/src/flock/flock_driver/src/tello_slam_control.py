@@ -51,6 +51,7 @@ class TelloSlamControler(object):
         self.move_up_publisher = rospy.Publisher(self.publish_prefix + 'move_up', Float32, queue_size = 1)
         self.pose_trail_publisher = rospy.Publisher(self.publish_prefix + 'pose_trail', PoseArray, queue_size = 1)
         self.path_publisher = rospy.Publisher(self.publish_prefix + 'path_trail', Path, queue_size = 1)
+        self.slam_z0_pub = rospy.Publisher(self.publish_prefix + 'slam_z0', Point, queue_size = 1)
 
 
         self.path_trail_msg = Path()
@@ -147,6 +148,11 @@ class TelloSlamControler(object):
         rospy.Subscriber(self.publish_prefix+'kp', Pose, self.kp_callback)
         rospy.Subscriber(self.publish_prefix+'land', Empty, self.land_callback)
 
+        rospy.Subscriber(self.publish_prefix+'slam_z0_transformed', Point, self.slam_z0_transformed_callback)
+
+
+
+
         self.last_time_published = time.time()
         self.thread = threading.Thread(target=self.peridoc_timer, args=())
         self.thread.start()
@@ -155,6 +161,9 @@ class TelloSlamControler(object):
         # Spin until interrupted
         rospy.spin()
 
+
+    def slam_z0_transformed_callback(self, msg):
+        self.rotated_position_0 = msg
 
     def land_callback(self, msg):
         self.land_flag = True
@@ -357,24 +366,6 @@ class TelloSlamControler(object):
         self.allow_slam_control = (msg.data == 1)
         if self.allow_slam_control:
             pass
-            # self.rotated_position_0 = self.point_copy(self.rotated_pos)
-            # try:
-            #     if self.altitude > 0.2:
-                    # self.potential_real_world_scale = self.altitude / (self.rotated_pos.z - self.rotated_position_0.z)
-                    # if not self.calculated_real_world_scale_flag:
-                        # first time calculating real_world_scale
-                        # self.real_world_scale = self.potential_real_world_scale
-                        # self.real_world_scale_pub.publish(self.real_world_scale)
-                        # self.calculated_real_world_scale_flag = True
-
-
-                    # else:
-                        # update only of the real_world_scale is higher than a threshold
-                        # if abs(self.real_world_scale-self.potential_real_world_scale) > 1:
-                        #     self.real_world_scale_pub.publish(self.real_world_scale)
-            # except ZeroDivisionError:
-            #     pass
-
         else:
             self.pub_twist.publish(Twist())
 
@@ -500,7 +491,7 @@ class TelloSlamControler(object):
         #     rospy.loginfo('altitude is {} < {} - starting raise'.format(self.altitude, self.calib_altitude_high))
         # go to altitude = self.calib_altitude_high
         ground_altitude = self.altitude # say altitude suppose to be 0.5 meter.
-        rospy.loginfo('ground altitude is {} - starting raise'.format(ground_altitude))
+        rospy.loginfo('ground altitude is {:.2f} - starting raise'.format(ground_altitude))
 
         # while self.altitude < self.calib_altitude_high:
         t = time.time()
@@ -508,10 +499,10 @@ class TelloSlamControler(object):
             self.pub_twist.publish(self.speed_to_twist(throttle=self.calib_altitude_rate))
             if self.altitude < self.calib_altitude_min or self.land_flag:
                 self.pub_twist.publish(self.speed_to_twist())
-                rospy.loginfo('altitude is {} > {} - calibration failed'.format(self.altitude, self.calib_altitude_low))
+                rospy.loginfo('altitude is {:.2f} > {:.2f} - calibration failed'.format(self.altitude, self.calib_altitude_low))
                 return
             time.sleep(0.2)
-            rospy.loginfo('altitude is {}, desired height is {}'.format(self.altitude, self.calib_altitude_low))
+            rospy.loginfo('altitude is {:.2f}, desired height is {:.2f}'.format(self.altitude, self.calib_altitude_low))
             if time.time() - t > 1:
                 if ground_altitude == self.altitude:
                     rospy.loginfo('altitude is fixed, something is wrong.'.format(self.altitude, self.calib_altitude_low))
@@ -533,10 +524,10 @@ class TelloSlamControler(object):
             # self.pub_twist.publish(self.speed_to_twist())
         self.upper_altitude = self.altitude
         self.upper_z = self.rotated_pos.z
-        rospy.loginfo('altitude is {} - z is {} - Stopping'.format(self.upper_altitude, self.upper_z))
+        rospy.loginfo('altitude is {:.2f} - z is {:.2f} - Stopping'.format(self.upper_altitude, self.upper_z))
         # get rotated slam z position at altitude=self.calib_altitude_high
         # go to altitude = self.calib_altitude_low
-        rospy.loginfo('altitude is {} - starting descent'.format(self.altitude))
+        rospy.loginfo('altitude is {:.2f} - starting descent'.format(self.altitude))
         t = time.time()
         # while self.altitude > self.calib_altitude_low:
         while self.altitude > ground_altitude + 0.2:
@@ -544,7 +535,7 @@ class TelloSlamControler(object):
             # while time.time() - t < 0.05:
             if self.land_flag:
                 self.pub_twist.publish(self.speed_to_twist())
-                rospy.loginfo('altitude is {} - calibration failed'.format(self.altitude, self.calib_altitude_low))
+                rospy.loginfo('altitude is {:.2f} - calibration failed'.format(self.altitude, self.calib_altitude_low))
                 return
                 # pass
             time.sleep(0.2)
@@ -558,14 +549,15 @@ class TelloSlamControler(object):
         # get rotated slam z position at altitude=self.calib_altitude_low
         self.lower_altitude = self.altitude
         self.lower_z = self.rotated_pos.z
-        rospy.loginfo('altitude is {} - z is {} - Stopping'.format(self.lower_altitude, self.lower_z))
+        rospy.loginfo('altitude is {:.2f} - z is {:.2f} - Stopping'.format(self.lower_altitude, self.lower_z))
         try:
             self.real_world_scale = (self.upper_altitude - self.lower_altitude) / (self.upper_z - self.lower_z)
         except ZeroDivisionError:
-            rospy.loginfo('Error: ZeroDivisionError: lower_z = {}, upper_z = {}, rotated_position_0.z={}'.format(self.lower_z, self.upper_z, self.real_world_scale, self.rotated_position_0.z))
+            rospy.loginfo('Error: ZeroDivisionError: lower_z = {:.2f}, upper_z = {:.2f}, rotated_position_0.z={:.2f}'.format(self.lower_z, self.upper_z, self.real_world_scale, self.rotated_position_0.z))
         self.real_world_scale_pub.publish(self.real_world_scale)
-        self.rotated_position_0.z = self.lower_z - self.calib_altitude_low/self.real_world_scale
-        rospy.loginfo('lower_z = {}, upper_z = {}, real_world_scale={}, rotated_position_0.z={}'.format(self.lower_z, self.upper_z, self.real_world_scale, self.rotated_position_0.z))
+        self.rotated_position_0.z = self.lower_z - 1/self.real_world_scale
+        rospy.loginfo('lower_z = {:.2f}, upper_z = {:.2f}, real_world_scale={:.2f}, rotated_position_0.z={:.2f}'.format(self.lower_z, self.upper_z, self.real_world_scale, self.rotated_position_0.z))
+        self.slam_z0_pub.publish(self.rotated_position_0)
 
 
     def scan_room_callback(self, msg):

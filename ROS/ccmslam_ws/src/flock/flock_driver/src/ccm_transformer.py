@@ -28,11 +28,14 @@ class CcmTransformer(object):
         self.orientation_deg_transformed_0 = Point()
         self.orientation_deg_transformed_1 = Point()
 
+        self.rotated_position_0 = Point()
+        self.rotated_position_1 = Point()
+
         self.transform_msg_0 = TransformStamped()
         self.transform_msg_1 = TransformStamped()
 
-        self.transformer_state_0 = True
-        self.transformer_state_1 = True
+        self.transformer_state_0 = False
+        self.transformer_state_1 = False
 
         self.tello_pose_pub_0 = rospy.Publisher('/tello0/pose', PoseStamped, queue_size = 1)
         self.tello_pose_pub_1 = rospy.Publisher('/tello1/pose', PoseStamped, queue_size = 1)
@@ -42,6 +45,9 @@ class CcmTransformer(object):
 
         self.point_cloud_transformed_pub_0 = rospy.Publisher('/tello0/point_cloud', PointCloud2, queue_size = 5)
         self.point_cloud_transformed_pub_1 = rospy.Publisher('/tello1/point_cloud', PointCloud2, queue_size = 5)
+
+        self.slam_z0_0_pub = rospy.Publisher('/tello0/slam_z0_transformed', Point, queue_size = 1)
+        self.slam_z0_1_pub = rospy.Publisher('/tello1/slam_z0_transformed', Point, queue_size = 1)
 
         rospy.Subscriber('/tello0/TransformerState', Bool, self.transformer_state_0_callback)
         rospy.Subscriber('/tello1/TransformerState', Bool, self.transformer_state_1_callback)
@@ -53,6 +59,11 @@ class CcmTransformer(object):
 
         rospy.Subscriber('/ccmslam/ClientMapPointsMap0/', PointCloud2, self.point_cloud_callback_0)
         rospy.Subscriber('/ccmslam/ClientMapPointsMap1/', PointCloud2, self.point_cloud_callback_1)
+
+        rospy.Subscriber('/tello0/slam_z0/', Point, self.slam_z0_0_callback)
+        rospy.Subscriber('/tello1/slam_z0/', Point, self.slam_z0_1_callback)
+
+        
 
 
         rospy.spin()
@@ -228,7 +239,7 @@ class CcmTransformer(object):
 
     def pose0_callback(self, pose_msg):
         self.pose_0 = deepcopy(pose_msg)
-        if self.transformer_state_0:
+        if self.transformer_state_0 == 1:
             self.pose_0 = self.apply_transform_to_pose(self.pose_0, self.transform_msg_0)
         self.tello_pose_transform_pub_0.publish(self.pose_0)
         self.pose_0 = self.apply_coordinate_rotation(self.pose_0)
@@ -236,7 +247,7 @@ class CcmTransformer(object):
 
     def pose1_callback(self, pose_msg):
         self.pose_1 = deepcopy(pose_msg)
-        if self.transformer_state_1:
+        if self.transformer_state_1 == 1:
             self.pose_1 = self.apply_transform_to_pose(self.pose_1, self.transform_msg_1)
         self.tello_pose_transform_pub_1.publish(self.pose_1)
         self.pose_1 = self.apply_coordinate_rotation(self.pose_1)
@@ -258,9 +269,20 @@ class CcmTransformer(object):
 
     def transformer_state_0_callback(self, msg):
         self.transformer_state_0 = msg.data
+        rospy.loginfo("Change Transformer 0 State to %d", self.transformer_state_0)
+        # self.slam_z0_0_pub.publish(self.rotated_position_1)
 
     def transformer_state_1_callback(self, msg):
-        self.transformer_state_0 = msg.data
+        self.transformer_state_1 = msg.data
+        try:
+            rospy.loginfo("Change Transformer 1 State to %d", self.transformer_state_1)
+        except Exception as e:
+            print(e)
+            print(self.transformer_state_1)
+        if self.transformer_state_1 == True:
+            self.slam_z0_1_pub.publish(self.rotated_position_0)
+        else:
+            self.slam_z0_1_pub.publish(self.rotated_position_1)
 
 
     def print_pose(self, name, Pose):
@@ -375,6 +397,12 @@ class CcmTransformer(object):
         point_cloud_out_msg.point_step = 12
         point_cloud_out_msg.is_bigendian = point_cloud_msg.is_bigendian
         self.point_cloud_transformed_pub_1.publish(point_cloud_out_msg)
+
+    def slam_z0_0_callback(self, msg):
+        self.rotated_position_0 = msg
+
+    def slam_z0_1_callback(self, msg):
+        self.rotated_position_1 = msg
 
 
 
