@@ -3,7 +3,9 @@
 
 <arg name="dist" default="0"/>
 <!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_58B4D9.yaml"/> -->
-<arg name="cam" default="$(find ccmslam)/conf/Tello_B62241.yaml"/>
+<!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_B62241.yaml"/> -->
+<arg name="cam" default="$(find ccmslam)/conf/Tello_58B4D9.yaml"/>
+<!-- <arg name="cam" default="$(find ccmslam)/conf/Tello_B5D81A.yaml"/> -->
 <!-- <arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/> -->
 
 <!-- <arg name="cam" default="$(find ccmslam)/conf/vi_euroc.yaml"/> -->
