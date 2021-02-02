@@ -172,6 +172,7 @@ sudo apt install python-rosinstall python-rosinstall-generator python-wstool bui
 # Install Prerequisites
 Please install all the prerequisites, no matter which algorithm you want to use.
 ## Easy Install Prerequisites
+
 ### catking tools
 First you must have the ROS repositories which contain the .deb for catkin_tools:
 ```
@@ -218,7 +219,7 @@ cd Pangolin
 mkdir build
 cd build
 cmake ..
-cmake --build
+cmake --build .
 ```
 
 ### h264decoder
