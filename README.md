@@ -222,12 +222,12 @@ cmake --build
 ```
 
 ### h264decoder
-Baed on https://github.com/DaWelter/h264decoder
+Based on https://github.com/DaWelter/h264decoder
 ```
 cd ~/ROS/
 git clone https://github.com/DaWelter/h264decoder.git
 ```
-Inside h264decoder.cpp replace PIX_FMT_RGB24 with AV_PIX_FMT_RGB24
+Then
 ```
 mkdir build
 cd build
