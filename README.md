@@ -121,7 +121,17 @@ roslaunch ccmslam tello_Client0.launch
 ```
 roslaunch ccmslam tello_Client1.launch
 ```
+# Docker
+Easiest way to use this repo is with docker. Run
+```
+docker build . -t tello_ros_orbslam
+docker-compose run --rm tello_ros_orbslam
+```
+and then launch the commands above.
+
 # Installation Guide
+Without docker, every dependency will need to be installed manually.
+
 ## Installing ROS melodic
 
 Following this page: http://wiki.ros.org/melodic/Installation/Ubuntu
@@ -205,15 +215,20 @@ sudo apt install ros-melodic-joystick-drivers
 ```
 sudo apt-get install python-imaging-tk
 ```
-## Github based Prerequisites
-### Pangolin (used in orbslam2)
+
+# Installing Our Repository
+Start by cloning our repo
+```
+git clone https://github.com/tau-adl/Tello_ROS_ORBSLAM.git
+```
+## Installing Pangolin (used in orbslam2)
 Based on https://github.com/stevenlovegrove/Pangolin
 ```
-cd ~/ROS/
-git clone https://github.com/stevenlovegrove/Pangolin.git
 sudo apt install libgl1-mesa-dev
 sudo apt install libglew-dev
 sudo apt-get install libxkbcommon-dev
+git submodule init
+git submodule update
 cd Pangolin
 mkdir build
 cd build
@@ -221,40 +236,28 @@ cmake ..
 cmake --build
 ```
 
-### h264decoder
+## Installing h264decoder
 Based on https://github.com/DaWelter/h264decoder
 ```
-cd ~/ROS/
-git clone https://github.com/DaWelter/h264decoder.git
-```
-Then
-```
+cd h264decoder
 mkdir build
 cd build
 cmake ..
 make
 ```
-now copy it to python path
+now copy the binary to python path
 ```
-sudo cp ~/ROS/h264decoder/libh264decoder.so /usr/local/lib/python2.7/dist-packages
-```
-# Installing Our Repository
-## Cloning Our repo from github
-```
-cd ~
-mkdir ROS
-cd ROS
-git clone https://github.com/tau-adl/Tello_ROS_ORBSLAM.git
+sudo cp libh264decoder.so /usr/local/lib/python2.7/dist-packages
 ```
 ## Installing our version of TelloPy
 based on https://github.com/dji-sdk/Tello-Python and https://github.com/hanyazou/TelloPy
 ```
-cd ~/ROS/Tello_ROS_ORBSLAM/TelloPy
+cd TelloPy
 sudo python setup.py install
 ```
 ## Installing dependencies for ROS
 ```
-cd ~/ROS/Tello_ROS_ORBSLAM/ROS/tello_catkin_ws/
+cd ROS/tello_catkin_ws/
 sudo rosdep init
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y
@@ -262,11 +265,10 @@ rosdep install --from-paths src --ignore-src -r -y
 
 # Installing orbslam2
 based on https://github.com/appliedAI-Initiative/orb_slam_2_ros and https://github.com/rayvburn/ORB-SLAM2_ROS
-First - if using Melodic version of ROS, change the ~/ROS/Tello_ROS_ORBSLAM/ROS/tello_catkin_ws/src/orb_slam_2_ros/CMakeLists.txt
-To the CMakeLists_melodic.txt
+First - if using kinetic version of ROS, change the ROS/tello_catkin_ws/src/orb_slam_2_ros/CMakeLists.txt o the CMakeLists_kinetic.txt (it is CMakeLists_melodic.txt by default)
 ## Build the code:
 ```
-cd ~/ROS/Tello_ROS_ORBSLAM/ROS/tello_catkin_ws/
+cd ROS/tello_catkin_ws/
 catkin init
 catkin clean
 catkin build
