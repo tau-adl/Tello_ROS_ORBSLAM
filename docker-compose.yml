@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+
+  tello_ros_orbslam:
+    image: tello_ros_orbslam
+    runtime: nvidia #https://docs.docker.com/compose/gpu-support/
+    environment:
+      DISPLAY:
+    working_dir: /root
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      #- "/home/samlaf/dev/telloapis/Tello_ROS_ORBSLAM/HOME:/root"
