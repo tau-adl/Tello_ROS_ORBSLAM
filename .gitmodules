@@ -13,3 +13,6 @@
 [submodule "ROS/tello_catkin_ws/src/rpg_vikit"]
 	path = ROS/tello_catkin_ws/src/rpg_vikit
 	url = ../../uzh-rpg/rpg_vikit.git
+[submodule "Pangolin"]
+	path = Pangolin
+	url = https://github.com/stevenlovegrove/Pangolin.git
