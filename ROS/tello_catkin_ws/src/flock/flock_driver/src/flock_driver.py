@@ -13,8 +13,8 @@ import numpy
 import tellopy
 from cv_bridge import CvBridge
 import numpy as np
-import libh264decoder
 import signal
+import h264decoder
 
 
 
@@ -99,12 +99,12 @@ class FlockDriver(object):
         # ROS OpenCV bridge
         self._cv_bridge = CvBridge()
 
-        self.decoder = libh264decoder.H264Decoder()
+        self.decoder = h264decoder.H264Decoder()
 
         # Connect to the drone
         # self._drone = tellopy.TelloSDK(network_interface=self.network_interface, 
             # tello_ip='', local_port=7777, local_video_port=22222, tello_port=7777)
-        self._drone = tellopy.TelloSDK(network_interface=self.network_interface)
+        self._drone = tellopy.TelloSDK()
         # self._drone = tellopy.Tello(network_interface=self.network_interface)
         self._drone.connect()
         # try:
@@ -115,7 +115,7 @@ class FlockDriver(object):
             # self.cleanup()
         rospy.loginfo('connected to drone')
         self._drone.start_video()
-        # self._drone.set_loglevel('LOG_ERROR')
+        # self._drone.set_loglevel('LOG_ALL')
 
         # print('debug')
         # Listen to flight data messages
@@ -129,7 +129,7 @@ class FlockDriver(object):
 
         # video_thread = threading.Thread(target=self.video_worker)
         # video_thread.start()
-        self.packet_data = ""
+        self.packet_data = b""
         self._drone.subscribe(self._drone.EVENT_VIDEO_FRAME, self.videoFrameHandler)
 
         # rospy.on_shutdown(self.cleanup)
@@ -171,7 +171,7 @@ class FlockDriver(object):
         flight_data = FlightData()
 
         # Battery state
-        flight_data.battery_percent = data.battery_percentage
+        flight_data.battery_percent = int(data.battery_percentage)
         flight_data.estimated_flight_time_remaining = data.drone_fly_time_left / 10.
 
         # Flight mode
@@ -350,7 +350,7 @@ class FlockDriver(object):
 
         """
         # print("received {} bytes".format(len(data)))
-        self.packet_data += data
+        self.packet_data = b"".join([self.packet_data, data])
         # print(len(data))
         # end of frame
         if len(data) != 1460:
@@ -370,7 +370,7 @@ class FlockDriver(object):
                 self._camera_info_pub.publish(self.camera_info)
                 # print("published")
 
-            self.packet_data = ""
+            self.packet_data = b""
 
 
 
@@ -389,8 +389,8 @@ class FlockDriver(object):
             if frame is not None:
                 # print 'frame size %i bytes, w %i, h %i, linesize %i' % (len(frame), w, h, ls)
 
-                frame = np.fromstring(frame, dtype=np.ubyte, count=len(frame), sep='')
-                frame = (frame.reshape((h, ls / 3, 3)))
+                frame = np.frombuffer(frame,dtype=np.ubyte,count=len(frame))
+                frame = (frame.reshape(h, int(ls / 3), 3))
                 frame = frame[:, :w, :]
                 res_frame_list.append(frame)
 

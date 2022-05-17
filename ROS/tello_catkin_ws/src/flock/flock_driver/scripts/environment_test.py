@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 import sys
 import traceback
-# import av
+import av
 import cv2
 import numpy
 import tellopy
-import libh264decoder
+import h264decoder
 
 
 # Test the environment: TelloPy + PyAV + NumPy + OpenCV + all connections
@@ -22,8 +23,8 @@ def main():
         drone.wait_for_connection(60.0)
 
         # Get video stream
-        # container = av.open(drone.get_video_stream())
-        container = 
+        container = av.open(drone.get_video_stream())
+#        container = 
 
 
 

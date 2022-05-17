@@ -546,7 +546,7 @@ class Tello(object):
         if data[0] != START_OF_PACKET:
             log.info('start of packet != %02x (%02x) (ignored)' % (START_OF_PACKET, data[0]))
             log.info('    %s' % byte_to_hexstring(data))
-            log.info('    %s' % str(map(chr, data))[1:-1])
+            log.info('    %s' % str(list(map(chr, data)))[1:-1])
             return False
 
         pkt = Packet(data)

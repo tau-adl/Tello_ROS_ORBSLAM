@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-import Tkinter as tki
-import tkFileDialog
-from Tkinter import Toplevel, Scale
+import tkinter as tki
+import tkinter.filedialog
+from tkinter import Toplevel, Scale
 import threading
 import os
 import time
