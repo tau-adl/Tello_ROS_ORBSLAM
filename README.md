@@ -1,4 +1,7 @@
 # Tello_ROS_ORBSLAM
+
+## Update for Python3
+
 In this project we provide a full and whole framework for using Drones in general, and the DJI Tello specifficaly.
 
 In this project you will find a GUI that will allow you to control the Tello and command it to move in the x,y,z,pitch,roll,yaw plane.

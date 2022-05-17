@@ -212,16 +212,17 @@ class TelloSDK:
     
 
     def parse_state(self, state_string):
-        lines = state_string.strip().replace('\n', '').replace('\r','').split(';')
+        state_string = bytes(state_string)
+        lines = state_string.strip().replace(b'\n', b'').replace(b'\r',b'').split(b';')
         state_dict = {}
         # print(state_string)
         for i, line in enumerate(lines):
-            if not ':' in line:
+            if not b':' in line:
                 continue
-            key, val = line.split(':')
-            if val.replace('-','').isdigit():
+            key, val = line.split(b':')
+            if val.replace(b'-',b'').isdigit():
                 state_dict[key] = int(val)
-            if val.replace('.', '').replace('-','').isdigit():
+            if val.replace(b'.', b'').replace(b'-',b'').isdigit():
                 state_dict[key] = float(val)
             else:
                 state_dict[key] = val
@@ -232,24 +233,24 @@ class TelloSDK:
             #         state_dict[key] = int(val)  
             # except:
             #     state_dict[key] = val
-        # print(state_dict)
-        self.flight_data.battery_percentage = state_dict['bat']
-        self.flight_data.pressure = state_dict['baro']
-        self.flight_data.fly_time = state_dict['time']
-        self.flight_data.east_speed = state_dict['vgy']
-        self.flight_data.north_speed = state_dict['vgx']
-        self.flight_data.ground_speed = state_dict['vgz']
-        # self.flight_data.height  = '%1.1f' % float(state_dict['h']/10.)
-        self.flight_data.height  = float(state_dict['h'])/10.
-        self.flight_data.pitch  = state_dict['pitch']
-        self.flight_data.roll  = state_dict['roll']
-        self.flight_data.yaw  = state_dict['yaw']
-        self.flight_data.templ  = state_dict['templ']
-        self.flight_data.temph  = state_dict['temph']
-        self.flight_data.tof  = state_dict['tof']
-        self.flight_data.agx  = state_dict['agx']/100.
-        self.flight_data.agy  = state_dict['agy']/100.
-        self.flight_data.agy  = state_dict['agz']/100.
+        
+        self.flight_data.battery_percentage = state_dict[b'bat']
+        self.flight_data.pressure = state_dict[b'baro']
+        self.flight_data.fly_time = state_dict[b'time']
+        self.flight_data.east_speed = state_dict[b'vgy']
+        self.flight_data.north_speed = state_dict[b'vgx']
+        self.flight_data.ground_speed = state_dict[b'vgz']
+        # self.flight_data.height  = '%1.1f' % float(state_dict[b'h']/10.)
+        self.flight_data.height  = float(state_dict[b'h'])/10.
+        self.flight_data.pitch  = state_dict[b'pitch']
+        self.flight_data.roll  = state_dict[b'roll']
+        self.flight_data.yaw  = state_dict[b'yaw']
+        self.flight_data.templ  = state_dict[b'templ']
+        self.flight_data.temph  = state_dict[b'temph']
+        self.flight_data.tof  = state_dict[b'tof']
+        self.flight_data.agx  = state_dict[b'agx']/100.
+        self.flight_data.agy  = state_dict[b'agy']/100.
+        self.flight_data.agy  = state_dict[b'agz']/100.
         self.__publish(event=self.EVENT_FLIGHT_DATA, data=self.flight_data)
 
     def _state_thread(self):
@@ -740,12 +741,12 @@ class TelloSDK:
         """
         height = self.send_command('height?')
         height = str(height)
-        height = filter(str.isdigit, height)
+        height = list(filter(str.isdigit, height))
         try:
             height = int(height)
             self.last_height = height
         except Exception as e:
-            print e, "received height = {}".format(height)
+            print(e, "received height = {}".format(height))
             height = self.last_height
             pass
         return height
@@ -763,7 +764,7 @@ class TelloSDK:
         try:
             battery = int(battery)
         except Exception as e:
-            print e, "received battery = {}".format(battery)
+            print(e, "received battery = {}".format(battery))
             pass
 
         return battery
@@ -781,7 +782,7 @@ class TelloSDK:
         try:
             flight_time = int(flight_time)
         except Exception as e:
-            print e, "received flight_time = {}".format(flight_time)
+            print(e, "received flight_time = {}".format(flight_time))
             pass
 
         return flight_time
@@ -912,7 +913,7 @@ class TelloSDK:
             else:
                 speed = round((speed / 27.7778), 1)
         except Exception as e:
-            print e, "speed received = {}".format(speed)
+            print(e, "speed received = {}".format(speed))
             pass
 
         return speed

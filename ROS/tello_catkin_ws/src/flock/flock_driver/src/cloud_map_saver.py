@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import rospy
 
@@ -15,7 +15,7 @@ import numpy as np
 import threading
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import Tkinter as tki
+import tkinter as tki
 from cv_bridge import CvBridge, CvBridgeError
 # import ImageTk
 from PIL import Image as ImagePIL
