@@ -186,7 +186,6 @@ class TelloUI(object):
         self.scan_room_publisher = rospy.Publisher(self.publish_prefix+'scan_room', Bool, queue_size = 1)
         self.kd_publisher = rospy.Publisher(self.publish_prefix+'kd', Pose, queue_size = 1)
         self.kp_publisher = rospy.Publisher(self.publish_prefix+'kp', Pose, queue_size = 1)
-        self.kp_publisher = rospy.Publisher(self.publish_prefix+'kp', Pose, queue_size = 1)
         self.pub_mux =  rospy.Publisher('tello_mux', Int32, queue_size = 1)
         self.path_publisher = rospy.Publisher(self.publish_prefix+'path', Path, queue_size = 1)
         self.take_picure_publisher = rospy.Publisher(self.publish_prefix+'take_picure', Empty, queue_size=1)
